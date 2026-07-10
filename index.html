@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jurnal Mengajar Guru & Monitoring Kepala Sekolah</title>
     
-    <!-- PWA Manifest Data URI Integration (Mencegah Berkas Eksternal Terpisah) -->
+    <!-- PWA Manifest Data URI Integration -->
     <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22E-Jurnal%20Terpadu%22%2C%22short_name%22%3A%22E-Jurnal%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%234f46e5%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fplacehold.co%2F192x192%2F4f46e5%2Fffffff%3Ftext%3DJurnal%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fplacehold.co%2F512x512%2F4f46e5%2Fffffff%3Ftext%3DJurnal%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D" />
     <meta name="theme-color" content="#4f46e5" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -94,7 +94,7 @@
             }
         }
         
-        /* Tata Letak Responsif Menggunakan Kunci CSS Modern */
+        /* Tata Letak Responsif untuk Perangkat Seluler */
         @media (max-width: 767px) {
             .mobile-bottom-nav {
                 position: fixed;
@@ -136,9 +136,11 @@
         window.firebaseInitialized = true;
     </script>
 
+    <!-- React App JSX Execution Block -->
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
 
+        // Saklar Deployment Firebase
         const IS_PREVIEW = false; 
         const firebaseConfig = {
             apiKey: "AIzaSyAjrv3XgDHtjdXJwDUiXhGtIX4P8EAeR5k",
@@ -265,6 +267,7 @@
         const IconImage = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
         const IconTrash = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>;
         const IconLock = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>;
+        const IconInfo = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 18.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" /></svg>;
 
         const CustomConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
             if (!isOpen) return null;
@@ -298,7 +301,7 @@
             );
         };
 
-        const ViewLogin = ({ onLoginSuccess, firebaseActive, triggerAlert }) => {
+        const ViewLogin = ({ onLoginSuccess, firebaseActive, triggerAlert, appInfo }) => {
             const [nip, setNip] = useState('');
             const [password, setPassword] = useState('');
             const [error, setError] = useState('');
@@ -349,7 +352,7 @@
             };
 
             return (
-                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-4">
+                <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-4">
                     <div className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl text-white animate-in fade-in zoom-in duration-300">
                         <div className="text-center mb-6">
                             <div className="w-16 h-16 bg-indigo-600/30 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/30">
@@ -427,6 +430,244 @@
                             </button>
                         </form>
                     </div>
+
+                    {/* Menampilkan Versi dan Pembuat Aplikasi pada Halaman Login */}
+                    <div className="mt-6 text-center text-xs text-slate-400/80 space-y-1">
+                        <p className="font-semibold tracking-wide">Versi Aplikasi: <span className="text-indigo-400">{appInfo.version}</span></p>
+                        <p>Pembuat: <span className="text-slate-300 font-medium">{appInfo.creator}</span></p>
+                    </div>
+                </div>
+            );
+        };
+
+        const ViewKelolaInfo = ({ appInfo, updateAppInfo, triggerAlert }) => {
+            const [version, setVersion] = useState(appInfo.version || '');
+            const [creator, setCreator] = useState(appInfo.creator || '');
+            const [isSaving, setIsSaving] = useState(false);
+
+            useEffect(() => {
+                setVersion(appInfo.version || '');
+                setCreator(appInfo.creator || '');
+            }, [appInfo]);
+
+            const handleSave = async (e) => {
+                e.preventDefault();
+                setIsSaving(true);
+                try {
+                    await updateAppInfo({ version, creator });
+                    triggerAlert("Informasi Diperbarui", "Versi dan nama pembuat aplikasi berhasil disimpan!");
+                } catch (err) {
+                    console.error(err);
+                    triggerAlert("Error", "Gagal memperbarui informasi aplikasi.");
+                }
+                setIsSaving(false);
+            };
+
+            return (
+                <div className="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 animate-in fade-in duration-200">
+                    <h3 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-3 flex items-center space-x-2">
+                        <IconInfo />
+                        <span>Pengaturan Informasi Aplikasi</span>
+                    </h3>
+                    
+                    <form onSubmit={handleSave} className="space-y-5">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Versi Aplikasi (Muncul di Halaman Login)</label>
+                            <input 
+                                type="text" 
+                                required 
+                                placeholder="Contoh: v1.2.0-Alpha" 
+                                value={version} 
+                                onChange={e => setVersion(e.target.value)} 
+                                className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition text-sm font-semibold text-slate-800" 
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Nama Pembuat Aplikasi / Tim IT</label>
+                            <input 
+                                type="text" 
+                                required 
+                                placeholder="Contoh: Tim IT SMK Negeri 3 Selayar" 
+                                value={creator} 
+                                onChange={e => setCreator(e.target.value)} 
+                                className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition text-sm font-semibold text-slate-800" 
+                            />
+                        </div>
+
+                        <div className="p-5 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Pratinjau Tampilan Footer Login</h4>
+                            <div className="bg-slate-900 p-4 rounded-xl text-center text-xs text-slate-400">
+                                <p className="font-semibold tracking-wide">Versi Aplikasi: <span className="text-indigo-400">{version || 'v1.0.0'}</span></p>
+                                <p className="mt-0.5">Pembuat: <span className="text-slate-300 font-medium">{creator || 'Developer'}</span></p>
+                            </div>
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            disabled={isSaving} 
+                            className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition duration-150 text-sm shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+                        >
+                            {isSaving ? 'Menyimpan...' : 'Simpan Informasi Aplikasi'}
+                        </button>
+                    </form>
+                </div>
+            );
+        };
+
+        const ViewKelolaGaleri = ({ journals, deleteJournalPhoto, deleteJournalPhotosBulk, triggerAlert, triggerConfirm }) => {
+            const [selectedPhotoIds, setSelectedPhotoIds] = useState([]);
+
+            // Memfilter jurnal yang memiliki foto dokumentasi valid (bukan placeholder standar)
+            const journalsWithPhotos = useMemo(() => {
+                return journals.filter(j => 
+                    j.fotoUrl && 
+                    j.fotoUrl !== "" && 
+                    !j.fotoUrl.includes("Tidak+Ada+Dokumentasi+KBM") &&
+                    !j.fotoUrl.includes("placehold.co/800x450/e2e8f0")
+                );
+            }, [journals]);
+
+            const handleSelectPhoto = (id) => {
+                setSelectedPhotoIds(prev => 
+                    prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+                );
+            };
+
+            const handleSelectAll = () => {
+                const allIds = journalsWithPhotos.map(j => j.id);
+                const allSelected = allIds.every(id => selectedPhotoIds.includes(id));
+                if (allSelected) {
+                    setSelectedPhotoIds(prev => prev.filter(id => !allIds.includes(id)));
+                } else {
+                    setSelectedPhotoIds(prev => [...new Set([...prev, ...allIds])]);
+                }
+            };
+
+            const handleDeleteSingle = (id) => {
+                triggerConfirm(
+                    "Hapus Foto Dokumentasi",
+                    "Apakah Anda yakin ingin menghapus foto ini secara permanen dari database? Jurnal KBM tetap akan dipertahankan.",
+                    async () => {
+                        try {
+                            await deleteJournalPhoto(id);
+                            setSelectedPhotoIds(prev => prev.filter(item => item !== id));
+                            triggerAlert("Berhasil", "Foto dokumentasi telah dihapus!");
+                        } catch (err) {
+                            console.error(err);
+                            triggerAlert("Error", "Gagal menghapus foto.");
+                        }
+                    }
+                );
+            };
+
+            const handleDeleteBulk = () => {
+                if (selectedPhotoIds.length === 0) return;
+                triggerConfirm(
+                    "Hapus Massal Foto",
+                    `Apakah Anda yakin ingin menghapus ${selectedPhotoIds.length} foto terpilih secara permanen?`,
+                    async () => {
+                        try {
+                            await deleteJournalPhotosBulk(selectedPhotoIds);
+                            setSelectedPhotoIds([]);
+                            triggerAlert("Sukses", "Foto yang dipilih berhasil dihapus secara massal.");
+                        } catch (err) {
+                            console.error(err);
+                            triggerAlert("Error", "Gagal melakukan penghapusan massal.");
+                        }
+                    }
+                );
+            };
+
+            return (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                    <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900">Galeri Media Foto Dokumentasi KBM</h3>
+                                <p className="text-slate-500 text-xs mt-0.5">Memantau dan mengelola berkas media yang di-upload oleh Guru</p>
+                            </div>
+                            {journalsWithPhotos.length > 0 && (
+                                <div className="flex items-center gap-3">
+                                    <button 
+                                        onClick={handleSelectAll}
+                                        className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold transition"
+                                    >
+                                        {journalsWithPhotos.every(j => selectedPhotoIds.includes(j.id)) ? 'Batal Pilih Semua' : 'Pilih Semua'}
+                                    </button>
+                                    {selectedPhotoIds.length > 0 && (
+                                        <button 
+                                            onClick={handleDeleteBulk}
+                                            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md shadow-rose-600/15"
+                                        >
+                                            <IconTrash />
+                                            <span>Hapus Terpilih ({selectedPhotoIds.length})</span>
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {journalsWithPhotos.length === 0 ? (
+                            <div className="p-12 text-center text-slate-400 bg-slate-50 rounded-2xl border border-dashed flex flex-col items-center justify-center space-y-2">
+                                <IconImage className="w-10 h-10 text-slate-300" />
+                                <p className="font-semibold text-sm">Tidak Ada Foto Dokumentasi</p>
+                                <p className="text-xs">Foto yang di-upload oleh guru saat mengisi jurnal mengajar akan muncul di panel ini.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {journalsWithPhotos.map(j => (
+                                    <div 
+                                        key={j.id} 
+                                        className={`relative group bg-slate-50 rounded-2xl overflow-hidden border transition-all duration-200 ${selectedPhotoIds.includes(j.id) ? 'border-indigo-600 ring-2 ring-indigo-500/20' : 'border-slate-100 hover:shadow-md'}`}
+                                    >
+                                        {/* Checkbox Overlay */}
+                                        <div className="absolute top-3 left-3 z-10">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={selectedPhotoIds.includes(j.id)}
+                                                onChange={() => handleSelectPhoto(j.id)}
+                                                className="w-5 h-5 cursor-pointer accent-indigo-600 rounded-lg shadow-sm"
+                                            />
+                                        </div>
+
+                                        {/* Action Button Overlay */}
+                                        <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                                            <button 
+                                                onClick={() => handleDeleteSingle(j.id)}
+                                                className="p-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg transition-all"
+                                                title="Hapus Foto ini"
+                                            >
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+
+                                        {/* Image Display */}
+                                        <div className="relative aspect-[4/3] bg-slate-200 overflow-hidden">
+                                            <img 
+                                                src={j.fotoUrl} 
+                                                alt={j.materi} 
+                                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                                            />
+                                        </div>
+
+                                        {/* Meta Description Card */}
+                                        <div className="p-4">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 mb-2 uppercase">
+                                                {j.kelas} - {j.mapel}
+                                            </span>
+                                            <h4 className="text-xs font-bold text-slate-800 line-clamp-1 mb-1">{j.materi}</h4>
+                                            <p className="text-[10px] text-slate-400 font-semibold mb-2">{j.tanggal}</p>
+                                            <div className="border-t border-slate-100 pt-2 flex items-center justify-between">
+                                                <span className="text-[10px] font-medium text-slate-500 truncate" title={j.guru_nama}>
+                                                    By: {j.guru_nama}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             );
         };
@@ -443,7 +684,8 @@
             const [firebaseActive, setFirebaseActive] = useState(false);
             const [loggedInUser, setLoggedInUser] = useState(null);
             
-            // Core States for dynamic meetings grading
+            const [appInfo, setAppInfo] = useState({ version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' });
+
             const [meetings, setMeetings] = useState([]);
             const [meetingGrades, setMeetingGrades] = useState([]);
 
@@ -466,7 +708,7 @@
                 setAlertState({ isOpen: true, title, message });
             };
 
-            // Restore user session
+            // Pemulihan sesi pengguna dari storage local
             useEffect(() => {
                 const savedUser = safeStorage.getItem('jurnal_active_user');
                 if (savedUser) {
@@ -478,7 +720,7 @@
                 }
             }, []);
 
-            // Handle Firebase vs Localstorage
+            // Logika inisiasi koneksi Firebase vs LocalStorage
             useEffect(() => {
                 let checkAttempts = 0;
                 const checkFirebaseLib = setInterval(() => {
@@ -510,7 +752,7 @@
                     setFirebaseActive(true);
                     window.activeDb = db;
 
-                    // Sync Kop Cetak configuration from Firebase
+                    // Mengatur Sinkronisasi KOP Cetak
                     const kopRef = doc(db, "configs", "kop");
                     onSnapshot(kopRef, (docSnap) => {
                         if (docSnap.exists()) {
@@ -521,7 +763,18 @@
                         }
                     });
 
-                    // Sync Student Data
+                    const infoRef = doc(db, "configs", "info");
+                    onSnapshot(infoRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            setAppInfo(docSnap.data());
+                        } else {
+                            const defaultInfo = { version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' };
+                            setDoc(infoRef, defaultInfo);
+                            setAppInfo(defaultInfo);
+                        }
+                    });
+
+                    // Sinkronisasi Siswa
                     const studentsRef = collection(db, "students");
                     onSnapshot(studentsRef, (snapshot) => {
                         if (snapshot.empty) {
@@ -533,7 +786,7 @@
                         }
                     });
 
-                    // Sync KBM Journals
+                    // Sinkronisasi Jurnal
                     const journalsRef = collection(db, "journals");
                     onSnapshot(journalsRef, (snapshot) => {
                         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -541,14 +794,14 @@
                         setJournals(data);
                     });
 
-                    // Sync Teacher Logins
+                    // Sinkronisasi Akun Pengguna
                     const gurusRef = collection(db, "gurus");
                     onSnapshot(gurusRef, (snapshot) => {
                         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                         setGurus(data);
                     });
 
-                    // Sync Class List
+                    // Sinkronisasi Referensi Kelas
                     const classesRef = collection(db, "classes");
                     onSnapshot(classesRef, (snapshot) => {
                         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -556,7 +809,7 @@
                         setClasses(data);
                     });
 
-                    // Sync Subjects List
+                    // Sinkronisasi Referensi Mapel
                     const subjectsRef = collection(db, "subjects");
                     onSnapshot(subjectsRef, (snapshot) => {
                         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -564,14 +817,14 @@
                         setSubjects(data);
                     });
 
-                    // Sync Dynamic Graded Meetings
+                    // Sinkronisasi Sesi Pertemuan Penilaian
                     const meetingsRef = collection(db, "meetings");
                     onSnapshot(meetingsRef, (snapshot) => {
                         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                         setMeetings(data);
                     }, (err) => console.error("Firebase Sync Error (meetings):", err));
 
-                    // Sync Meeting Grades
+                    // Sinkronisasi Rekaman Nilai Pertemuan
                     const meetingGradesRef = collection(db, "meeting_grades");
                     onSnapshot(meetingGradesRef, (snapshot) => {
                         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -590,6 +843,9 @@
                 
                 if (!safeStorage.getItem('jurnal_kop')) {
                     safeStorage.setItem('jurnal_kop', JSON.stringify(DEFAULT_KOP));
+                }
+                if (!safeStorage.getItem('jurnal_app_info')) {
+                    safeStorage.setItem('jurnal_app_info', JSON.stringify({ version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' }));
                 }
                 if (!safeStorage.getItem('jurnal_students')) {
                     safeStorage.setItem('jurnal_students', JSON.stringify(DUMMY_STUDENTS));
@@ -614,6 +870,7 @@
                 }
 
                 const localKop = JSON.parse(safeStorage.getItem('jurnal_kop'));
+                const localInfo = JSON.parse(safeStorage.getItem('jurnal_app_info'));
                 const localStuds = JSON.parse(safeStorage.getItem('jurnal_students'));
                 const localJourns = JSON.parse(safeStorage.getItem('jurnal_journals'));
                 const localGurus = JSON.parse(safeStorage.getItem('jurnal_gurus'));
@@ -628,6 +885,7 @@
                 localSubjects.sort((a, b) => a.nama.localeCompare(b.nama));
 
                 setKop(localKop);
+                setAppInfo(localInfo);
                 setStudents(localStuds);
                 setJournals(localJourns);
                 setGurus(localGurus);
@@ -646,8 +904,10 @@
                 const classesRef = collection(db, "classes");
                 const subjectsRef = collection(db, "subjects");
                 const kopRef = doc(db, "configs", "kop");
+                const infoRef = doc(db, "configs", "info");
 
                 await setDoc(kopRef, DEFAULT_KOP);
+                await setDoc(infoRef, { version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' });
 
                 for (const student of DUMMY_STUDENTS) {
                     await addDoc(studentsRef, {
@@ -712,6 +972,42 @@
                 } else {
                     safeStorage.setItem('jurnal_kop', JSON.stringify(newKop));
                     setKop(newKop);
+                }
+            };
+
+            const updateAppInfo = async (newInfo) => {
+                if (firebaseActive) {
+                    const { doc, setDoc } = window.firebaseFirestoreSDK;
+                    await setDoc(doc(window.activeDb, "configs", "info"), newInfo);
+                } else {
+                    safeStorage.setItem('jurnal_app_info', JSON.stringify(newInfo));
+                    setAppInfo(newInfo);
+                }
+            };
+
+            const deleteJournalPhoto = async (id) => {
+                const emptyPhoto = "https://placehold.co/800x450/e2e8f0/64748b?text=Tidak+Ada+Dokumentasi+KBM";
+                if (firebaseActive) {
+                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
+                    await updateDoc(doc(window.activeDb, "journals", id), { fotoUrl: emptyPhoto });
+                } else {
+                    const updated = journals.map(j => j.id === id ? { ...j, fotoUrl: emptyPhoto } : j);
+                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
+                    setJournals(updated);
+                }
+            };
+
+            const deleteJournalPhotosBulk = async (ids) => {
+                const emptyPhoto = "https://placehold.co/800x450/e2e8f0/64748b?text=Tidak+Ada+Dokumentasi+KBM";
+                if (firebaseActive) {
+                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
+                    for (const id of ids) {
+                        await updateDoc(doc(window.activeDb, "journals", id), { fotoUrl: emptyPhoto });
+                    }
+                } else {
+                    const updated = journals.map(j => ids.includes(j.id) ? { ...j, fotoUrl: emptyPhoto } : j);
+                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
+                    setJournals(updated);
                 }
             };
 
@@ -795,17 +1091,6 @@
                 } else {
                     const updated = [{ id: 'j_local_' + Date.now(), ...journalPayload }, ...journals];
                     updated.sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
-                    setJournals(updated);
-                }
-            };
-
-            const updateJournal = async (id, updatedJournal) => {
-                if (firebaseActive) {
-                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
-                    await updateDoc(doc(window.activeDb, "journals", id), updatedJournal);
-                } else {
-                    const updated = journals.map(j => j.id === id ? { ...j, ...updatedJournal } : j);
                     safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
                     setJournals(updated);
                 }
@@ -1037,7 +1322,7 @@
             }
 
             if (!loggedInUser) {
-                return <ViewLogin onLoginSuccess={handleLoginSuccess} firebaseActive={firebaseActive} triggerAlert={triggerAlert} />;
+                return <ViewLogin onLoginSuccess={handleLoginSuccess} firebaseActive={firebaseActive} triggerAlert={triggerAlert} appInfo={appInfo} />;
             }
 
             const isKepsek = loggedInUser.role === 'kepsek';
@@ -1060,7 +1345,7 @@
                         onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
                     />
 
-                    {/* Fixed Sidebar for Desktop View */}
+                    {/* Sidebar Navigasi Permanen di Desktop */}
                     <aside className="hidden md:flex w-72 bg-slate-900 text-white flex-col shadow-2xl print-hidden flex-shrink-0 z-30">
                         <div className="p-8 border-b border-indigo-950 flex items-center space-x-3">
                             <div className="p-2.5 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30">
@@ -1088,6 +1373,8 @@
                                     <MenuButton icon={<IconUsers />} label="Kelola Akun Guru" isActive={currentView === 'kelola_guru'} onClick={() => setCurrentView('kelola_guru')} />
                                     <MenuButton icon={<IconBook />} label="Referensi Kelas &amp; Mapel" isActive={currentView === 'kelola_referensi'} onClick={() => setCurrentView('kelola_referensi')} />
                                     <MenuButton icon={<IconPrint />} label="Pengaturan Kop Cetak" isActive={currentView === 'kelola_kop'} onClick={() => setCurrentView('kelola_kop')} />
+                                    <MenuButton icon={<IconInfo />} label="Informasi Aplikasi" isActive={currentView === 'kelola_info'} onClick={() => setCurrentView('kelola_info')} />
+                                    <MenuButton icon={<IconImage />} label="Galeri Foto KBM" isActive={currentView === 'kelola_galeri'} onClick={() => setCurrentView('kelola_galeri')} />
                                     <MenuButton icon={<IconLock />} label="Kelola Akun Kepsek" isActive={currentView === 'kelola_kepsek'} onClick={() => setCurrentView('kelola_kepsek')} />
                                     <MenuButton icon={<IconLock />} label="Pengaturan Admin" isActive={currentView === 'kelola_admin'} onClick={() => setCurrentView('kelola_admin')} />
                                 </>
@@ -1129,7 +1416,7 @@
                         </div>
                     </aside>
 
-                    {/* Bottom Floating Navigation for Mobile Touch Viewports */}
+                    {/* Bottom Nav Melayang untuk Perangkat Seluler */}
                     <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-slate-900/95 backdrop-blur-md rounded-2xl p-2.5 flex items-center justify-around shadow-2xl print-hidden z-40 border border-white/10">
                         {isAdmin ? (
                             <>
@@ -1137,6 +1424,8 @@
                                 <MobileTabButton icon={<IconUsers />} isActive={currentView === 'kelola_guru'} onClick={() => setCurrentView('kelola_guru')} />
                                 <MobileTabButton icon={<IconBook />} isActive={currentView === 'kelola_referensi'} onClick={() => setCurrentView('kelola_referensi')} />
                                 <MobileTabButton icon={<IconPrint />} isActive={currentView === 'kelola_kop'} onClick={() => setCurrentView('kelola_kop')} />
+                                <MobileTabButton icon={<IconInfo />} isActive={currentView === 'kelola_info'} onClick={() => setCurrentView('kelola_info')} />
+                                <MobileTabButton icon={<IconImage />} isActive={currentView === 'kelola_galeri'} onClick={() => setCurrentView('kelola_galeri')} />
                                 <MobileTabButton icon={<IconLock />} isActive={currentView === 'kelola_admin'} onClick={() => setCurrentView('kelola_admin')} />
                             </>
                         ) : isKepsek ? (
@@ -1160,7 +1449,7 @@
                         </button>
                     </nav>
 
-                    {/* Main Scrollable Dashboard Content */}
+                    {/* Area Konten Utama Scrollable */}
                     <main className="flex-1 flex flex-col h-screen overflow-y-auto print-block relative bg-slate-50">
                         <header className="bg-white/85 backdrop-blur-md shadow-sm border-b border-slate-100 px-8 py-5 flex items-center justify-between print-hidden sticky top-0 z-20">
                             <h2 className="text-xl font-bold text-slate-800 capitalize tracking-tight flex items-center space-x-2">
@@ -1180,13 +1469,15 @@
                                     {currentView === 'kelola_guru' && <ViewKelolaGuru gurus={gurus} subjects={subjects} addGuru={addGuru} updateGuru={updateGuru} deleteGuru={deleteGuru} triggerAlert={triggerAlert} />}
                                     {currentView === 'kelola_referensi' && <ViewKelolaReferensi classes={classes} subjects={subjects} addClass={addClass} deleteClass={deleteClass} addSubject={addSubject} deleteSubject={deleteSubject} triggerAlert={triggerAlert} />}
                                     {currentView === 'kelola_kop' && <ViewKelolaKop kop={kop} updateKop={updateKop} triggerAlert={triggerAlert} />}
+                                    {currentView === 'kelola_info' && <ViewKelolaInfo appInfo={appInfo} updateAppInfo={updateAppInfo} triggerAlert={triggerAlert} />}
+                                    {currentView === 'kelola_galeri' && <ViewKelolaGaleri journals={journals} deleteJournalPhoto={deleteJournalPhoto} deleteJournalPhotosBulk={deleteJournalPhotosBulk} triggerAlert={triggerAlert} triggerConfirm={triggerConfirm} />}
                                     {currentView === 'kelola_kepsek' && <ViewKelolaKepsek gurus={gurus} updateGuru={updateGuru} triggerAlert={triggerAlert} />}
                                     {currentView === 'kelola_admin' && <ViewKelolaAdmin gurus={gurus} updateGuru={updateGuru} loggedInUser={loggedInUser} triggerAlert={triggerAlert} />}
                                 </>
                             ) : isKepsek ? (
                                 <>
                                     {currentView === 'dashboard' && <ViewDashboardKepsek journals={journals} students={students} changeView={setCurrentView} />}
-                                    {currentView === 'monitoring_jurnal' && <ViewMonitoringJurnal journals={journals} deleteJournal={deleteJournal} updateJournal={updateJournal} classes={classes} subjects={subjects} students={students} kop={kop} />}
+                                    {currentView === 'monitoring_jurnal' && <ViewMonitoringJurnal journals={journals} deleteJournal={deleteJournal} kop={kop} />}
                                     {currentView === 'rekap' && <ViewRekap journals={journals} students={students} loggedInUser={loggedInUser} kop={kop} />}
                                 </>
                             ) : (
@@ -1194,7 +1485,7 @@
                                     {currentView === 'dashboard' && <ViewDashboard journals={journals} students={students} changeView={setCurrentView} />}
                                     {currentView === 'siswa' && <ViewDataSiswa students={students} classes={classes} addStudent={addStudent} updateStudent={updateStudent} addStudentsBulk={addStudentsBulk} deleteStudent={deleteStudent} deleteStudentsBulk={deleteStudentsBulk} triggerAlert={triggerAlert} triggerConfirm={triggerConfirm} />}
                                     {currentView === 'isi_jurnal' && <ViewIsiJurnal students={students} classes={classes} subjects={subjects} addJournal={addJournal} onSuccess={() => setCurrentView('riwayat')} triggerAlert={triggerAlert} />}
-                                    {currentView === 'riwayat' && <ViewRiwayat journals={journals} deleteJournal={deleteJournal} updateJournal={updateJournal} classes={classes} subjects={subjects} students={students} kop={kop} />}
+                                    {currentView === 'riwayat' && <ViewRiwayat journals={journals} deleteJournal={deleteJournal} kop={kop} />}
                                     {currentView === 'penilaian' && <ViewPenilaian students={students} classes={classes} subjects={subjects} loggedInUser={loggedInUser} kop={kop} triggerAlert={triggerAlert} triggerConfirm={triggerConfirm} firebaseActive={firebaseActive} meetings={meetings} meetingGrades={meetingGrades} addMeeting={addMeeting} deleteMeeting={deleteMeeting} saveMeetingGrade={saveMeetingGrade} deleteMeetingGradesSingle={deleteMeetingGradesSingle} deleteMeetingGradesBulk={deleteMeetingGradesBulk} />}
                                     {currentView === 'rekap' && <ViewRekap journals={journals} students={students} loggedInUser={loggedInUser} kop={kop} />}
                                 </>
@@ -2472,24 +2763,11 @@
             );
         };
 
-        const ViewRiwayat = ({ journals, deleteJournal, updateJournal, classes, subjects, students, kop }) => {
+        const ViewRiwayat = ({ journals, deleteJournal, kop }) => {
             const [selectedJournal, setSelectedJournal] = useState(null);
 
             if (selectedJournal) {
-                return (
-                    <ViewDetailJurnal 
-                        journal={selectedJournal} 
-                        onClose={() => setSelectedJournal(null)} 
-                        deleteJournal={deleteJournal} 
-                        updateJournal={updateJournal}
-                        classes={classes}
-                        subjects={subjects}
-                        students={students}
-                        showDeleteBtn={true} 
-                        kop={kop} 
-                        onJournalUpdated={(updated) => setSelectedJournal(updated)}
-                    />
-                );
+                return <ViewDetailJurnal journal={selectedJournal} onClose={() => setSelectedJournal(null)} deleteJournal={deleteJournal} showDeleteBtn={true} kop={kop} />;
             }
 
             return (
@@ -2535,24 +2813,11 @@
             );
         };
 
-        const ViewMonitoringJurnal = ({ journals, deleteJournal, updateJournal, classes, subjects, students, kop }) => {
+        const ViewMonitoringJurnal = ({ journals, deleteJournal, kop }) => {
             const [selectedJournal, setSelectedJournal] = useState(null);
 
             if (selectedJournal) {
-                return (
-                    <ViewDetailJurnal 
-                        journal={selectedJournal} 
-                        onClose={() => setSelectedJournal(null)} 
-                        deleteJournal={deleteJournal} 
-                        updateJournal={updateJournal}
-                        classes={classes}
-                        subjects={subjects}
-                        students={students}
-                        showDeleteBtn={false} 
-                        kop={kop} 
-                        onJournalUpdated={(updated) => setSelectedJournal(updated)}
-                    />
-                );
+                return <ViewDetailJurnal journal={selectedJournal} onClose={() => setSelectedJournal(null)} deleteJournal={deleteJournal} showDeleteBtn={false} kop={kop} />;
             }
 
             return (
@@ -2594,122 +2859,10 @@
             );
         };
 
-        const ViewDetailJurnal = ({ journal, onClose, deleteJournal, updateJournal, classes, subjects, students, showDeleteBtn, kop, onJournalUpdated }) => {
-            const [isEditing, setIsEditing] = useState(false);
-            
-            // Edit form state variables
-            const [editTanggal, setEditTanggal] = useState(journal.tanggal);
-            const [editKelas, setEditKelas] = useState(journal.kelas);
-            const [editMapel, setEditMapel] = useState(journal.mapel);
-            const [editMateri, setEditMateri] = useState(journal.materi);
-            const [editJumlahJam, setEditJumlahJam] = useState(journal.jumlah_jam || '');
-            const [editGuruPengganti, setEditGuruPengganti] = useState(journal.guru_pengganti || '');
-            const [editCatatan, setEditCatatan] = useState(journal.catatan || '');
-            const [editAbsensi, setEditAbsensi] = useState(journal.absensi_data || {});
-            const [editFotoBase64, setEditFotoBase64] = useState(journal.fotoUrl || null);
-            const [isSaving, setIsSaving] = useState(false);
-
-            // Fetch students active in selected class
-            const editStudentsInClass = useMemo(() => {
-                return students.filter(s => s.kelas === editKelas);
-            }, [students, editKelas]);
-
-            // Synchronize student absensi when class changes inside Edit Modal
-            useEffect(() => {
-                if (isEditing) {
-                    const nextAbsen = { ...editAbsensi };
-                    editStudentsInClass.forEach(s => {
-                        if (!nextAbsen[s.id]) {
-                            nextAbsen[s.id] = 'H';
-                        }
-                    });
-                    setEditAbsensi(nextAbsen);
-                }
-            }, [editStudentsInClass, isEditing]);
-
-            const handleEditAbsenChange = (studentId, status) => {
-                setEditAbsensi(prev => ({ ...prev, [studentId]: status }));
-            };
-
-            const handleEditImageUpload = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 800;
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        if (width > MAX_WIDTH) {
-                            height = Math.round((height * MAX_WIDTH) / width);
-                            width = MAX_WIDTH;
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        const base64Str = canvas.toDataURL('image/jpeg', 0.65);
-                        setEditFotoBase64(base64Str);
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            };
-
-            const handleSaveEdit = async (e) => {
-                e.preventDefault();
-                if (!editKelas || editStudentsInClass.length === 0) {
-                    alert("Harap pilih kelas yang telah memiliki murid sebelum menyimpan perubahan!");
-                    return;
-                }
-
-                setIsSaving(true);
-
-                let hadir = 0, sakit = 0, izin = 0, alpa = 0;
-                editStudentsInClass.forEach(s => {
-                    const val = editAbsensi[s.id] || 'H';
-                    if(val === 'H') hadir++;
-                    else if(val === 'S') sakit++;
-                    else if(val === 'I') izin++;
-                    else if(val === 'A') alpa++;
-                });
-
-                const updatedPayload = {
-                    ...journal,
-                    tanggal: editTanggal,
-                    kelas: editKelas,
-                    mapel: editMapel,
-                    materi: editMateri,
-                    jumlah_jam: editJumlahJam,
-                    guru_pengganti: editGuruPengganti.trim(),
-                    catatan: editCatatan,
-                    fotoUrl: editFotoBase64 || "https://placehold.co/800x450/e2e8f0/64748b?text=Tidak+Ada+Dokumentasi+KBM",
-                    absensi_data: editAbsensi,
-                    rekap: { hadir, sakit, izin, alpa }
-                };
-
-                try {
-                    await updateJournal(journal.id, updatedPayload);
-                    setIsEditing(false);
-                    if (onJournalUpdated) {
-                        onJournalUpdated(updatedPayload);
-                    }
-                } catch (err) {
-                    console.error("Gagal memperbarui jurnal:", err);
-                } finally {
-                    setIsSaving(false);
-                }
-            };
-
+        const ViewDetailJurnal = ({ journal, onClose, deleteJournal, showDeleteBtn, kop }) => {
             return (
                 <div className="max-w-4xl mx-auto relative print-block animate-in fade-in duration-200">
-                    {/* Print Kop Header */}
+                    {/* Kop Surat Cetak Resmi */}
                     <div className="hidden print-block text-center border-b-2 border-slate-900 pb-5 mb-8">
                         <h1 className="text-xl font-bold uppercase text-slate-900 leading-tight">{kop?.instansi || "PEMERINTAH PROVINSI SULAWESI SELATAN"}</h1>
                         <h2 className="text-lg font-black uppercase text-slate-900 mt-1">{kop?.sekolah || "SMK NEGERI 3 SELAYAR"}</h2>
@@ -2729,15 +2882,9 @@
                                     <IconPrint/> <span>Cetak</span>
                                 </button>
                                 {showDeleteBtn && (
-                                    <>
-                                        <button onClick={() => setIsEditing(true)} className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl font-semibold text-xs transition flex items-center space-x-2 shadow-sm shadow-indigo-600/10">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                            <span>Edit Data</span>
-                                        </button>
-                                        <button onClick={() => deleteJournal(journal.id)} className="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl font-semibold text-xs transition flex items-center space-x-2">
-                                            <IconTrash/> <span>Hapus</span>
-                                        </button>
-                                    </>
+                                    <button onClick={() => deleteJournal(journal.id)} className="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl font-semibold text-xs transition flex items-center space-x-2">
+                                        <IconTrash/> <span>Hapus</span>
+                                    </button>
                                 )}
                                 <button onClick={onClose} className="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-semibold text-xs transition">Kembali</button>
                             </div>
@@ -2785,139 +2932,6 @@
                             </div>
                         </div>
                     </div>
-
-                    {/* Jurnal Edit Overlay Modal */}
-                    {isEditing && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm print-hidden-important">
-                            <div className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-4xl shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
-                                <div className="border-b border-slate-100 pb-4 mb-6 flex justify-between items-center">
-                                    <div>
-                                        <h4 className="text-lg font-bold text-slate-900">Ubah Lembar Jurnal KBM</h4>
-                                        <p className="text-xs text-slate-500 mt-0.5">Sesuaikan materi pengajaran, jam pelajaran, dan rekapitulasi kehadiran murid.</p>
-                                    </div>
-                                    <button type="button" onClick={() => setIsEditing(false)} className="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
-                                </div>
-
-                                <form onSubmit={handleSaveEdit} className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Tanggal Pertemuan</label>
-                                            <input type="date" required value={editTanggal} onChange={e=>setEditTanggal(e.target.value)} className="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none bg-white text-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Pilih Kelas</label>
-                                            <select required value={editKelas} onChange={e=>setEditKelas(e.target.value)} className="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none bg-white text-sm font-semibold">
-                                                <option value="">-- Silakan Pilih Kelas --</option>
-                                                {classes.map(k => <option key={k.id} value={k.nama}>{k.nama}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Mata Pelajaran</label>
-                                            <select required value={editMapel} onChange={e=>setEditMapel(e.target.value)} className="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm bg-white">
-                                                <option value="">-- Pilih Mata Pelajaran --</option>
-                                                {subjects.map(s => <option key={s.id} value={s.nama}>{s.nama}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Pokok Bahasan / Materi</label>
-                                            <input type="text" required placeholder="Pokok Bahasan KBM" value={editMateri} onChange={e=>setEditMateri(e.target.value)} className="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Jumlah JP</label>
-                                            <input type="number" required min="1" placeholder="Jumlah JP" value={editJumlahJam} onChange={e=>setEditJumlahJam(e.target.value)} className="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Guru Pengganti</label>
-                                            <input type="text" placeholder="Kosongkan jika tidak ada" value={editGuruPengganti} onChange={e=>setEditGuruPengganti(e.target.value)} className="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm" />
-                                        </div>
-                                    </div>
-
-                                    {editKelas && editStudentsInClass.length > 0 ? (
-                                        <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-                                            <div className="bg-slate-50 px-6 py-3 border-b border-slate-200 flex justify-between items-center">
-                                                <h5 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Perbarui Presensi Siswa: {editKelas}</h5>
-                                                <span className="text-xs bg-indigo-50 text-indigo-600 font-bold px-3 py-1 rounded-full">{editStudentsInClass.length} Siswa</span>
-                                            </div>
-                                            <div className="overflow-y-auto max-h-[30vh]">
-                                                <table className="w-full text-left text-xs border-collapse">
-                                                    <thead className="sticky top-0 bg-slate-100">
-                                                        <tr className="border-b border-slate-200 text-slate-500 font-bold">
-                                                            <th className="p-3 w-12 text-center">No</th>
-                                                            <th className="p-3">Nama Siswa</th>
-                                                            <th className="p-3 text-center text-emerald-600">Hadir</th>
-                                                            <th className="p-3 text-center text-amber-500">Sakit</th>
-                                                            <th className="p-3 text-center text-blue-500">Izin</th>
-                                                            <th className="p-3 text-center text-rose-500">Alpa</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-slate-100">
-                                                        {editStudentsInClass.map((s, idx) => (
-                                                            <tr key={s.id} className="hover:bg-slate-50/40 transition">
-                                                                <td className="p-3 text-center text-slate-400 font-medium">{idx + 1}</td>
-                                                                <td className="p-3">
-                                                                    <span className="font-semibold text-slate-800">{s.nama}</span>
-                                                                    <span className="text-[10px] text-slate-400 block font-mono">{s.nis}</span>
-                                                                </td>
-                                                                {['H', 'S', 'I', 'A'].map(status => (
-                                                                    <td key={status} className="p-3 text-center">
-                                                                        <input 
-                                                                            type="radio" 
-                                                                            name={`edit_absen_${s.id}`} 
-                                                                            value={status}
-                                                                            checked={(editAbsensi[s.id] || 'H') === status}
-                                                                            onChange={() => handleEditAbsenChange(s.id, status)}
-                                                                            className="w-4 h-4 cursor-pointer accent-indigo-600"
-                                                                        />
-                                                                    </td>
-                                                                ))}
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="p-5 text-center text-amber-600 bg-amber-50 rounded-2xl border border-amber-100 text-xs font-semibold">
-                                            Tidak ada siswa yang terdaftar di kelas {editKelas || '(belum dipilih)'}
-                                        </div>
-                                    )}
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Catatan Kelas / Hambatan KBM</label>
-                                            <textarea rows="4" value={editCatatan} onChange={e=>setEditCatatan(e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none text-sm" placeholder="Hambatan KBM..."></textarea>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Foto Dokumentasi KBM</label>
-                                            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:bg-slate-50 transition relative h-[116px] flex flex-col justify-center items-center">
-                                                {editFotoBase64 && !editFotoBase64.includes("Tidak+Ada+Dokumentasi") ? (
-                                                    <div className="relative">
-                                                        <img src={editFotoBase64} alt="Preview" className="h-20 rounded-lg shadow-md mx-auto object-cover" />
-                                                        <button type="button" onClick={() => setEditFotoBase64(null)} className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-1 shadow hover:bg-rose-600 transition">
-                                                            <IconTrash />
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        <IconImage className="mx-auto text-slate-300 mb-1.5" />
-                                                        <p className="text-[11px] text-slate-400 mb-1">Unggah dokumentasi baru (.jpg, .png)</p>
-                                                        <input type="file" accept="image/*;capture=camera" onChange={handleEditImageUpload} className="block w-full text-[10px] text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer" />
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex space-x-3 pt-4 border-t border-slate-100">
-                                        <button type="button" onClick={() => setIsEditing(false)} className="w-1/2 py-3 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-600 transition">Batal</button>
-                                        <button type="submit" disabled={isSaving} className="w-1/2 py-3 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-600/20">
-                                            {isSaving ? "Menyimpan Perubahan..." : "Simpan Perubahan"}
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    )}
                 </div>
             );
         };
@@ -3004,7 +3018,7 @@
                     </div>
 
                     <div className="p-6 md:p-8 print:p-0">
-                        {/* Print Kop Header */}
+                        {/* Kop Surat Cetak Resmi */}
                         <div className="hidden print-block text-center border-b-2 border-slate-900 pb-5 mb-8">
                             <h1 className="text-xl font-bold uppercase text-slate-900 leading-tight">{kop?.instansi || "PEMERINTAH PROVINSI SULAWESI SELATAN"}</h1>
                             <h2 className="text-lg font-black uppercase text-slate-900 mt-1">{kop?.sekolah || "SMK NEGERI 3 SELAYAR"}</h2>
@@ -3184,7 +3198,6 @@
             const [selectedStudentIds, setSelectedStudentIds] = useState([]);
             const [editingStudent, setEditingStudent] = useState(null);
             
-            // Sub tab state: 'rekap' | 'harian' | 'tugas' | 'ulangan'
             const [activeSubTab, setActiveSubTab] = useState('rekap');
             const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
             const [newMeetingName, setNewMeetingName] = useState('');
@@ -3198,7 +3211,6 @@
                 return subjects.map(s => s.nama).sort();
             }, [subjects]);
 
-            // Set default class & subject
             useEffect(() => {
                 if (availableClasses.length > 0 && !filterKelas) {
                     setFilterKelas(availableClasses[0]);
@@ -3213,7 +3225,6 @@
                 return students.filter(s => s.kelas === filterKelas);
             }, [students, filterKelas]);
 
-            // Filter meetings under selected filter criteria
             const currentMeetings = useMemo(() => {
                 return (meetings || []).filter(m => m.kelas === filterKelas && m.mapel === filterMapel);
             }, [meetings, filterKelas, filterMapel]);
@@ -3229,7 +3240,6 @@
                 return [];
             }, [activeSubTab, harianMeetings, tugasMeetings, ulanganMeetings]);
 
-            // Calculate student grades combined list dynamically based on meeting grades
             const combinedData = useMemo(() => {
                 return studentsInClass.map(s => {
                     const studentHarianVals = harianMeetings.map(m => {
@@ -3406,7 +3416,6 @@
 
             return (
                 <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden print-block animate-in fade-in duration-200">
-                    {/* Top filter toolbar panel */}
                     <div className="print-hidden border-b border-slate-100 flex flex-wrap bg-slate-50/50 justify-between items-center px-6 py-4 gap-4">
                         <div className="flex items-center space-x-3">
                             <span className="text-sm font-bold text-slate-700">Daftar Nilai Kelas</span>
@@ -3426,7 +3435,6 @@
                         </div>
                     </div>
 
-                    {/* Sub tabs navigation inside ViewPenilaian panel */}
                     <div className="flex border-b border-slate-100 mb-6 px-6 pt-4 print-hidden bg-white">
                         <button onClick={() => setActiveSubTab('rekap')} className={`pb-3 px-4 text-xs font-bold uppercase tracking-wider transition-all duration-150 ${activeSubTab === 'rekap' ? 'text-indigo-600 border-b-2 border-indigo-600 font-bold' : 'text-slate-400 hover:text-slate-600'}`}>Rata-Rata &amp; Rekap</button>
                         <button onClick={() => setActiveSubTab('harian')} className={`pb-3 px-4 text-xs font-bold uppercase tracking-wider transition-all duration-150 ${activeSubTab === 'harian' ? 'text-indigo-600 border-b-2 border-indigo-600 font-bold' : 'text-slate-400 hover:text-slate-600'}`}>Nilai Harian per Pertemuan</button>
@@ -3452,7 +3460,7 @@
                     )}
 
                     <div className="p-6 md:p-8 print:p-0">
-                        {/* Printable Kop Header */}
+                        {/* Kop Cetak Surat */}
                         <div className="hidden print-block text-center border-b-2 border-slate-900 pb-5 mb-8">
                             <h1 className="text-xl font-bold uppercase text-slate-900 leading-tight">{kop?.instansi || "PEMERINTAH PROVINSI SULAWESI SELATAN"}</h1>
                             <h2 className="text-lg font-black uppercase text-slate-900 mt-1">{kop?.sekolah || "SMK NEGERI 3 SELAYAR"}</h2>
@@ -3476,7 +3484,6 @@
                             </div>
                         )}
 
-                        {/* Heading & Toolbar for Dynamic Sub-tabs with meeting manager buttons */}
                         {filterKelas && filterMapel && activeSubTab !== 'rekap' && (
                             <div className="flex justify-between items-center mb-4 print-hidden">
                                 <div className="flex items-center space-x-2">
@@ -3557,7 +3564,6 @@
                                     </table>
                                 </div>
                             ) : (
-                                /* Dynamic grid table representing individual meetings */
                                 <div className="overflow-x-auto animate-in fade-in duration-200">
                                     <table className="w-full text-xs border-collapse border border-slate-300">
                                         <thead>
@@ -3638,7 +3644,7 @@
                         </div>
                     </div>
 
-                    {/* Tambah Pertemuan Modal */}
+                    {/* Modal Overlay Tambah Pertemuan Baru */}
                     {isMeetingModalOpen && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm print-hidden-important">
                             <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
@@ -3667,7 +3673,7 @@
                         </div>
                     )}
 
-                    {/* Form Edit Semua Nilai Modal Overlay */}
+                    {/* Modal Overlay Edit Detail Nilai Siswa */}
                     {editingStudent && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm print-hidden-important">
                             <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150 max-h-[85vh] flex flex-col">
