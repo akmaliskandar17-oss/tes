@@ -431,7 +431,6 @@
                         </form>
                     </div>
 
-                    {/* Menampilkan Versi dan Pembuat Aplikasi pada Halaman Login */}
                     <div className="mt-6 text-center text-xs text-slate-400/80 space-y-1">
                         <p className="font-semibold tracking-wide">Versi Aplikasi: <span className="text-indigo-400">{appInfo.version}</span></p>
                         <p>Pembuat: <span className="text-slate-300 font-medium">{appInfo.creator}</span></p>
@@ -517,7 +516,6 @@
         const ViewKelolaGaleri = ({ journals, deleteJournalPhoto, deleteJournalPhotosBulk, triggerAlert, triggerConfirm }) => {
             const [selectedPhotoIds, setSelectedPhotoIds] = useState([]);
 
-            // Memfilter jurnal yang memiliki foto dokumentasi valid (bukan placeholder standar)
             const journalsWithPhotos = useMemo(() => {
                 return journals.filter(j => 
                     j.fotoUrl && 
@@ -620,7 +618,6 @@
                                         key={j.id} 
                                         className={`relative group bg-slate-50 rounded-2xl overflow-hidden border transition-all duration-200 ${selectedPhotoIds.includes(j.id) ? 'border-indigo-600 ring-2 ring-indigo-500/20' : 'border-slate-100 hover:shadow-md'}`}
                                     >
-                                        {/* Checkbox Overlay */}
                                         <div className="absolute top-3 left-3 z-10">
                                             <input 
                                                 type="checkbox" 
@@ -630,7 +627,6 @@
                                             />
                                         </div>
 
-                                        {/* Action Button Overlay */}
                                         <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                                             <button 
                                                 onClick={() => handleDeleteSingle(j.id)}
@@ -641,7 +637,6 @@
                                             </button>
                                         </div>
 
-                                        {/* Image Display */}
                                         <div className="relative aspect-[4/3] bg-slate-200 overflow-hidden">
                                             <img 
                                                 src={j.fotoUrl} 
@@ -650,7 +645,6 @@
                                             />
                                         </div>
 
-                                        {/* Meta Description Card */}
                                         <div className="p-4">
                                             <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 mb-2 uppercase">
                                                 {j.kelas} - {j.mapel}
@@ -671,856 +665,10 @@
                 </div>
             );
         };
+    </script>
 
-        const App = () => {
-            const [currentView, setCurrentView] = useState('dashboard');
-            const [students, setStudents] = useState([]);
-            const [journals, setJournals] = useState([]);
-            const [gurus, setGurus] = useState([]);
-            const [classes, setClasses] = useState([]);
-            const [subjects, setSubjects] = useState([]);
-            const [kop, setKop] = useState(DEFAULT_KOP);
-            const [loading, setLoading] = useState(true);
-            const [firebaseActive, setFirebaseActive] = useState(false);
-            const [loggedInUser, setLoggedInUser] = useState(null);
-            
-            const [appInfo, setAppInfo] = useState({ version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' });
-
-            const [meetings, setMeetings] = useState([]);
-            const [meetingGrades, setMeetingGrades] = useState([]);
-
-            const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
-            const [alertState, setAlertState] = useState({ isOpen: false, title: '', message: '' });
-
-            const triggerConfirm = (title, message, callback) => {
-                setConfirmState({
-                    isOpen: true,
-                    title,
-                    message,
-                    onConfirm: () => {
-                        callback();
-                        setConfirmState({ isOpen: false, title: '', message: '', onConfirm: null });
-                    }
-                });
-            };
-
-            const triggerAlert = (title, message) => {
-                setAlertState({ isOpen: true, title, message });
-            };
-
-            // Pemulihan sesi pengguna dari storage local
-            useEffect(() => {
-                const savedUser = safeStorage.getItem('jurnal_active_user');
-                if (savedUser) {
-                    try {
-                        setLoggedInUser(JSON.parse(savedUser));
-                    } catch (e) {
-                        safeStorage.removeItem('jurnal_active_user');
-                    }
-                }
-            }, []);
-
-            // Logika inisiasi koneksi Firebase vs LocalStorage
-            useEffect(() => {
-                let checkAttempts = 0;
-                const checkFirebaseLib = setInterval(() => {
-                    checkAttempts++;
-                    const hasCredentials = firebaseConfig.apiKey !== "API_KEY_ANDA" && !IS_PREVIEW;
-
-                    if (window.firebaseInitialized && hasCredentials) {
-                        clearInterval(checkFirebaseLib);
-                        setupFirebaseConnection();
-                    } else if (checkAttempts > 8 || !hasCredentials) {
-                        clearInterval(checkFirebaseLib);
-                        setupLocalStorageConnection();
-                    }
-                }, 150);
-            }, []);
-
-            const setupFirebaseConnection = async () => {
-                try {
-                    const { initializeApp } = window.firebaseCore;
-                    const { getAuth, signInAnonymously } = window.firebaseAuthSDK;
-                    const { getFirestore, collection, onSnapshot, doc, setDoc } = window.firebaseFirestoreSDK;
-
-                    const app = initializeApp(firebaseConfig);
-                    const auth = getAuth(app);
-                    const db = getFirestore(app);
-
-                    await signInAnonymously(auth);
-
-                    setFirebaseActive(true);
-                    window.activeDb = db;
-
-                    // Mengatur Sinkronisasi KOP Cetak
-                    const kopRef = doc(db, "configs", "kop");
-                    onSnapshot(kopRef, (docSnap) => {
-                        if (docSnap.exists()) {
-                            setKop(docSnap.data());
-                        } else {
-                            setDoc(kopRef, DEFAULT_KOP);
-                            setKop(DEFAULT_KOP);
-                        }
-                    });
-
-                    const infoRef = doc(db, "configs", "info");
-                    onSnapshot(infoRef, (docSnap) => {
-                        if (docSnap.exists()) {
-                            setAppInfo(docSnap.data());
-                        } else {
-                            const defaultInfo = { version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' };
-                            setDoc(infoRef, defaultInfo);
-                            setAppInfo(defaultInfo);
-                        }
-                    });
-
-                    // Sinkronisasi Siswa
-                    const studentsRef = collection(db, "students");
-                    onSnapshot(studentsRef, (snapshot) => {
-                        if (snapshot.empty) {
-                            autoSetupDatabase(db);
-                        } else {
-                            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                            data.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
-                            setStudents(data);
-                        }
-                    });
-
-                    // Sinkronisasi Jurnal
-                    const journalsRef = collection(db, "journals");
-                    onSnapshot(journalsRef, (snapshot) => {
-                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        data.sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-                        setJournals(data);
-                    });
-
-                    // Sinkronisasi Akun Pengguna
-                    const gurusRef = collection(db, "gurus");
-                    onSnapshot(gurusRef, (snapshot) => {
-                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        setGurus(data);
-                    });
-
-                    // Sinkronisasi Referensi Kelas
-                    const classesRef = collection(db, "classes");
-                    onSnapshot(classesRef, (snapshot) => {
-                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        data.sort((a, b) => a.nama.localeCompare(b.nama));
-                        setClasses(data);
-                    });
-
-                    // Sinkronisasi Referensi Mapel
-                    const subjectsRef = collection(db, "subjects");
-                    onSnapshot(subjectsRef, (snapshot) => {
-                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        data.sort((a, b) => a.nama.localeCompare(b.nama));
-                        setSubjects(data);
-                    });
-
-                    // Sinkronisasi Sesi Pertemuan Penilaian
-                    const meetingsRef = collection(db, "meetings");
-                    onSnapshot(meetingsRef, (snapshot) => {
-                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        setMeetings(data);
-                    }, (err) => console.error("Firebase Sync Error (meetings):", err));
-
-                    // Sinkronisasi Rekaman Nilai Pertemuan
-                    const meetingGradesRef = collection(db, "meeting_grades");
-                    onSnapshot(meetingGradesRef, (snapshot) => {
-                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        setMeetingGrades(data);
-                    }, (err) => console.error("Firebase Sync Error (meeting_grades):", err));
-
-                    setLoading(false);
-                } catch (error) {
-                    console.error("Firebase Gagal. Berpindah ke Simulasi localstorage.", error);
-                    setupLocalStorageConnection();
-                }
-            };
-
-            const setupLocalStorageConnection = () => {
-                setFirebaseActive(false);
-                
-                if (!safeStorage.getItem('jurnal_kop')) {
-                    safeStorage.setItem('jurnal_kop', JSON.stringify(DEFAULT_KOP));
-                }
-                if (!safeStorage.getItem('jurnal_app_info')) {
-                    safeStorage.setItem('jurnal_app_info', JSON.stringify({ version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' }));
-                }
-                if (!safeStorage.getItem('jurnal_students')) {
-                    safeStorage.setItem('jurnal_students', JSON.stringify(DUMMY_STUDENTS));
-                }
-                if (!safeStorage.getItem('jurnal_journals')) {
-                    safeStorage.setItem('jurnal_journals', JSON.stringify(DUMMY_JOURNALS));
-                }
-                if (!safeStorage.getItem('jurnal_gurus')) {
-                    safeStorage.setItem('jurnal_gurus', JSON.stringify(DUMMY_USERS));
-                }
-                if (!safeStorage.getItem('jurnal_classes')) {
-                    safeStorage.setItem('jurnal_classes', JSON.stringify([{ id: "c1", nama: "XI-A" }, { id: "c2", nama: "XI-B" }]));
-                }
-                if (!safeStorage.getItem('jurnal_subjects')) {
-                    safeStorage.setItem('jurnal_subjects', JSON.stringify([{ id: "sub1", nama: "Matematika" }, { id: "sub2", nama: "Fisika" }]));
-                }
-                if (!safeStorage.getItem('jurnal_meetings')) {
-                    safeStorage.setItem('jurnal_meetings', JSON.stringify([]));
-                }
-                if (!safeStorage.getItem('jurnal_meeting_grades')) {
-                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify([]));
-                }
-
-                const localKop = JSON.parse(safeStorage.getItem('jurnal_kop'));
-                const localInfo = JSON.parse(safeStorage.getItem('jurnal_app_info'));
-                const localStuds = JSON.parse(safeStorage.getItem('jurnal_students'));
-                const localJourns = JSON.parse(safeStorage.getItem('jurnal_journals'));
-                const localGurus = JSON.parse(safeStorage.getItem('jurnal_gurus'));
-                const localClasses = JSON.parse(safeStorage.getItem('jurnal_classes'));
-                const localSubjects = JSON.parse(safeStorage.getItem('jurnal_subjects'));
-                const localMeetings = JSON.parse(safeStorage.getItem('jurnal_meetings')) || [];
-                const localMeetingGrades = JSON.parse(safeStorage.getItem('jurnal_meeting_grades')) || [];
-
-                localStuds.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
-                localJourns.sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-                localClasses.sort((a, b) => a.nama.localeCompare(b.nama));
-                localSubjects.sort((a, b) => a.nama.localeCompare(b.nama));
-
-                setKop(localKop);
-                setAppInfo(localInfo);
-                setStudents(localStuds);
-                setJournals(localJourns);
-                setGurus(localGurus);
-                setClasses(localClasses);
-                setSubjects(localSubjects);
-                setMeetings(localMeetings);
-                setMeetingGrades(localMeetingGrades);
-                setLoading(false);
-            };
-
-            const autoSetupDatabase = async (db) => {
-                const { collection, addDoc, doc, setDoc } = window.firebaseFirestoreSDK;
-                const studentsRef = collection(db, "students");
-                const journalsRef = collection(db, "journals");
-                const gurusRef = collection(db, "gurus");
-                const classesRef = collection(db, "classes");
-                const subjectsRef = collection(db, "subjects");
-                const kopRef = doc(db, "configs", "kop");
-                const infoRef = doc(db, "configs", "info");
-
-                await setDoc(kopRef, DEFAULT_KOP);
-                await setDoc(infoRef, { version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' });
-
-                for (const student of DUMMY_STUDENTS) {
-                    await addDoc(studentsRef, {
-                        nis: student.nis,
-                        nama: student.nama,
-                        kelas: student.kelas
-                    });
-                }
-                for (const jrn of DUMMY_JOURNALS) {
-                    await addDoc(journalsRef, {
-                        tanggal: jrn.tanggal,
-                        kelas: jrn.kelas,
-                        mapel: jrn.mapel,
-                        materi: jrn.materi,
-                        catatan: jrn.catatan,
-                        fotoUrl: jrn.fotoUrl,
-                        waktu_input: jrn.waktu_input,
-                        guru_nama: jrn.guru_nama,
-                        guru_nip: jrn.guru_nip,
-                        absensi_data: jrn.absensi_data,
-                        rekap: jrn.rekap,
-                        jumlah_jam: jrn.jumlah_jam || "2",
-                        guru_pengganti: jrn.guru_pengganti || ""
-                    });
-                }
-                for (const gr of DUMMY_USERS) {
-                    await addDoc(gurusRef, {
-                        nip: gr.nip,
-                        nama: gr.nama,
-                        password: gr.password,
-                        role: gr.role,
-                        mapel: gr.mapel
-                    });
-                }
-                await addDoc(classesRef, { nama: "XI-A" });
-                await addDoc(classesRef, { nama: "XI-B" });
-                await addDoc(subjectsRef, { nama: "Matematika" });
-                await addDoc(subjectsRef, { nama: "Fisika" });
-            };
-
-            const handleLoginSuccess = (userData) => {
-                setLoggedInUser(userData);
-                safeStorage.setItem('jurnal_active_user', JSON.stringify(userData));
-                setCurrentView('dashboard');
-            };
-
-            const handleLogout = () => {
-                triggerConfirm(
-                    "Keluar Aplikasi",
-                    "Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem Jurnal?",
-                    () => {
-                        setLoggedInUser(null);
-                        safeStorage.removeItem('jurnal_active_user');
-                    }
-                );
-            };
-
-            const updateKop = async (newKop) => {
-                if (firebaseActive) {
-                    const { doc, setDoc } = window.firebaseFirestoreSDK;
-                    await setDoc(doc(window.activeDb, "configs", "kop"), newKop);
-                } else {
-                    safeStorage.setItem('jurnal_kop', JSON.stringify(newKop));
-                    setKop(newKop);
-                }
-            };
-
-            const updateAppInfo = async (newInfo) => {
-                if (firebaseActive) {
-                    const { doc, setDoc } = window.firebaseFirestoreSDK;
-                    await setDoc(doc(window.activeDb, "configs", "info"), newInfo);
-                } else {
-                    safeStorage.setItem('jurnal_app_info', JSON.stringify(newInfo));
-                    setAppInfo(newInfo);
-                }
-            };
-
-            const deleteJournalPhoto = async (id) => {
-                const emptyPhoto = "https://placehold.co/800x450/e2e8f0/64748b?text=Tidak+Ada+Dokumentasi+KBM";
-                if (firebaseActive) {
-                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
-                    await updateDoc(doc(window.activeDb, "journals", id), { fotoUrl: emptyPhoto });
-                } else {
-                    const updated = journals.map(j => j.id === id ? { ...j, fotoUrl: emptyPhoto } : j);
-                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
-                    setJournals(updated);
-                }
-            };
-
-            const deleteJournalPhotosBulk = async (ids) => {
-                const emptyPhoto = "https://placehold.co/800x450/e2e8f0/64748b?text=Tidak+Ada+Dokumentasi+KBM";
-                if (firebaseActive) {
-                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
-                    for (const id of ids) {
-                        await updateDoc(doc(window.activeDb, "journals", id), { fotoUrl: emptyPhoto });
-                    }
-                } else {
-                    const updated = journals.map(j => ids.includes(j.id) ? { ...j, fotoUrl: emptyPhoto } : j);
-                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
-                    setJournals(updated);
-                }
-            };
-
-            const addStudent = async (newStudent) => {
-                if (firebaseActive) {
-                    const { collection, addDoc } = window.firebaseFirestoreSDK;
-                    await addDoc(collection(window.activeDb, "students"), newStudent);
-                } else {
-                    const updated = [...students, { id: 'local_' + Date.now(), ...newStudent }];
-                    updated.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
-                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
-                    setStudents(updated);
-                }
-            };
-
-            const updateStudent = async (id, updatedStudent) => {
-                if (firebaseActive) {
-                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
-                    await updateDoc(doc(window.activeDb, "students", id), updatedStudent);
-                } else {
-                    const updated = students.map(s => s.id === id ? { ...s, ...updatedStudent } : s);
-                    updated.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
-                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
-                    setStudents(updated);
-                }
-            };
-
-            const addStudentsBulk = async (studentList) => {
-                if (firebaseActive) {
-                    const { collection, addDoc } = window.firebaseFirestoreSDK;
-                    const studentsRef = collection(window.activeDb, "students");
-                    for (const student of studentList) {
-                        await addDoc(studentsRef, student);
-                    }
-                } else {
-                    const localWithIds = studentList.map((s, idx) => ({
-                        id: 'local_bulk_' + Date.now() + '_' + idx,
-                        ...s
-                    }));
-                    const updated = [...students, ...localWithIds];
-                    updated.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
-                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
-                    setStudents(updated);
-                }
-            };
-
-            const deleteStudent = async (id) => {
-                if (firebaseActive) {
-                    const { doc, deleteDoc } = window.firebaseFirestoreSDK;
-                    await deleteDoc(doc(window.activeDb, "students", id));
-                } else {
-                    const updated = students.filter(s => s.id !== id);
-                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
-                    setStudents(updated);
-                }
-            };
-
-            const deleteStudentsBulk = async (ids) => {
-                if (firebaseActive) {
-                    const { doc, deleteDoc } = window.firebaseFirestoreSDK;
-                    for (const id of ids) {
-                        await deleteDoc(doc(window.activeDb, "students", id));
-                    }
-                } else {
-                    const updated = students.filter(s => !ids.includes(s.id));
-                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
-                    setStudents(updated);
-                }
-            };
-
-            const addJournal = async (newJournal) => {
-                const journalPayload = {
-                    ...newJournal,
-                    guru_nama: loggedInUser.nama,
-                    guru_nip: loggedInUser.nip
-                };
-
-                if (firebaseActive) {
-                    const { collection, addDoc } = window.firebaseFirestoreSDK;
-                    await addDoc(collection(window.activeDb, "journals"), journalPayload);
-                } else {
-                    const updated = [{ id: 'j_local_' + Date.now(), ...journalPayload }, ...journals];
-                    updated.sort((a, b) => b.tanggal.localeCompare(a.tanggal));
-                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
-                    setJournals(updated);
-                }
-            };
-
-            const deleteJournal = async (id) => {
-                triggerConfirm(
-                    "Hapus Jurnal Mengajar",
-                    "Apakah Anda yakin ingin menghapus data jurnal ini secara permanen?",
-                    async () => {
-                        if (firebaseActive) {
-                            const { doc, deleteDoc } = window.firebaseFirestoreSDK;
-                            await deleteDoc(doc(window.activeDb, "journals", id));
-                        } else {
-                            const updated = journals.filter(j => j.id !== id);
-                            safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
-                            setJournals(updated);
-                        }
-                    }
-                );
-            };
-
-            const addGuru = async (newGuru) => {
-                if (firebaseActive) {
-                    const { collection, addDoc } = window.firebaseFirestoreSDK;
-                    await addDoc(collection(window.activeDb, "gurus"), newGuru);
-                } else {
-                    const updated = [...gurus, { id: 'g_local_' + Date.now(), ...newGuru }];
-                    safeStorage.setItem('jurnal_gurus', JSON.stringify(updated));
-                    setGurus(updated);
-                }
-            };
-
-            const updateGuru = async (id, updatedGuru) => {
-                if (firebaseActive) {
-                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
-                    await updateDoc(doc(window.activeDb, "gurus", id), updatedGuru);
-                } else {
-                    const updated = gurus.map(g => g.id === id ? { ...g, ...updatedGuru } : g);
-                    safeStorage.setItem('jurnal_gurus', JSON.stringify(updated));
-                    setGurus(updated);
-                }
-                
-                if (loggedInUser && loggedInUser.id === id) {
-                    const newSession = { ...loggedInUser, ...updatedGuru };
-                    setLoggedInUser(newSession);
-                    safeStorage.setItem('jurnal_active_user', JSON.stringify(newSession));
-                }
-            };
-
-            const deleteGuru = async (id) => {
-                triggerConfirm(
-                    "Hapus Akun Pengguna",
-                    "Apakah Anda yakin ingin menghapus akun ini secara permanen dari sistem?",
-                    async () => {
-                        if (firebaseActive) {
-                            const { doc, deleteDoc } = window.firebaseFirestoreSDK;
-                            await deleteDoc(doc(window.activeDb, "gurus", id));
-                        } else {
-                            const updated = gurus.filter(g => g.id !== id);
-                            safeStorage.setItem('jurnal_gurus', JSON.stringify(updated));
-                            setGurus(updated);
-                        }
-                    }
-                );
-            };
-
-            const addClass = async (newClass) => {
-                if (firebaseActive) {
-                    const { collection, addDoc } = window.firebaseFirestoreSDK;
-                    await addDoc(collection(window.activeDb, "classes"), newClass);
-                } else {
-                    const updated = [...classes, { id: 'class_' + Date.now(), ...newClass }];
-                    updated.sort((a, b) => a.nama.localeCompare(b.nama));
-                    safeStorage.setItem('jurnal_classes', JSON.stringify(updated));
-                    setClasses(updated);
-                }
-            };
-
-            const deleteClass = async (id) => {
-                triggerConfirm(
-                    "Hapus Kelas",
-                    "Apakah Anda yakin ingin menghapus kelas ini? Tindakan ini dapat mempengaruhi dropdown kelas di menu lain.",
-                    async () => {
-                        if (firebaseActive) {
-                            const { doc, deleteDoc } = window.firebaseFirestoreSDK;
-                            await deleteDoc(doc(window.activeDb, "classes", id));
-                        } else {
-                            const updated = classes.filter(c => c.id !== id);
-                            safeStorage.setItem('jurnal_classes', JSON.stringify(updated));
-                            setClasses(updated);
-                        }
-                    }
-                );
-            };
-
-            const addSubject = async (newSub) => {
-                if (firebaseActive) {
-                    const { collection, addDoc } = window.firebaseFirestoreSDK;
-                    await addDoc(collection(window.activeDb, "subjects"), newSub);
-                } else {
-                    const updated = [...subjects, { id: 'sub_' + Date.now(), ...newSub }];
-                    updated.sort((a, b) => a.nama.localeCompare(b.nama));
-                    safeStorage.setItem('jurnal_subjects', JSON.stringify(updated));
-                    setSubjects(updated);
-                }
-            };
-
-            const deleteSubject = async (id) => {
-                triggerConfirm(
-                    "Hapus Mata Pelajaran",
-                    "Apakah Anda yakin ingin menghapus mata pelajaran ini? Tindakan ini dapat mempengaruhi dropdown mapel di menu lain.",
-                    async () => {
-                        if (firebaseActive) {
-                            const { doc, deleteDoc } = window.firebaseFirestoreSDK;
-                            await deleteDoc(doc(window.activeDb, "subjects", id));
-                        } else {
-                            const updated = subjects.filter(s => s.id !== id);
-                            safeStorage.setItem('jurnal_subjects', JSON.stringify(updated));
-                            setSubjects(updated);
-                        }
-                    }
-                );
-            };
-
-            const addMeeting = async (newMeeting) => {
-                if (firebaseActive) {
-                    const { collection, addDoc } = window.firebaseFirestoreSDK;
-                    await addDoc(collection(window.activeDb, "meetings"), newMeeting);
-                } else {
-                    const updated = [...meetings, { id: 'm_' + Date.now(), ...newMeeting }];
-                    safeStorage.setItem('jurnal_meetings', JSON.stringify(updated));
-                    setMeetings(updated);
-                }
-            };
-
-            const deleteMeeting = async (meetingId) => {
-                if (firebaseActive) {
-                    const { doc, deleteDoc, collection, query, where, getDocs } = window.firebaseFirestoreSDK;
-                    const db = window.activeDb;
-                    await deleteDoc(doc(db, "meetings", meetingId));
-                    try {
-                        const gradesQ = query(collection(db, "meeting_grades"), where("meetingId", "==", meetingId));
-                        const snapshot = await getDocs(gradesQ);
-                        for (const docSnap of snapshot.docs) {
-                            await deleteDoc(doc(db, "meeting_grades", docSnap.id));
-                        }
-                    } catch (e) {
-                        console.error("Gagal membersihkan database nilai pertemuan:", e);
-                    }
-                } else {
-                    const updatedMeetings = meetings.filter(m => m.id !== meetingId);
-                    const updatedGrades = meetingGrades.filter(g => g.meetingId !== meetingId);
-                    safeStorage.setItem('jurnal_meetings', JSON.stringify(updatedMeetings));
-                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify(updatedGrades));
-                    setMeetings(updatedMeetings);
-                    setMeetingGrades(updatedGrades);
-                }
-            };
-
-            const saveMeetingGrade = async (studentId, meetingId, nilai) => {
-                const payload = {
-                    studentId,
-                    meetingId,
-                    nilai: nilai !== null ? Number(nilai) : null
-                };
-
-                const existing = meetingGrades.find(g => g.studentId === studentId && g.meetingId === meetingId);
-
-                if (firebaseActive) {
-                    const { collection, doc, addDoc, updateDoc } = window.firebaseFirestoreSDK;
-                    const db = window.activeDb;
-                    if (existing) {
-                        await updateDoc(doc(db, "meeting_grades", existing.id), { nilai });
-                    } else {
-                        await addDoc(collection(db, "meeting_grades"), payload);
-                    }
-                } else {
-                    let updated;
-                    if (existing) {
-                        updated = meetingGrades.map(g => g.id === existing.id ? { ...g, nilai } : g);
-                    } else {
-                        updated = [...meetingGrades, { id: 'mg_' + Date.now(), ...payload }];
-                    }
-                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify(updated));
-                    setMeetingGrades(updated);
-                }
-            };
-
-            const deleteMeetingGradesSingle = async (studentId, meetingIds) => {
-                const targetGrades = meetingGrades.filter(g => g.studentId === studentId && meetingIds.includes(g.meetingId));
-                if (firebaseActive) {
-                    const { doc, deleteDoc } = window.firebaseFirestoreSDK;
-                    const db = window.activeDb;
-                    for (const g of targetGrades) {
-                        await deleteDoc(doc(db, "meeting_grades", g.id));
-                    }
-                } else {
-                    const idsToRemove = targetGrades.map(g => g.id);
-                    const updated = meetingGrades.filter(g => !idsToRemove.includes(g.id));
-                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify(updated));
-                    setMeetingGrades(updated);
-                }
-            };
-
-            const deleteMeetingGradesBulk = async (gradesList) => {
-                if (firebaseActive) {
-                    const { doc, deleteDoc } = window.firebaseFirestoreSDK;
-                    const db = window.activeDb;
-                    for (const g of gradesList) {
-                        await deleteDoc(doc(db, "meeting_grades", g.id));
-                    }
-                } else {
-                    const idsToRemove = gradesList.map(g => g.id);
-                    const updated = meetingGrades.filter(g => !idsToRemove.includes(g.id));
-                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify(updated));
-                    setMeetingGrades(updated);
-                }
-            };
-
-            if (loading) {
-                return (
-                    <div className="flex flex-col h-screen items-center justify-center bg-slate-900 text-white space-y-4">
-                        <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-lg font-semibold tracking-wider">Menyiapkan Aplikasi Jurnal...</p>
-                        <p className="text-xs text-slate-400">Menyinkronkan database sekolah secara aman</p>
-                    </div>
-                );
-            }
-
-            if (!loggedInUser) {
-                return <ViewLogin onLoginSuccess={handleLoginSuccess} firebaseActive={firebaseActive} triggerAlert={triggerAlert} appInfo={appInfo} />;
-            }
-
-            const isKepsek = loggedInUser.role === 'kepsek';
-            const isAdmin = loggedInUser.role === 'admin';
-
-            return (
-                <div className="flex h-screen overflow-hidden">
-                    <CustomConfirmModal 
-                        isOpen={confirmState.isOpen}
-                        title={confirmState.title}
-                        message={confirmState.message}
-                        onConfirm={confirmState.onConfirm}
-                        onCancel={() => setConfirmState({ isOpen: false, title: '', message: '', onConfirm: null })}
-                    />
-
-                    <CustomAlertModal 
-                        isOpen={alertState.isOpen}
-                        title={alertState.title}
-                        message={alertState.message}
-                        onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
-                    />
-
-                    {/* Sidebar Navigasi Permanen di Desktop */}
-                    <aside className="hidden md:flex w-72 bg-slate-900 text-white flex-col shadow-2xl print-hidden flex-shrink-0 z-30">
-                        <div className="p-8 border-b border-indigo-950 flex items-center space-x-3">
-                            <div className="p-2.5 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30">
-                                <IconBook />
-                            </div>
-                            <div>
-                                <h1 className="text-lg font-black tracking-tight leading-none text-white">E-JURNAL</h1>
-                                <span className="text-indigo-400 text-[10px] font-semibold tracking-widest uppercase">
-                                    {isAdmin ? 'ADMINISTRATOR' : isKepsek ? 'KEPALA SEKOLAH' : 'GURU TERPADU'}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="px-8 mt-4">
-                            <div className={`text-[10px] uppercase font-bold py-1.5 px-3 rounded-full flex items-center space-x-2 w-fit ${firebaseActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
-                                <span className={`w-2 h-2 rounded-full ${firebaseActive ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
-                                <span>{firebaseActive ? 'Firebase Server' : 'Mode Simulasi'}</span>
-                            </div>
-                        </div>
-
-                        <nav className="flex-1 px-4 py-8 space-y-1.5 overflow-y-auto">
-                            {isAdmin ? (
-                                <>
-                                    <MenuButton icon={<IconDashboard />} label="Dashboard Admin" isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
-                                    <MenuButton icon={<IconUsers />} label="Kelola Akun Guru" isActive={currentView === 'kelola_guru'} onClick={() => setCurrentView('kelola_guru')} />
-                                    <MenuButton icon={<IconBook />} label="Referensi Kelas &amp; Mapel" isActive={currentView === 'kelola_referensi'} onClick={() => setCurrentView('kelola_referensi')} />
-                                    <MenuButton icon={<IconPrint />} label="Pengaturan Kop Cetak" isActive={currentView === 'kelola_kop'} onClick={() => setCurrentView('kelola_kop')} />
-                                    <MenuButton icon={<IconInfo />} label="Informasi Aplikasi" isActive={currentView === 'kelola_info'} onClick={() => setCurrentView('kelola_info')} />
-                                    <MenuButton icon={<IconImage />} label="Galeri Foto KBM" isActive={currentView === 'kelola_galeri'} onClick={() => setCurrentView('kelola_galeri')} />
-                                    <MenuButton icon={<IconLock />} label="Kelola Akun Kepsek" isActive={currentView === 'kelola_kepsek'} onClick={() => setCurrentView('kelola_kepsek')} />
-                                    <MenuButton icon={<IconLock />} label="Pengaturan Admin" isActive={currentView === 'kelola_admin'} onClick={() => setCurrentView('kelola_admin')} />
-                                </>
-                            ) : isKepsek ? (
-                                <>
-                                    <MenuButton icon={<IconDashboard />} label="Dashboard Kepsek" isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
-                                    <MenuButton icon={<IconHistory />} label="Monitoring Jurnal" isActive={currentView === 'monitoring_jurnal'} onClick={() => setCurrentView('monitoring_jurnal')} />
-                                    <MenuButton icon={<IconChart />} label="Rekap &amp; Laporan" isActive={currentView === 'rekap'} onClick={() => setCurrentView('rekap')} />
-                                </>
-                            ) : (
-                                <>
-                                    <MenuButton icon={<IconDashboard />} label="Dashboard" isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
-                                    <MenuButton icon={<IconUsers />} label="Data Siswa" isActive={currentView === 'siswa'} onClick={() => setCurrentView('siswa')} />
-                                    <MenuButton icon={<IconBook />} label="Isi Jurnal &amp; Absen" isActive={currentView === 'isi_jurnal'} onClick={() => setCurrentView('isi_jurnal')} />
-                                    <MenuButton icon={<IconHistory />} label="Riwayat Jurnal" isActive={currentView === 'riwayat'} onClick={() => setCurrentView('riwayat')} />
-                                    <MenuButton icon={<IconChart />} label="Penilaian Siswa" isActive={currentView === 'penilaian'} onClick={() => setCurrentView('penilaian')} />
-                                    <MenuButton icon={<IconChart />} label="Rekap Laporan" isActive={currentView === 'rekap'} onClick={() => setCurrentView('rekap')} />
-                                </>
-                            )}
-                        </nav>
-
-                        <div className="p-6 border-t border-indigo-950/80 bg-slate-950/40">
-                            <div className="flex items-center space-x-3 mb-4">
-                                <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-white uppercase shadow-lg">
-                                    {loggedInUser.nama.charAt(0)}
-                                </div>
-                                <div className="flex-1 overflow-hidden">
-                                    <p className="text-sm font-semibold truncate text-white leading-tight">{loggedInUser.nama}</p>
-                                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">Role: {loggedInUser.role.toUpperCase()}</p>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={handleLogout}
-                                className="w-full bg-rose-500/10 hover:bg-rose-50 hover:text-white border border-rose-500/20 text-rose-400 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                                <span>Keluar Sistem</span>
-                            </button>
-                        </div>
-                    </aside>
-
-                    {/* Bottom Nav Melayang untuk Perangkat Seluler */}
-                    <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-slate-900/95 backdrop-blur-md rounded-2xl p-2.5 flex items-center justify-around shadow-2xl print-hidden z-40 border border-white/10">
-                        {isAdmin ? (
-                            <>
-                                <MobileTabButton icon={<IconDashboard />} isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
-                                <MobileTabButton icon={<IconUsers />} isActive={currentView === 'kelola_guru'} onClick={() => setCurrentView('kelola_guru')} />
-                                <MobileTabButton icon={<IconBook />} isActive={currentView === 'kelola_referensi'} onClick={() => setCurrentView('kelola_referensi')} />
-                                <MobileTabButton icon={<IconPrint />} isActive={currentView === 'kelola_kop'} onClick={() => setCurrentView('kelola_kop')} />
-                                <MobileTabButton icon={<IconInfo />} isActive={currentView === 'kelola_info'} onClick={() => setCurrentView('kelola_info')} />
-                                <MobileTabButton icon={<IconImage />} isActive={currentView === 'kelola_galeri'} onClick={() => setCurrentView('kelola_galeri')} />
-                                <MobileTabButton icon={<IconLock />} isActive={currentView === 'kelola_admin'} onClick={() => setCurrentView('kelola_admin')} />
-                            </>
-                        ) : isKepsek ? (
-                            <>
-                                <MobileTabButton icon={<IconDashboard />} isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
-                                <MobileTabButton icon={<IconHistory />} isActive={currentView === 'monitoring_jurnal'} onClick={() => setCurrentView('monitoring_jurnal')} />
-                                <MobileTabButton icon={<IconChart />} isActive={currentView === 'rekap'} onClick={() => setCurrentView('rekap')} />
-                            </>
-                        ) : (
-                            <>
-                                <MobileTabButton icon={<IconDashboard />} isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
-                                <MobileTabButton icon={<IconUsers />} isActive={currentView === 'siswa'} onClick={() => setCurrentView('siswa')} />
-                                <MobileTabButton icon={<IconBook />} isActive={currentView === 'isi_jurnal'} onClick={() => setCurrentView('isi_jurnal')} />
-                                <MobileTabButton icon={<IconHistory />} isActive={currentView === 'riwayat'} onClick={() => setCurrentView('riwayat')} />
-                                <MobileTabButton icon={<IconChart />} isActive={currentView === 'penilaian'} onClick={() => setCurrentView('penilaian')} />
-                                <MobileTabButton icon={<IconChart />} isActive={currentView === 'rekap'} onClick={() => setCurrentView('rekap')} />
-                            </>
-                        )}
-                        <button onClick={handleLogout} className="p-3 rounded-xl text-rose-400">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        </button>
-                    </nav>
-
-                    {/* Area Konten Utama Scrollable */}
-                    <main className="flex-1 flex flex-col h-screen overflow-y-auto print-block relative bg-slate-50">
-                        <header className="bg-white/85 backdrop-blur-md shadow-sm border-b border-slate-100 px-8 py-5 flex items-center justify-between print-hidden sticky top-0 z-20">
-                            <h2 className="text-xl font-bold text-slate-800 capitalize tracking-tight flex items-center space-x-2">
-                                <span className="text-indigo-600">|</span>
-                                <span>{currentView.replace('_', ' ')}</span>
-                            </h2>
-                            <div className="flex items-center space-x-3 text-sm font-semibold text-slate-600 bg-slate-100/60 py-1.5 px-4 rounded-full border border-slate-200/50">
-                                <div className="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-pulse"></div>
-                                <span>{loggedInUser.mapel || "Sistem Administrator"}</span>
-                            </div>
-                        </header>
-
-                        <div className="p-4 md:p-8 flex-1 pb-24 md:pb-8">
-                            {isAdmin ? (
-                                <>
-                                    {currentView === 'dashboard' && <ViewDashboardAdmin gurus={gurus} students={students} journals={journals} />}
-                                    {currentView === 'kelola_guru' && <ViewKelolaGuru gurus={gurus} subjects={subjects} addGuru={addGuru} updateGuru={updateGuru} deleteGuru={deleteGuru} triggerAlert={triggerAlert} />}
-                                    {currentView === 'kelola_referensi' && <ViewKelolaReferensi classes={classes} subjects={subjects} addClass={addClass} deleteClass={deleteClass} addSubject={addSubject} deleteSubject={deleteSubject} triggerAlert={triggerAlert} />}
-                                    {currentView === 'kelola_kop' && <ViewKelolaKop kop={kop} updateKop={updateKop} triggerAlert={triggerAlert} />}
-                                    {currentView === 'kelola_info' && <ViewKelolaInfo appInfo={appInfo} updateAppInfo={updateAppInfo} triggerAlert={triggerAlert} />}
-                                    {currentView === 'kelola_galeri' && <ViewKelolaGaleri journals={journals} deleteJournalPhoto={deleteJournalPhoto} deleteJournalPhotosBulk={deleteJournalPhotosBulk} triggerAlert={triggerAlert} triggerConfirm={triggerConfirm} />}
-                                    {currentView === 'kelola_kepsek' && <ViewKelolaKepsek gurus={gurus} updateGuru={updateGuru} triggerAlert={triggerAlert} />}
-                                    {currentView === 'kelola_admin' && <ViewKelolaAdmin gurus={gurus} updateGuru={updateGuru} loggedInUser={loggedInUser} triggerAlert={triggerAlert} />}
-                                </>
-                            ) : isKepsek ? (
-                                <>
-                                    {currentView === 'dashboard' && <ViewDashboardKepsek journals={journals} students={students} changeView={setCurrentView} />}
-                                    {currentView === 'monitoring_jurnal' && <ViewMonitoringJurnal journals={journals} deleteJournal={deleteJournal} kop={kop} />}
-                                    {currentView === 'rekap' && <ViewRekap journals={journals} students={students} loggedInUser={loggedInUser} kop={kop} />}
-                                </>
-                            ) : (
-                                <>
-                                    {currentView === 'dashboard' && <ViewDashboard journals={journals} students={students} changeView={setCurrentView} />}
-                                    {currentView === 'siswa' && <ViewDataSiswa students={students} classes={classes} addStudent={addStudent} updateStudent={updateStudent} addStudentsBulk={addStudentsBulk} deleteStudent={deleteStudent} deleteStudentsBulk={deleteStudentsBulk} triggerAlert={triggerAlert} triggerConfirm={triggerConfirm} />}
-                                    {currentView === 'isi_jurnal' && <ViewIsiJurnal students={students} classes={classes} subjects={subjects} addJournal={addJournal} onSuccess={() => setCurrentView('riwayat')} triggerAlert={triggerAlert} />}
-                                    {currentView === 'riwayat' && <ViewRiwayat journals={journals} deleteJournal={deleteJournal} kop={kop} />}
-                                    {currentView === 'penilaian' && <ViewPenilaian students={students} classes={classes} subjects={subjects} loggedInUser={loggedInUser} kop={kop} triggerAlert={triggerAlert} triggerConfirm={triggerConfirm} firebaseActive={firebaseActive} meetings={meetings} meetingGrades={meetingGrades} addMeeting={addMeeting} deleteMeeting={deleteMeeting} saveMeetingGrade={saveMeetingGrade} deleteMeetingGradesSingle={deleteMeetingGradesSingle} deleteMeetingGradesBulk={deleteMeetingGradesBulk} />}
-                                    {currentView === 'rekap' && <ViewRekap journals={journals} students={students} loggedInUser={loggedInUser} kop={kop} />}
-                                </>
-                            )}
-                        </div>
-                    </main>
-                </div>
-            );
-        };
-
-        const MenuButton = ({ icon, label, isActive, onClick }) => (
-            <button 
-                onClick={onClick}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                    isActive 
-                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 font-semibold translate-x-1' 
-                        : 'text-indigo-200/80 hover:bg-slate-800 hover:text-white hover:translate-x-1'
-                }`}
-            >
-                <span className={isActive ? 'text-white' : 'text-indigo-400'}>{icon}</span>
-                <span className="text-sm tracking-wide">{label}</span>
-            </button>
-        );
-
-        const MobileTabButton = ({ icon, isActive, onClick }) => (
-            <button 
-                onClick={onClick} 
-                className={`p-3 rounded-xl transition-all duration-200 ${
-                    isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-indigo-300 hover:text-white'
-                }`}
-            >
-                {icon}
-            </button>
-        );
-
+    <!-- React App JSX Continuation -->
+    <script type="text/babel">
         const ViewDashboardAdmin = ({ gurus, students, journals }) => {
             const listGuru = gurus.filter(g => g.role === 'guru');
             const listKepsek = gurus.filter(g => g.role === 'kepsek');
@@ -1554,7 +702,6 @@
             const [nama, setNama] = useState('');
             const [mapel, setMapel] = useState('');
             const [password, setPassword] = useState('');
-            
             const [editingId, setEditingId] = useState(null);
 
             const handleSave = async (e) => {
@@ -2184,7 +1331,10 @@
                 </div>
             );
         };
+    </script>
 
+    <!-- React App JSX Continuation Part 2 -->
+    <script type="text/babel">
         const ViewDataSiswa = ({ students, classes, addStudent, updateStudent, addStudentsBulk, deleteStudent, deleteStudentsBulk, triggerAlert, triggerConfirm }) => {
             const [activeFormTab, setActiveFormTab] = useState('single'); 
             const [nama, setNama] = useState('');
@@ -2532,7 +1682,10 @@
                 </div>
             );
         };
+    </script>
 
+    <!-- React App JSX Continuation Part 3 -->
+    <script type="text/babel">
         const ViewIsiJurnal = ({ students, classes, subjects, addJournal, onSuccess, triggerAlert }) => {
             const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0]);
             const [kelasTerpilih, setKelasTerpilih] = useState('');
@@ -2762,12 +1915,20 @@
                 </div>
             );
         };
+    </script>
 
-        const ViewRiwayat = ({ journals, deleteJournal, kop }) => {
+    <!-- React App JSX Continuation Part 4 -->
+    <script type="text/babel">
+        const ViewRiwayat = ({ journals, deleteJournal, updateJournal, kop }) => {
             const [selectedJournal, setSelectedJournal] = useState(null);
 
-            if (selectedJournal) {
-                return <ViewDetailJurnal journal={selectedJournal} onClose={() => setSelectedJournal(null)} deleteJournal={deleteJournal} showDeleteBtn={true} kop={kop} />;
+            const activeJournal = useMemo(() => {
+                if (!selectedJournal) return null;
+                return journals.find(j => j.id === selectedJournal.id) || selectedJournal;
+            }, [journals, selectedJournal]);
+
+            if (activeJournal) {
+                return <ViewDetailJurnal journal={activeJournal} onClose={() => setSelectedJournal(null)} deleteJournal={deleteJournal} updateJournal={updateJournal} showDeleteBtn={true} kop={kop} />;
             }
 
             return (
@@ -2858,11 +2019,58 @@
                 </div>
             );
         };
+    </script>
 
-        const ViewDetailJurnal = ({ journal, onClose, deleteJournal, showDeleteBtn, kop }) => {
+    <!-- React App JSX Continuation Part 5 -->
+    <script type="text/babel">
+        const ViewDetailJurnal = ({ journal, onClose, deleteJournal, updateJournal, showDeleteBtn, kop }) => {
+            const [isEditing, setIsEditing] = useState(false);
+            const [editTanggal, setEditTanggal] = useState(journal.tanggal);
+            const [editMateri, setEditMateri] = useState(journal.materi);
+            const [editJumlahJam, setEditJumlahJam] = useState(journal.jumlah_jam || '2');
+            const [editGuruPengganti, setEditGuruPengganti] = useState(journal.guru_pengganti || '');
+            const [editCatatan, setEditCatatan] = useState(journal.catatan || '');
+            const [isSaving, setIsSaving] = useState(false);
+
+            useEffect(() => {
+                setEditTanggal(journal.tanggal);
+                setEditMateri(journal.materi);
+                setEditJumlahJam(journal.jumlah_jam || '2');
+                setEditGuruPengganti(journal.guru_pengganti || '');
+                setEditCatatan(journal.catatan || '');
+            }, [journal]);
+
+            const handleSave = async () => {
+                if (!editTanggal || !editMateri.trim() || !editJumlahJam) return;
+                setIsSaving(true);
+                try {
+                    if (updateJournal) {
+                        await updateJournal(journal.id, {
+                            tanggal: editTanggal,
+                            materi: editMateri.trim(),
+                            jumlah_jam: editJumlahJam,
+                            guru_pengganti: editGuruPengganti.trim(),
+                            catatan: editCatatan.trim()
+                        });
+                    }
+                    setIsEditing(false);
+                } catch (e) {
+                    console.error(e);
+                }
+                setIsSaving(false);
+            };
+
+            const handleCancel = () => {
+                setEditTanggal(journal.tanggal);
+                setEditMateri(journal.materi);
+                setEditJumlahJam(journal.jumlah_jam || '2');
+                setEditGuruPengganti(journal.guru_pengganti || '');
+                setEditCatatan(journal.catatan || '');
+                setIsEditing(false);
+            };
+
             return (
                 <div className="max-w-4xl mx-auto relative print-block animate-in fade-in duration-200">
-                    {/* Kop Surat Cetak Resmi */}
                     <div className="hidden print-block text-center border-b-2 border-slate-900 pb-5 mb-8">
                         <h1 className="text-xl font-bold uppercase text-slate-900 leading-tight">{kop?.instansi || "PEMERINTAH PROVINSI SULAWESI SELATAN"}</h1>
                         <h2 className="text-lg font-black uppercase text-slate-900 mt-1">{kop?.sekolah || "SMK NEGERI 3 SELAYAR"}</h2>
@@ -2877,27 +2085,105 @@
                                 <h2 className="text-xl font-bold text-slate-900">Lembar Jurnal Mengajar</h2>
                                 <p className="text-xs text-slate-500">Guru Pengajar: {journal.guru_nama}</p>
                             </div>
-                            <div className="flex items-center space-x-2">
-                                <button onClick={() => window.print()} className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-semibold text-xs transition flex items-center space-x-2 shadow-sm shadow-emerald-600/10">
-                                    <IconPrint/> <span>Cetak</span>
-                                </button>
-                                {showDeleteBtn && (
-                                    <button onClick={() => deleteJournal(journal.id)} className="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl font-semibold text-xs transition flex items-center space-x-2">
-                                        <IconTrash/> <span>Hapus</span>
-                                    </button>
+                            <div className="flex items-center space-x-2 font-sans text-xs">
+                                {isEditing ? (
+                                    <>
+                                        <button 
+                                            onClick={handleSave} 
+                                            disabled={isSaving}
+                                            className="px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition flex items-center shadow-md shadow-indigo-600/10 disabled:opacity-50"
+                                        >
+                                            {isSaving ? 'Menyimpan...' : 'Simpan Data'}
+                                        </button>
+                                        <button 
+                                            onClick={handleCancel}
+                                            className="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition"
+                                        >
+                                            Batalkan
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        {updateJournal && (
+                                            <button 
+                                                onClick={() => setIsEditing(true)}
+                                                className="px-4 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-xl hover:bg-indigo-100 transition"
+                                            >
+                                                Ubah KBM
+                                            </button>
+                                        )}
+                                        <button onClick={() => window.print()} className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-semibold transition flex items-center space-x-2 shadow-sm shadow-emerald-600/10">
+                                            <IconPrint/> <span>Cetak</span>
+                                        </button>
+                                        {showDeleteBtn && (
+                                            <button onClick={() => deleteJournal(journal.id)} className="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl font-semibold transition flex items-center space-x-2">
+                                                <IconTrash/> <span>Hapus</span>
+                                            </button>
+                                        )}
+                                        <button onClick={onClose} className="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-semibold transition">Kembali</button>
+                                    </>
                                 )}
-                                <button onClick={onClose} className="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-semibold text-xs transition">Kembali</button>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-8 text-sm print:bg-white print:border-slate-800">
                             <div><span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Guru Pengajar</span> <p className="text-slate-800 font-bold">{journal.guru_nama}</p></div>
-                            <div><span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Tanggal KBM</span> <p className="text-slate-800 font-medium">{journal.tanggal}</p></div>
+                            <div>
+                                <span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Tanggal KBM</span> 
+                                {isEditing ? (
+                                    <input 
+                                        type="date" 
+                                        value={editTanggal} 
+                                        onChange={e => setEditTanggal(e.target.value)} 
+                                        className="w-full p-2 border border-slate-200 rounded-xl bg-white text-xs font-sans outline-none focus:ring-2 focus:ring-indigo-500/20" 
+                                    />
+                                ) : (
+                                    <p className="text-slate-800 font-medium">{journal.tanggal}</p>
+                                )}
+                            </div>
                             <div><span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Kelas / Rombel</span> <p className="text-slate-800 font-bold text-indigo-600">{journal.kelas}</p></div>
                             <div><span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Mata Pelajaran</span> <p className="text-slate-800 font-medium">{journal.mapel}</p></div>
-                            <div><span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Jumlah Jam Pelajaran</span> <p className="text-slate-800 font-semibold">{journal.jumlah_jam ? `${journal.jumlah_jam} JP` : '-'}</p></div>
-                            <div><span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Guru Pengganti</span> <p className="text-slate-800 font-medium">{journal.guru_pengganti || 'Tidak Ada (Mengajar Mandiri)'}</p></div>
-                            <div className="col-span-2"><span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Pokok Bahasan / Materi</span> <p className="text-slate-800 font-semibold text-base">{journal.materi}</p></div>
+                            <div>
+                                <span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Jumlah Jam Pelajaran</span> 
+                                {isEditing ? (
+                                    <input 
+                                        type="number" 
+                                        min="1"
+                                        value={editJumlahJam} 
+                                        onChange={e => setEditJumlahJam(e.target.value)} 
+                                        className="w-full p-2 border border-slate-200 rounded-xl bg-white text-xs outline-none focus:ring-2 focus:ring-indigo-500/20 font-semibold" 
+                                    />
+                                ) : (
+                                    <p className="text-slate-800 font-semibold">{journal.jumlah_jam ? `${journal.jumlah_jam} JP` : '-'}</p>
+                                )}
+                            </div>
+                            <div>
+                                <span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Guru Pengganti</span> 
+                                {isEditing ? (
+                                    <input 
+                                        type="text" 
+                                        value={editGuruPengganti} 
+                                        onChange={e => setEditGuruPengganti(e.target.value)} 
+                                        placeholder="Nama Guru Pengganti"
+                                        className="w-full p-2 border border-slate-200 rounded-xl bg-white text-xs outline-none focus:ring-2 focus:ring-indigo-500/20" 
+                                    />
+                                ) : (
+                                    <p className="text-slate-800 font-medium">{journal.guru_pengganti || 'Tidak Ada (Mengajar Mandiri)'}</p>
+                                )}
+                            </div>
+                            <div className="col-span-2">
+                                <span className="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Pokok Bahasan / Materi</span> 
+                                {isEditing ? (
+                                    <input 
+                                        type="text" 
+                                        value={editMateri} 
+                                        onChange={e => setEditMateri(e.target.value)} 
+                                        className="w-full p-2 border border-slate-200 rounded-xl bg-white text-xs outline-none focus:ring-2 focus:ring-indigo-500/20 font-semibold" 
+                                    />
+                                ) : (
+                                    <p className="text-slate-800 font-semibold text-base">{journal.materi}</p>
+                                )}
+                            </div>
                         </div>
 
                         <div className="mb-8 p-5 bg-indigo-50/40 rounded-2xl border border-indigo-100/50 print:bg-white print:border-slate-800">
@@ -2912,7 +2198,16 @@
 
                         <div className="mb-8">
                             <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-2 border-b border-slate-100 pb-1 print:border-slate-800">Catatan KBM &amp; Kendala</h3>
-                            <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">{journal.catatan || 'Tidak ada catatan khusus.'}</p>
+                            {isEditing ? (
+                                <textarea 
+                                    rows="4" 
+                                    value={editCatatan} 
+                                    onChange={e => setEditCatatan(e.target.value)} 
+                                    className="w-full p-2 border border-slate-200 rounded-xl bg-white text-xs resize-none outline-none focus:ring-2 focus:ring-indigo-500/20" 
+                                />
+                            ) : (
+                                <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">{journal.catatan || 'Tidak ada catatan khusus.'}</p>
+                            )}
                         </div>
 
                         {journal.fotoUrl && (
@@ -2935,7 +2230,10 @@
                 </div>
             );
         };
+    </script>
 
+    <!-- React App JSX Continuation Part 6 -->
+    <script type="text/babel">
         const ViewRekap = ({ journals, students, loggedInUser, kop }) => {
             const [filterKelas, setFilterKelas] = useState('');
             const [filterBulan, setFilterBulan] = useState(new Date().toISOString().slice(0, 7)); 
@@ -3018,7 +2316,6 @@
                     </div>
 
                     <div className="p-6 md:p-8 print:p-0">
-                        {/* Kop Surat Cetak Resmi */}
                         <div className="hidden print-block text-center border-b-2 border-slate-900 pb-5 mb-8">
                             <h1 className="text-xl font-bold uppercase text-slate-900 leading-tight">{kop?.instansi || "PEMERINTAH PROVINSI SULAWESI SELATAN"}</h1>
                             <h2 className="text-lg font-black uppercase text-slate-900 mt-1">{kop?.sekolah || "SMK NEGERI 3 SELAYAR"}</h2>
@@ -3460,7 +2757,6 @@
                     )}
 
                     <div className="p-6 md:p-8 print:p-0">
-                        {/* Kop Cetak Surat */}
                         <div className="hidden print-block text-center border-b-2 border-slate-900 pb-5 mb-8">
                             <h1 className="text-xl font-bold uppercase text-slate-900 leading-tight">{kop?.instansi || "PEMERINTAH PROVINSI SULAWESI SELATAN"}</h1>
                             <h2 className="text-lg font-black uppercase text-slate-900 mt-1">{kop?.sekolah || "SMK NEGERI 3 SELAYAR"}</h2>
@@ -3764,6 +3060,859 @@
                 </div>
             );
         };
+    </script>
+
+    <!-- React App JSX Continuation Part 7 -->
+    <script type="text/babel">
+        const App = () => {
+            const [currentView, setCurrentView] = useState('dashboard');
+            const [students, setStudents] = useState([]);
+            const [journals, setJournals] = useState([]);
+            const [gurus, setGurus] = useState([]);
+            const [classes, setClasses] = useState([]);
+            const [subjects, setSubjects] = useState([]);
+            const [kop, setKop] = useState(DEFAULT_KOP);
+            const [loading, setLoading] = useState(true);
+            const [firebaseActive, setFirebaseActive] = useState(false);
+            const [loggedInUser, setLoggedInUser] = useState(null);
+            
+            const [appInfo, setAppInfo] = useState({ version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' });
+
+            const [meetings, setMeetings] = useState([]);
+            const [meetingGrades, setMeetingGrades] = useState([]);
+
+            const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
+            const [alertState, setAlertState] = useState({ isOpen: false, title: '', message: '' });
+
+            const triggerConfirm = (title, message, callback) => {
+                setConfirmState({
+                    isOpen: true,
+                    title,
+                    message,
+                    onConfirm: () => {
+                        callback();
+                        setConfirmState({ isOpen: false, title: '', message: '', onConfirm: null });
+                    }
+                });
+            };
+
+            const triggerAlert = (title, message) => {
+                setAlertState({ isOpen: true, title, message });
+            };
+
+            useEffect(() => {
+                const savedUser = safeStorage.getItem('jurnal_active_user');
+                if (savedUser) {
+                    try {
+                        setLoggedInUser(JSON.parse(savedUser));
+                    } catch (e) {
+                        safeStorage.removeItem('jurnal_active_user');
+                    }
+                }
+            }, []);
+
+            useEffect(() => {
+                let checkAttempts = 0;
+                const checkFirebaseLib = setInterval(() => {
+                    checkAttempts++;
+                    const hasCredentials = firebaseConfig.apiKey !== "API_KEY_ANDA" && !IS_PREVIEW;
+
+                    if (window.firebaseInitialized && hasCredentials) {
+                        clearInterval(checkFirebaseLib);
+                        setupFirebaseConnection();
+                    } else if (checkAttempts > 8 || !hasCredentials) {
+                        clearInterval(checkFirebaseLib);
+                        setupLocalStorageConnection();
+                    }
+                }, 150);
+            }, []);
+
+            const setupFirebaseConnection = async () => {
+                try {
+                    const { initializeApp } = window.firebaseCore;
+                    const { getAuth, signInAnonymously } = window.firebaseAuthSDK;
+                    const { getFirestore, collection, onSnapshot, doc, setDoc } = window.firebaseFirestoreSDK;
+
+                    const app = initializeApp(firebaseConfig);
+                    const auth = getAuth(app);
+                    const db = getFirestore(app);
+
+                    await signInAnonymously(auth);
+
+                    setFirebaseActive(true);
+                    window.activeDb = db;
+
+                    const kopRef = doc(db, "configs", "kop");
+                    onSnapshot(kopRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            setKop(docSnap.data());
+                        } else {
+                            setDoc(kopRef, DEFAULT_KOP);
+                            setKop(DEFAULT_KOP);
+                        }
+                    });
+
+                    const infoRef = doc(db, "configs", "info");
+                    onSnapshot(infoRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            setAppInfo(docSnap.data());
+                        } else {
+                            const defaultInfo = { version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' };
+                            setDoc(infoRef, defaultInfo);
+                            setAppInfo(defaultInfo);
+                        }
+                    });
+
+                    const studentsRef = collection(db, "students");
+                    onSnapshot(studentsRef, (snapshot) => {
+                        if (snapshot.empty) {
+                            autoSetupDatabase(db);
+                        } else {
+                            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                            data.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
+                            setStudents(data);
+                        }
+                    });
+
+                    const journalsRef = collection(db, "journals");
+                    onSnapshot(journalsRef, (snapshot) => {
+                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        data.sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+                        setJournals(data);
+                    });
+
+                    const gurusRef = collection(db, "gurus");
+                    onSnapshot(gurusRef, (snapshot) => {
+                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        setGurus(data);
+                    });
+
+                    const classesRef = collection(db, "classes");
+                    onSnapshot(classesRef, (snapshot) => {
+                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        data.sort((a, b) => a.nama.localeCompare(b.nama));
+                        setClasses(data);
+                    });
+
+                    const subjectsRef = collection(db, "subjects");
+                    onSnapshot(subjectsRef, (snapshot) => {
+                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        data.sort((a, b) => a.nama.localeCompare(b.nama));
+                        setSubjects(data);
+                    });
+
+                    const meetingsRef = collection(db, "meetings");
+                    onSnapshot(meetingsRef, (snapshot) => {
+                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        setMeetings(data);
+                    }, (err) => console.error("Firebase Sync Error (meetings):", err));
+
+                    const meetingGradesRef = collection(db, "meeting_grades");
+                    onSnapshot(meetingGradesRef, (snapshot) => {
+                        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        setMeetingGrades(data);
+                    }, (err) => console.error("Firebase Sync Error (meeting_grades):", err));
+
+                    setLoading(false);
+                } catch (error) {
+                    console.error("Firebase Gagal. Berpindah ke Simulasi localstorage.", error);
+                    setupLocalStorageConnection();
+                }
+            };
+
+            const setupLocalStorageConnection = () => {
+                setFirebaseActive(false);
+                
+                if (!safeStorage.getItem('jurnal_kop')) {
+                    safeStorage.setItem('jurnal_kop', JSON.stringify(DEFAULT_KOP));
+                }
+                if (!safeStorage.getItem('jurnal_app_info')) {
+                    safeStorage.setItem('jurnal_app_info', JSON.stringify({ version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' }));
+                }
+                if (!safeStorage.getItem('jurnal_students')) {
+                    safeStorage.setItem('jurnal_students', JSON.stringify(DUMMY_STUDENTS));
+                }
+                if (!safeStorage.getItem('jurnal_journals')) {
+                    safeStorage.setItem('jurnal_journals', JSON.stringify(DUMMY_JOURNALS));
+                }
+                if (!safeStorage.getItem('jurnal_gurus')) {
+                    safeStorage.setItem('jurnal_gurus', JSON.stringify(DUMMY_USERS));
+                }
+                if (!safeStorage.getItem('jurnal_classes')) {
+                    safeStorage.setItem('jurnal_classes', JSON.stringify([{ id: "c1", nama: "XI-A" }, { id: "c2", nama: "XI-B" }]));
+                }
+                if (!safeStorage.getItem('jurnal_subjects')) {
+                    safeStorage.setItem('jurnal_subjects', JSON.stringify([{ id: "sub1", nama: "Matematika" }, { id: "sub2", nama: "Fisika" }]));
+                }
+                if (!safeStorage.getItem('jurnal_meetings')) {
+                    safeStorage.setItem('jurnal_meetings', JSON.stringify([]));
+                }
+                if (!safeStorage.getItem('jurnal_meeting_grades')) {
+                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify([]));
+                }
+
+                const localKop = JSON.parse(safeStorage.getItem('jurnal_kop'));
+                const localInfo = JSON.parse(safeStorage.getItem('jurnal_app_info'));
+                const localStuds = JSON.parse(safeStorage.getItem('jurnal_students'));
+                const localJourns = JSON.parse(safeStorage.getItem('jurnal_journals'));
+                const localGurus = JSON.parse(safeStorage.getItem('jurnal_gurus'));
+                const localClasses = JSON.parse(safeStorage.getItem('jurnal_classes'));
+                const localSubjects = JSON.parse(safeStorage.getItem('jurnal_subjects'));
+                const localMeetings = JSON.parse(safeStorage.getItem('jurnal_meetings')) || [];
+                const localMeetingGrades = JSON.parse(safeStorage.getItem('jurnal_meeting_grades')) || [];
+
+                localStuds.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
+                localJourns.sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+                localClasses.sort((a, b) => a.nama.localeCompare(b.nama));
+                localSubjects.sort((a, b) => a.nama.localeCompare(b.nama));
+
+                setKop(localKop);
+                setAppInfo(localInfo);
+                setStudents(localStuds);
+                setJournals(localJourns);
+                setGurus(localGurus);
+                setClasses(localClasses);
+                setSubjects(localSubjects);
+                setMeetings(localMeetings);
+                setMeetingGrades(localMeetingGrades);
+                setLoading(false);
+            };
+
+            const autoSetupDatabase = async (db) => {
+                const { collection, addDoc, doc, setDoc } = window.firebaseFirestoreSDK;
+                const studentsRef = collection(db, "students");
+                const journalsRef = collection(db, "journals");
+                const gurusRef = collection(db, "gurus");
+                const classesRef = collection(db, "classes");
+                const subjectsRef = collection(db, "subjects");
+                const kopRef = doc(db, "configs", "kop");
+                const infoRef = doc(db, "configs", "info");
+
+                await setDoc(kopRef, DEFAULT_KOP);
+                await setDoc(infoRef, { version: 'v1.0.0-Release', creator: 'Developer SMK Negeri 3 Selayar' });
+
+                for (const student of DUMMY_STUDENTS) {
+                    await addDoc(studentsRef, {
+                        nis: student.nis,
+                        nama: student.nama,
+                        kelas: student.kelas
+                    });
+                }
+                for (const jrn of DUMMY_JOURNALS) {
+                    await addDoc(journalsRef, {
+                        tanggal: jrn.tanggal,
+                        kelas: jrn.kelas,
+                        mapel: jrn.mapel,
+                        materi: jrn.materi,
+                        catatan: jrn.catatan,
+                        fotoUrl: jrn.fotoUrl,
+                        waktu_input: jrn.waktu_input,
+                        guru_nama: jrn.guru_nama,
+                        guru_nip: jrn.guru_nip,
+                        absensi_data: jrn.absensi_data,
+                        rekap: jrn.rekap,
+                        jumlah_jam: jrn.jumlah_jam || "2",
+                        guru_pengganti: jrn.guru_pengganti || ""
+                    });
+                }
+                for (const gr of DUMMY_USERS) {
+                    await addDoc(gurusRef, {
+                        nip: gr.nip,
+                        nama: gr.nama,
+                        password: gr.password,
+                        role: gr.role,
+                        mapel: gr.mapel
+                    });
+                }
+                await addDoc(classesRef, { nama: "XI-A" });
+                await addDoc(classesRef, { nama: "XI-B" });
+                await addDoc(subjectsRef, { nama: "Matematika" });
+                await addDoc(subjectsRef, { nama: "Fisika" });
+            };
+
+            const handleLoginSuccess = (userData) => {
+                setLoggedInUser(userData);
+                safeStorage.setItem('jurnal_active_user', JSON.stringify(userData));
+                setCurrentView('dashboard');
+            };
+
+            const handleLogout = () => {
+                triggerConfirm(
+                    "Keluar Aplikasi",
+                    "Apakah Anda yakin ingin mengakhiri sesi dan keluar dari sistem Jurnal?",
+                    () => {
+                        setLoggedInUser(null);
+                        safeStorage.removeItem('jurnal_active_user');
+                    }
+                );
+            };
+
+            const updateKop = async (newKop) => {
+                if (firebaseActive) {
+                    const { doc, setDoc } = window.firebaseFirestoreSDK;
+                    await setDoc(doc(window.activeDb, "configs", "kop"), newKop);
+                } else {
+                    safeStorage.setItem('jurnal_kop', JSON.stringify(newKop));
+                    setKop(newKop);
+                }
+            };
+
+            const updateAppInfo = async (newInfo) => {
+                if (firebaseActive) {
+                    const { doc, setDoc } = window.firebaseFirestoreSDK;
+                    await setDoc(doc(window.activeDb, "configs", "info"), newInfo);
+                } else {
+                    safeStorage.setItem('jurnal_app_info', JSON.stringify(newInfo));
+                    setAppInfo(newInfo);
+                }
+            };
+
+            const deleteJournalPhoto = async (id) => {
+                const emptyPhoto = "https://placehold.co/800x450/e2e8f0/64748b?text=Tidak+Ada+Dokumentasi+KBM";
+                if (firebaseActive) {
+                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
+                    await updateDoc(doc(window.activeDb, "journals", id), { fotoUrl: emptyPhoto });
+                } else {
+                    const updated = journals.map(j => j.id === id ? { ...j, fotoUrl: emptyPhoto } : j);
+                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
+                    setJournals(updated);
+                }
+            };
+
+            const deleteJournalPhotosBulk = async (ids) => {
+                const emptyPhoto = "https://placehold.co/800x450/e2e8f0/64748b?text=Tidak+Ada+Dokumentasi+KBM";
+                if (firebaseActive) {
+                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
+                    for (const id of ids) {
+                        await updateDoc(doc(window.activeDb, "journals", id), { fotoUrl: emptyPhoto });
+                    }
+                } else {
+                    const updated = journals.map(j => ids.includes(j.id) ? { ...j, fotoUrl: emptyPhoto } : j);
+                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
+                    setJournals(updated);
+                }
+            };
+
+            const addStudent = async (newStudent) => {
+                if (firebaseActive) {
+                    const { collection, addDoc } = window.firebaseFirestoreSDK;
+                    await addDoc(collection(window.activeDb, "students"), newStudent);
+                } else {
+                    const updated = [...students, { id: 'local_' + Date.now(), ...newStudent }];
+                    updated.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
+                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
+                    setStudents(updated);
+                }
+            };
+
+            const updateStudent = async (id, updatedStudent) => {
+                if (firebaseActive) {
+                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
+                    await updateDoc(doc(window.activeDb, "students", id), updatedStudent);
+                } else {
+                    const updated = students.map(s => s.id === id ? { ...s, ...updatedStudent } : s);
+                    updated.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
+                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
+                    setStudents(updated);
+                }
+            };
+
+            const addStudentsBulk = async (studentList) => {
+                if (firebaseActive) {
+                    const { collection, addDoc } = window.firebaseFirestoreSDK;
+                    const studentsRef = collection(window.activeDb, "students");
+                    for (const student of studentList) {
+                        await addDoc(studentsRef, student);
+                    }
+                } else {
+                    const localWithIds = studentList.map((s, idx) => ({
+                        id: 'local_bulk_' + Date.now() + '_' + idx,
+                        ...s
+                    }));
+                    const updated = [...students, ...localWithIds];
+                    updated.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
+                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
+                    setStudents(updated);
+                }
+            };
+
+            const deleteStudent = async (id) => {
+                if (firebaseActive) {
+                    const { doc, deleteDoc } = window.firebaseFirestoreSDK;
+                    await deleteDoc(doc(window.activeDb, "students", id));
+                } else {
+                    const updated = students.filter(s => s.id !== id);
+                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
+                    setStudents(updated);
+                }
+            };
+
+            const deleteStudentsBulk = async (ids) => {
+                if (firebaseActive) {
+                    const { doc, deleteDoc } = window.firebaseFirestoreSDK;
+                    for (const id of ids) {
+                        await deleteDoc(doc(window.activeDb, "students", id));
+                    }
+                } else {
+                    const updated = students.filter(s => !ids.includes(s.id));
+                    safeStorage.setItem('jurnal_students', JSON.stringify(updated));
+                    setStudents(updated);
+                }
+            };
+
+            const addJournal = async (newJournal) => {
+                const journalPayload = {
+                    ...newJournal,
+                    guru_nama: loggedInUser.nama,
+                    guru_nip: loggedInUser.nip
+                };
+
+                if (firebaseActive) {
+                    const { collection, addDoc } = window.firebaseFirestoreSDK;
+                    await addDoc(collection(window.activeDb, "journals"), journalPayload);
+                } else {
+                    const updated = [{ id: 'j_local_' + Date.now(), ...journalPayload }, ...journals];
+                    updated.sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
+                    setJournals(updated);
+                }
+            };
+
+            const deleteJournal = async (id) => {
+                triggerConfirm(
+                    "Hapus Jurnal Mengajar",
+                    "Apakah Anda yakin ingin menghapus data jurnal ini secara permanen?",
+                    async () => {
+                        if (firebaseActive) {
+                            const { doc, deleteDoc } = window.firebaseFirestoreSDK;
+                            await deleteDoc(doc(window.activeDb, "journals", id));
+                        } else {
+                            const updated = journals.filter(j => j.id !== id);
+                            safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
+                            setJournals(updated);
+                        }
+                    }
+                );
+            };
+
+            const updateJournal = async (id, updatedJournal) => {
+                if (firebaseActive) {
+                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
+                    await updateDoc(doc(window.activeDb, "journals", id), updatedJournal);
+                } else {
+                    const updated = journals.map(j => j.id === id ? { ...j, ...updatedJournal } : j);
+                    safeStorage.setItem('jurnal_journals', JSON.stringify(updated));
+                    setJournals(updated);
+                }
+            };
+
+            const addGuru = async (newGuru) => {
+                if (firebaseActive) {
+                    const { collection, addDoc } = window.firebaseFirestoreSDK;
+                    await addDoc(collection(window.activeDb, "gurus"), newGuru);
+                } else {
+                    const updated = [...gurus, { id: 'g_local_' + Date.now(), ...newGuru }];
+                    safeStorage.setItem('jurnal_gurus', JSON.stringify(updated));
+                    setGurus(updated);
+                }
+            };
+
+            const updateGuru = async (id, updatedGuru) => {
+                if (firebaseActive) {
+                    const { doc, updateDoc } = window.firebaseFirestoreSDK;
+                    await updateDoc(doc(window.activeDb, "gurus", id), updatedGuru);
+                } else {
+                    const updated = gurus.map(g => g.id === id ? { ...g, ...updatedGuru } : g);
+                    safeStorage.setItem('jurnal_gurus', JSON.stringify(updated));
+                    setGurus(updated);
+                }
+                
+                if (loggedInUser && loggedInUser.id === id) {
+                    const newSession = { ...loggedInUser, ...updatedGuru };
+                    setLoggedInUser(newSession);
+                    safeStorage.setItem('jurnal_active_user', JSON.stringify(newSession));
+                }
+            };
+
+            const deleteGuru = async (id) => {
+                triggerConfirm(
+                    "Hapus Akun Pengguna",
+                    "Apakah Anda yakin ingin menghapus akun ini secara permanen dari sistem?",
+                    async () => {
+                        if (firebaseActive) {
+                            const { doc, deleteDoc } = window.firebaseFirestoreSDK;
+                            await deleteDoc(doc(window.activeDb, "gurus", id));
+                        } else {
+                            const updated = gurus.filter(g => g.id !== id);
+                            safeStorage.setItem('jurnal_gurus', JSON.stringify(updated));
+                            setGurus(updated);
+                        }
+                    }
+                );
+            };
+
+            const addClass = async (newClass) => {
+                if (firebaseActive) {
+                    const { collection, addDoc } = window.firebaseFirestoreSDK;
+                    await addDoc(collection(window.activeDb, "classes"), newClass);
+                } else {
+                    const updated = [...classes, { id: 'class_' + Date.now(), ...newClass }];
+                    updated.sort((a, b) => a.nama.localeCompare(b.nama));
+                    safeStorage.setItem('jurnal_classes', JSON.stringify(updated));
+                    setClasses(updated);
+                }
+            };
+
+            const deleteClass = async (id) => {
+                triggerConfirm(
+                    "Hapus Kelas",
+                    "Apakah Anda yakin ingin menghapus kelas ini? Tindakan ini dapat mempengaruhi dropdown kelas di menu lain.",
+                    async () => {
+                        if (firebaseActive) {
+                            const { doc, deleteDoc } = window.firebaseFirestoreSDK;
+                            await deleteDoc(doc(window.activeDb, "classes", id));
+                        } else {
+                            const updated = classes.filter(c => c.id !== id);
+                            safeStorage.setItem('jurnal_classes', JSON.stringify(updated));
+                            setClasses(updated);
+                        }
+                    }
+                );
+            };
+
+            const addSubject = async (newSub) => {
+                if (firebaseActive) {
+                    const { collection, addDoc } = window.firebaseFirestoreSDK;
+                    await addDoc(collection(window.activeDb, "subjects"), newSub);
+                } else {
+                    const updated = [...subjects, { id: 'sub_' + Date.now(), ...newSub }];
+                    updated.sort((a, b) => a.nama.localeCompare(b.nama));
+                    safeStorage.setItem('jurnal_subjects', JSON.stringify(updated));
+                    setSubjects(updated);
+                }
+            };
+
+            const deleteSubject = async (id) => {
+                triggerConfirm(
+                    "Hapus Mata Pelajaran",
+                    "Apakah Anda yakin ingin menghapus mata pelajaran ini? Tindakan ini dapat mempengaruhi dropdown mapel di menu lain.",
+                    async () => {
+                        if (firebaseActive) {
+                            const { doc, deleteDoc } = window.firebaseFirestoreSDK;
+                            await deleteDoc(doc(window.activeDb, "subjects", id));
+                        } else {
+                            const updated = subjects.filter(s => s.id !== id);
+                            safeStorage.setItem('jurnal_subjects', JSON.stringify(updated));
+                            setSubjects(updated);
+                        }
+                    }
+                );
+            };
+
+            const addMeeting = async (newMeeting) => {
+                if (firebaseActive) {
+                    const { collection, addDoc } = window.firebaseFirestoreSDK;
+                    await addDoc(collection(window.activeDb, "meetings"), newMeeting);
+                } else {
+                    const updated = [...meetings, { id: 'm_' + Date.now(), ...newMeeting }];
+                    safeStorage.setItem('jurnal_meetings', JSON.stringify(updated));
+                    setMeetings(updated);
+                }
+            };
+
+            const deleteMeeting = async (meetingId) => {
+                if (firebaseActive) {
+                    const { doc, deleteDoc, collection, query, where, getDocs } = window.firebaseFirestoreSDK;
+                    const db = window.activeDb;
+                    await deleteDoc(doc(db, "meetings", meetingId));
+                    try {
+                        const gradesQ = query(collection(db, "meeting_grades"), where("meetingId", "==", meetingId));
+                        const snapshot = await getDocs(gradesQ);
+                        for (const docSnap of snapshot.docs) {
+                            await deleteDoc(doc(db, "meeting_grades", docSnap.id));
+                        }
+                    } catch (e) {
+                        console.error("Gagal membersihkan database nilai pertemuan:", e);
+                    }
+                } else {
+                    const updatedMeetings = meetings.filter(m => m.id !== meetingId);
+                    const updatedGrades = meetingGrades.filter(g => g.meetingId !== meetingId);
+                    safeStorage.setItem('jurnal_meetings', JSON.stringify(updatedMeetings));
+                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify(updatedGrades));
+                    setMeetings(updatedMeetings);
+                    setMeetingGrades(updatedGrades);
+                }
+            };
+
+            const saveMeetingGrade = async (studentId, meetingId, nilai) => {
+                const payload = {
+                    studentId,
+                    meetingId,
+                    nilai: nilai !== null ? Number(nilai) : null
+                };
+
+                const existing = meetingGrades.find(g => g.studentId === studentId && g.meetingId === meetingId);
+
+                if (firebaseActive) {
+                    const { collection, doc, addDoc, updateDoc } = window.firebaseFirestoreSDK;
+                    const db = window.activeDb;
+                    if (existing) {
+                        await updateDoc(doc(db, "meeting_grades", existing.id), { nilai });
+                    } else {
+                        await addDoc(collection(db, "meeting_grades"), payload);
+                    }
+                } else {
+                    let updated;
+                    if (existing) {
+                        updated = meetingGrades.map(g => g.id === existing.id ? { ...g, nilai } : g);
+                    } else {
+                        updated = [...meetingGrades, { id: 'mg_' + Date.now(), ...payload }];
+                    }
+                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify(updated));
+                    setMeetingGrades(updated);
+                }
+            };
+
+            const deleteMeetingGradesSingle = async (studentId, meetingIds) => {
+                const targetGrades = meetingGrades.filter(g => g.studentId === studentId && meetingIds.includes(g.meetingId));
+                if (firebaseActive) {
+                    const { doc, deleteDoc } = window.firebaseFirestoreSDK;
+                    const db = window.activeDb;
+                    for (const g of targetGrades) {
+                        await deleteDoc(doc(db, "meeting_grades", g.id));
+                    }
+                } else {
+                    const idsToRemove = targetGrades.map(g => g.id);
+                    const updated = meetingGrades.filter(g => !idsToRemove.includes(g.id));
+                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify(updated));
+                    setMeetingGrades(updated);
+                }
+            };
+
+            const deleteMeetingGradesBulk = async (gradesList) => {
+                if (firebaseActive) {
+                    const { doc, deleteDoc } = window.firebaseFirestoreSDK;
+                    const db = window.activeDb;
+                    for (const g of gradesList) {
+                        await deleteDoc(doc(db, "meeting_grades", g.id));
+                    }
+                } else {
+                    const idsToRemove = gradesList.map(g => g.id);
+                    const updated = meetingGrades.filter(g => !idsToRemove.includes(g.id));
+                    safeStorage.setItem('jurnal_meeting_grades', JSON.stringify(updated));
+                    setMeetingGrades(updated);
+                }
+            };
+
+            if (loading) {
+                return (
+                    <div className="flex flex-col h-screen items-center justify-center bg-slate-900 text-white space-y-4">
+                        <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-lg font-semibold tracking-wider">Menyiapkan Aplikasi Jurnal...</p>
+                        <p className="text-xs text-slate-400">Menyinkronkan database sekolah secara aman</p>
+                    </div>
+                );
+            }
+
+            if (!loggedInUser) {
+                return <ViewLogin onLoginSuccess={handleLoginSuccess} firebaseActive={firebaseActive} triggerAlert={triggerAlert} appInfo={appInfo} />;
+            }
+
+            const isKepsek = loggedInUser.role === 'kepsek';
+            const isAdmin = loggedInUser.role === 'admin';
+
+            return (
+                <div className="flex h-screen overflow-hidden">
+                    <CustomConfirmModal 
+                        isOpen={confirmState.isOpen}
+                        title={confirmState.title}
+                        message={confirmState.message}
+                        onConfirm={confirmState.onConfirm}
+                        onCancel={() => setConfirmState({ isOpen: false, title: '', message: '', onConfirm: null })}
+                    />
+
+                    <CustomAlertModal 
+                        isOpen={alertState.isOpen}
+                        title={alertState.title}
+                        message={alertState.message}
+                        onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
+                    />
+
+                    {/* Sidebar Navigasi Permanen di Desktop */}
+                    <aside className="hidden md:flex w-72 bg-slate-900 text-white flex-col shadow-2xl print-hidden flex-shrink-0 z-30">
+                        <div className="p-8 border-b border-indigo-950 flex items-center space-x-3">
+                            <div className="p-2.5 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30">
+                                <IconBook />
+                            </div>
+                            <div>
+                                <h1 className="text-lg font-black tracking-tight leading-none text-white">E-JURNAL</h1>
+                                <span className="text-indigo-400 text-[10px] font-semibold tracking-widest uppercase">
+                                    {isAdmin ? 'ADMINISTRATOR' : isKepsek ? 'KEPALA SEKOLAH' : 'GURU TERPADU'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="px-8 mt-4">
+                            <div className={`text-[10px] uppercase font-bold py-1.5 px-3 rounded-full flex items-center space-x-2 w-fit ${firebaseActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+                                <span className={`w-2 h-2 rounded-full ${firebaseActive ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
+                                <span>{firebaseActive ? 'Firebase Server' : 'Mode Simulasi'}</span>
+                            </div>
+                        </div>
+
+                        <nav className="flex-1 px-4 py-8 space-y-1.5 overflow-y-auto">
+                            {isAdmin ? (
+                                <>
+                                    <MenuButton icon={<IconDashboard />} label="Dashboard Admin" isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
+                                    <MenuButton icon={<IconUsers />} label="Kelola Akun Guru" isActive={currentView === 'kelola_guru'} onClick={() => setCurrentView('kelola_guru')} />
+                                    <MenuButton icon={<IconBook />} label="Referensi Kelas &amp; Mapel" isActive={currentView === 'kelola_referensi'} onClick={() => setCurrentView('kelola_referensi')} />
+                                    <MenuButton icon={<IconPrint />} label="Pengaturan Kop Cetak" isActive={currentView === 'kelola_kop'} onClick={() => setCurrentView('kelola_kop')} />
+                                    <MenuButton icon={<IconInfo />} label="Informasi Aplikasi" isActive={currentView === 'kelola_info'} onClick={() => setCurrentView('kelola_info')} />
+                                    <MenuButton icon={<IconImage />} label="Galeri Foto KBM" isActive={currentView === 'kelola_galeri'} onClick={() => setCurrentView('kelola_galeri')} />
+                                    <MenuButton icon={<IconLock />} label="Kelola Akun Kepsek" isActive={currentView === 'kelola_kepsek'} onClick={() => setCurrentView('kelola_kepsek')} />
+                                    <MenuButton icon={<IconLock />} label="Pengaturan Admin" isActive={currentView === 'kelola_admin'} onClick={() => setCurrentView('kelola_admin')} />
+                                </>
+                            ) : isKepsek ? (
+                                <>
+                                    <MenuButton icon={<IconDashboard />} label="Dashboard Kepsek" isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
+                                    <MenuButton icon={<IconHistory />} label="Monitoring Jurnal" isActive={currentView === 'monitoring_jurnal'} onClick={() => setCurrentView('monitoring_jurnal')} />
+                                    <MenuButton icon={<IconChart />} label="Rekap &amp; Laporan" isActive={currentView === 'rekap'} onClick={() => setCurrentView('rekap')} />
+                                </>
+                            ) : (
+                                <>
+                                    <MenuButton icon={<IconDashboard />} label="Dashboard" isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
+                                    <MenuButton icon={<IconUsers />} label="Data Siswa" isActive={currentView === 'siswa'} onClick={() => setCurrentView('siswa')} />
+                                    <MenuButton icon={<IconBook />} label="Isi Jurnal &amp; Absen" isActive={currentView === 'isi_jurnal'} onClick={() => setCurrentView('isi_jurnal')} />
+                                    <MenuButton icon={<IconHistory />} label="Riwayat Jurnal" isActive={currentView === 'riwayat'} onClick={() => setCurrentView('riwayat')} />
+                                    <MenuButton icon={<IconChart />} label="Penilaian Siswa" isActive={currentView === 'penilaian'} onClick={() => setCurrentView('penilaian')} />
+                                    <MenuButton icon={<IconChart />} label="Rekap Laporan" isActive={currentView === 'rekap'} onClick={() => setCurrentView('rekap')} />
+                                </>
+                            )}
+                        </nav>
+
+                        <div className="p-6 border-t border-indigo-950/80 bg-slate-950/40">
+                            <div className="flex items-center space-x-3 mb-4">
+                                <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-white uppercase shadow-lg">
+                                    {loggedInUser.nama.charAt(0)}
+                                </div>
+                                <div className="flex-1 overflow-hidden">
+                                    <p className="text-sm font-semibold truncate text-white leading-tight">{loggedInUser.nama}</p>
+                                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">Role: {loggedInUser.role.toUpperCase()}</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={handleLogout}
+                                className="w-full bg-rose-500/10 hover:bg-rose-50 hover:text-white border border-rose-500/20 text-rose-400 text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                <span>Keluar Sistem</span>
+                            </button>
+                        </div>
+                    </aside>
+
+                    {/* Bottom Nav Melayang untuk Perangkat Seluler */}
+                    <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-slate-900/95 backdrop-blur-md rounded-2xl p-2.5 flex items-center justify-around shadow-2xl print-hidden z-40 border border-white/10">
+                        {isAdmin ? (
+                            <>
+                                <MobileTabButton icon={<IconDashboard />} isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
+                                <MobileTabButton icon={<IconUsers />} isActive={currentView === 'kelola_guru'} onClick={() => setCurrentView('kelola_guru')} />
+                                <MobileTabButton icon={<IconBook />} isActive={currentView === 'kelola_referensi'} onClick={() => setCurrentView('kelola_referensi')} />
+                                <MobileTabButton icon={<IconPrint />} isActive={currentView === 'kelola_kop'} onClick={() => setCurrentView('kelola_kop')} />
+                                <MobileTabButton icon={<IconInfo />} isActive={currentView === 'kelola_info'} onClick={() => setCurrentView('kelola_info')} />
+                                <MobileTabButton icon={<IconImage />} isActive={currentView === 'kelola_galeri'} onClick={() => setCurrentView('kelola_galeri')} />
+                                <MobileTabButton icon={<IconLock />} isActive={currentView === 'kelola_admin'} onClick={() => setCurrentView('kelola_admin')} />
+                            </>
+                        ) : isKepsek ? (
+                            <>
+                                <MobileTabButton icon={<IconDashboard />} isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
+                                <MobileTabButton icon={<IconHistory />} isActive={currentView === 'monitoring_jurnal'} onClick={() => setCurrentView('monitoring_jurnal')} />
+                                <MobileTabButton icon={<IconChart />} isActive={currentView === 'rekap'} onClick={() => setCurrentView('rekap')} />
+                            </>
+                        ) : (
+                            <>
+                                <MobileTabButton icon={<IconDashboard />} isActive={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
+                                <MobileTabButton icon={<IconUsers />} isActive={currentView === 'siswa'} onClick={() => setCurrentView('siswa')} />
+                                <MobileTabButton icon={<IconBook />} isActive={currentView === 'isi_jurnal'} onClick={() => setCurrentView('isi_jurnal')} />
+                                <MobileTabButton icon={<IconHistory />} isActive={currentView === 'riwayat'} onClick={() => setCurrentView('riwayat')} />
+                                <MobileTabButton icon={<IconChart />} isActive={currentView === 'penilaian'} onClick={() => setCurrentView('penilaian')} />
+                                <MobileTabButton icon={<IconChart />} isActive={currentView === 'rekap'} onClick={() => setCurrentView('rekap')} />
+                            </>
+                        )}
+                        <button onClick={handleLogout} className="p-3 rounded-xl text-rose-400">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        </button>
+                    </nav>
+
+                    {/* Area Konten Utama Scrollable */}
+                    <main className="flex-1 flex flex-col h-screen overflow-y-auto print-block relative bg-slate-50">
+                        <header className="bg-white/85 backdrop-blur-md shadow-sm border-b border-slate-100 px-8 py-5 flex items-center justify-between print-hidden sticky top-0 z-20">
+                            <h2 className="text-xl font-bold text-slate-800 capitalize tracking-tight flex items-center space-x-2">
+                                <span className="text-indigo-600">|</span>
+                                <span>{currentView.replace('_', ' ')}</span>
+                            </h2>
+                            <div className="flex items-center space-x-3 text-sm font-semibold text-slate-600 bg-slate-100/60 py-1.5 px-4 rounded-full border border-slate-200/50">
+                                <div className="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-pulse"></div>
+                                <span>{loggedInUser.mapel || "Sistem Administrator"}</span>
+                            </div>
+                        </header>
+
+                        <div className="p-4 md:p-8 flex-1 pb-24 md:pb-8">
+                            {isAdmin ? (
+                                <>
+                                    {currentView === 'dashboard' && <ViewDashboardAdmin gurus={gurus} students={students} journals={journals} />}
+                                    {currentView === 'kelola_guru' && <ViewKelolaGuru gurus={gurus} subjects={subjects} addGuru={addGuru} updateGuru={updateGuru} deleteGuru={deleteGuru} triggerAlert={triggerAlert} />}
+                                    {currentView === 'kelola_referensi' && <ViewKelolaReferensi classes={classes} subjects={subjects} addClass={addClass} deleteClass={deleteClass} addSubject={addSubject} deleteSubject={deleteSubject} triggerAlert={triggerAlert} />}
+                                    {currentView === 'kelola_kop' && <ViewKelolaKop kop={kop} updateKop={updateKop} triggerAlert={triggerAlert} />}
+                                    {currentView === 'kelola_info' && <ViewKelolaInfo appInfo={appInfo} updateAppInfo={updateAppInfo} triggerAlert={triggerAlert} />}
+                                    {currentView === 'kelola_galeri' && <ViewKelolaGaleri journals={journals} deleteJournalPhoto={deleteJournalPhoto} deleteJournalPhotosBulk={deleteJournalPhotosBulk} triggerAlert={triggerAlert} triggerConfirm={triggerConfirm} />}
+                                    {currentView === 'kelola_kepsek' && <ViewKelolaKepsek gurus={gurus} updateGuru={updateGuru} triggerAlert={triggerAlert} />}
+                                    {currentView === 'kelola_admin' && <ViewKelolaAdmin gurus={gurus} updateGuru={updateGuru} loggedInUser={loggedInUser} triggerAlert={triggerAlert} />}
+                                </>
+                            ) : isKepsek ? (
+                                <>
+                                    {currentView === 'dashboard' && <ViewDashboardKepsek journals={journals} students={students} changeView={setCurrentView} />}
+                                    {currentView === 'monitoring_jurnal' && <ViewMonitoringJurnal journals={journals} deleteJournal={deleteJournal} kop={kop} />}
+                                    {currentView === 'rekap' && <ViewRekap journals={journals} students={students} loggedInUser={loggedInUser} kop={kop} />}
+                                </>
+                            ) : (
+                                <>
+                                    {currentView === 'dashboard' && <ViewDashboard journals={journals} students={students} changeView={setCurrentView} />}
+                                    {currentView === 'siswa' && <ViewDataSiswa students={students} classes={classes} addStudent={addStudent} updateStudent={updateStudent} addStudentsBulk={addStudentsBulk} deleteStudent={deleteStudent} deleteStudentsBulk={deleteStudentsBulk} triggerAlert={triggerAlert} triggerConfirm={triggerConfirm} />}
+                                    {currentView === 'isi_jurnal' && <ViewIsiJurnal students={students} classes={classes} subjects={subjects} addJournal={addJournal} onSuccess={() => setCurrentView('riwayat')} triggerAlert={triggerAlert} />}
+                                    {currentView === 'riwayat' && <ViewRiwayat journals={journals} deleteJournal={deleteJournal} updateJournal={updateJournal} kop={kop} />}
+                                    {currentView === 'penilaian' && <ViewPenilaian students={students} classes={classes} subjects={subjects} loggedInUser={loggedInUser} kop={kop} triggerAlert={triggerAlert} triggerConfirm={triggerConfirm} firebaseActive={firebaseActive} meetings={meetings} meetingGrades={meetingGrades} addMeeting={addMeeting} deleteMeeting={deleteMeeting} saveMeetingGrade={saveMeetingGrade} deleteMeetingGradesSingle={deleteMeetingGradesSingle} deleteMeetingGradesBulk={deleteMeetingGradesBulk} />}
+                                    {currentView === 'rekap' && <ViewRekap journals={journals} students={students} loggedInUser={loggedInUser} kop={kop} />}
+                                </>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const MenuButton = ({ icon, label, isActive, onClick }) => (
+            <button 
+                onClick={onClick}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                    isActive 
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 font-semibold translate-x-1' 
+                        : 'text-indigo-200/80 hover:bg-slate-800 hover:text-white hover:translate-x-1'
+                }`}
+            >
+                <span className={isActive ? 'text-white' : 'text-indigo-400'}>{icon}</span>
+                <span className="text-sm tracking-wide">{label}</span>
+            </button>
+        );
+
+        const MobileTabButton = ({ icon, isActive, onClick }) => (
+            <button 
+                onClick={onClick} 
+                className={`p-3 rounded-xl transition-all duration-200 ${
+                    isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-indigo-300 hover:text-white'
+                }`}
+            >
+                {icon}
+            </button>
+        );
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
