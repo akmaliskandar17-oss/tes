@@ -639,30 +639,40 @@
         };
 
         window.loadAppConfig = async function() {
-            try {
-                const configs = await getRecords('app_config');
-                let config = configs[0];
-                if (!config) {
-                    config = { id: "cfg_01", versi: "v2.1.0-Live", pembuat: "Webapp Builder - FIREBASE" };
+    try {
+        const configs = await getRecords('app_config');
+        let config = configs[0];
+        
+        // JIKA DATABASE CLOUD MASIH KOSONG
+        if (!config) {
+            config = { versi: "v2.1.0-Live", pembuat: "Webapp Builder - FIREBASE" };
+            
+            // Tulis ke cloud HANYA JIKA user saat ini terverifikasi sebagai Admin
+            if (!IS_PREVIEW && auth && auth.currentUser) {
+                try {
                     await createRecord('app_config', config);
+                } catch(writeErr) {
+                    console.log("Inisialisasi awalan dilewati: Dokumen akan dibuat saat Admin pertama kali menyimpan pengaturan.");
                 }
-                
-                // Perbarui tampilan UI di login muka
-                const verEl = document.getElementById('login-app-version');
-                const creEl = document.getElementById('login-app-creator');
-                const verElMob = document.getElementById('login-app-version-mobile');
-                const creElMob = document.getElementById('login-app-creator-mobile');
-                
-                if (verEl) verEl.textContent = config.versi;
-                if (creEl) creEl.textContent = config.pembuat;
-                if (verElMob) verElMob.textContent = config.versi;
-                if (creElMob) creElMob.textContent = config.pembuat;
-                
-                appState.appConfig = config;
-            } catch (err) {
-                console.error("Gagal memuat konfigurasi identitas aplikasi:", err);
             }
-        };
+        }
+        
+        // Terapkan konfigurasi ke tampilan UI
+        const verEl = document.getElementById('login-app-version');
+        const creEl = document.getElementById('login-app-creator');
+        const verElMob = document.getElementById('login-app-version-mobile');
+        const creElMob = document.getElementById('login-app-creator-mobile');
+        
+        if (verEl) verEl.textContent = config.versi;
+        if (creEl) creEl.textContent = config.pembuat;
+        if (verElMob) verElMob.textContent = config.versi;
+        if (creElMob) creElMob.textContent = config.pembuat;
+        
+        appState.appConfig = config;
+    } catch (err) {
+        console.error("Gagal memuat konfigurasi identitas aplikasi:", err);
+    }
+};
 
         async function autoSetupDatabase() {
             if (IS_PREVIEW) return;
