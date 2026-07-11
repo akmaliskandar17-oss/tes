@@ -381,7 +381,7 @@
                             <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
                             <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
                         </button>
-                        <span id="role-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">Siswa</span>
+                        <span id="role-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400">Siswa</span>
                     </div>
                 </header>
 
@@ -409,7 +409,7 @@
                     </div>
                     <div>
                         <h3 id="exam-mapel-text" class="text-base font-bold text-slate-950 dark:text-white leading-tight">Nama Mata Pelajaran</h3>
-                        <p id="exam-student-text" class="text-xs text-slate-400 dark:text-slate-400 mt-1 font-semibold">Nama Peserta (NISN)</p>
+                        <p id="exam-student-text" class="text-xs text-slate-400 dark:text-slate-450 mt-1 font-semibold">Nama Peserta (NISN)</p>
                     </div>
                 </div>
 
@@ -638,41 +638,39 @@
             }
         };
 
+        // MEMUAT KONFIGURASI SECARA AMAN (Tamu/Siswa membaca fallback tanpa memaksa penulisan cloud kosong)
         window.loadAppConfig = async function() {
-    try {
-        const configs = await getRecords('app_config');
-        let config = configs[0];
-        
-        // JIKA DATABASE CLOUD MASIH KOSONG
-        if (!config) {
-            config = { versi: "v2.1.0-Live", pembuat: "Webapp Builder - FIREBASE" };
-            
-            // Tulis ke cloud HANYA JIKA user saat ini terverifikasi sebagai Admin
-            if (!IS_PREVIEW && auth && auth.currentUser) {
-                try {
-                    await createRecord('app_config', config);
-                } catch(writeErr) {
-                    console.log("Inisialisasi awalan dilewati: Dokumen akan dibuat saat Admin pertama kali menyimpan pengaturan.");
+            try {
+                const configs = await getRecords('app_config');
+                let config = configs[0];
+                if (!config) {
+                    config = { id: "cfg_01", versi: "v2.1.0-Live", pembuat: "Webapp Builder - FIREBASE" };
+                    // Hanya inisialisasi penulisan default ke cloud jika user aktif adalah Admin yang sah
+                    if (!IS_PREVIEW && auth && auth.currentUser) {
+                        try {
+                            await createRecord('app_config', config);
+                        } catch (err) {
+                            console.log("Inisialisasi cloud dilewati untuk Guest.");
+                        }
+                    }
                 }
+                
+                // Perbarui tampilan UI di login muka
+                const verEl = document.getElementById('login-app-version');
+                const creEl = document.getElementById('login-app-creator');
+                const verElMob = document.getElementById('login-app-version-mobile');
+                const creElMob = document.getElementById('login-app-creator-mobile');
+                
+                if (verEl) verEl.textContent = config.versi;
+                if (creEl) creEl.textContent = config.pembuat;
+                if (verElMob) verElMob.textContent = config.versi;
+                if (creElMob) creElMob.textContent = config.pembuat;
+                
+                appState.appConfig = config;
+            } catch (err) {
+                console.error("Gagal memuat konfigurasi identitas aplikasi:", err);
             }
-        }
-        
-        // Terapkan konfigurasi ke tampilan UI
-        const verEl = document.getElementById('login-app-version');
-        const creEl = document.getElementById('login-app-creator');
-        const verElMob = document.getElementById('login-app-version-mobile');
-        const creElMob = document.getElementById('login-app-creator-mobile');
-        
-        if (verEl) verEl.textContent = config.versi;
-        if (creEl) creEl.textContent = config.pembuat;
-        if (verElMob) verElMob.textContent = config.versi;
-        if (creElMob) creElMob.textContent = config.pembuat;
-        
-        appState.appConfig = config;
-    } catch (err) {
-        console.error("Gagal memuat konfigurasi identitas aplikasi:", err);
-    }
-};
+        };
 
         async function autoSetupDatabase() {
             if (IS_PREVIEW) return;
@@ -719,7 +717,8 @@
                     app = initializeApp(firebaseConfig);
                     auth = getAuth(app);
                     db = getFirestore(app);
-                    autoSetupDatabase();
+                    // DILARANG memanggil autoSetupDatabase() di sini karena Guest dilarang menulis Firestore Rules.
+                    // autoSetupDatabase() sekarang dipanggil setelah login sukses.
                 } catch (err) {
                     console.error("Firebase Gagal Memuat. Beralih ke Mode Sandbox/Demo:", err);
                 }
@@ -827,6 +826,35 @@
             
             document.getElementById(viewId).classList.remove('hidden');
             lucide.createIcons();
+        };
+
+        window.showToast = function(title, msg, type = 'info') {
+            const toast = document.getElementById('custom-toast');
+            const iconBg = document.getElementById('toast-icon-bg');
+            const titleEl = document.getElementById('toast-title');
+            const messageEl = document.getElementById('toast-message');
+
+            titleEl.textContent = title;
+            messageEl.textContent = msg;
+
+            if (type === 'success') {
+                iconBg.className = "p-2 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400";
+                iconBg.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i>`;
+            } else if (type === 'error') {
+                iconBg.className = "p-2 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-955/40 dark:text-rose-400";
+                iconBg.innerHTML = `<i data-lucide="alert-triangle" class="w-5 h-5"></i>`;
+            } else {
+                iconBg.className = "p-2 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-450";
+                iconBg.innerHTML = `<i data-lucide="info" class="w-5 h-5"></i>`;
+            }
+
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            lucide.createIcons();
+
+            setTimeout(() => {
+                hideToast();
+            }, 4000);
         };
 
         window.showToast = function(title, msg, type = 'info') {
@@ -967,6 +995,10 @@
                 try {
                     const credentials = await signInWithEmailAndPassword(auth, email, pass);
                     appState.currentUser = { role: 'admin', data: { email, nama: credentials.user.email } };
+                    
+                    // PROSES SEEDING DATABASE OTOMATIS BERJALAN SAAT ADMIN BERHASIL MASUK
+                    await autoSetupDatabase();
+                    
                     showToast("Autentikasi Sukses", "Selamat datang Administrator.", "success");
                     setupMainMenu();
                     switchView('view-main');
@@ -1000,7 +1032,7 @@
             
             document.getElementById('role-badge').textContent = isStudent ? "Siswa / Peserta" : "Pengawas Utama";
             document.getElementById('role-badge').className = isStudent 
-                ? "px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+                ? "px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400"
                 : "px-3 py-1 rounded-full text-xs font-bold bg-slate-900 text-slate-100 dark:bg-slate-800 dark:text-slate-300";
             
             document.getElementById('aside-panel-type').textContent = isStudent ? "Ruang Siswa" : "Panel Administrator";
@@ -1055,7 +1087,7 @@
                         <p class="text-[10px] text-slate-400 font-semibold truncate mt-1 leading-none">${subtitle}</p>
                     </div>
                 </div>
-                <button onclick="handleLogOut()" class="w-full py-2.5 flex items-center justify-center gap-2 rounded-xl border border-rose-100 text-rose-600 hover:bg-rose-50 text-xs font-bold transition-all dark:border-rose-950/40 dark:hover:bg-rose-955/20">
+                <button onclick="handleLogOut()" class="w-full py-2.5 flex items-center justify-center gap-2 rounded-xl border border-rose-100 text-rose-600 hover:bg-rose-50 text-xs font-bold transition-all dark:border-rose-955/40 dark:hover:bg-rose-955/20">
                     <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Akun
                 </button>
             `;
@@ -1127,7 +1159,7 @@
                             <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Sudah Selesai</p>
                             <h3 class="text-3xl font-extrabold text-slate-900 mt-2 dark:text-white">${results.length}</h3>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center dark:bg-rose-955/40 dark:text-rose-450 shadow-sm">
+                        <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center dark:bg-rose-955/40 dark:text-rose-455 shadow-sm">
                             <i data-lucide="check-square" class="w-6 h-6"></i>
                         </div>
                     </div>
@@ -1300,7 +1332,7 @@
                                 </div>
 
                                 ${appState.selectedStudents.length > 0 ? `
-                                    <button onclick="deleteSelectedStudents()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 shadow-sm dark:bg-rose-955/20 dark:text-rose-400">
+                                    <button onclick="deleteSelectedStudents()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-650 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 shadow-sm dark:bg-rose-955/20 dark:text-rose-400">
                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Terpilih (${appState.selectedStudents.length})
                                     </button>
                                 ` : ''}
@@ -1594,7 +1626,7 @@
                     formOnSubmit = "handleEditExamSubmit(event)";
                     currentEditData = targetExam;
                     cancelBtnHtml = `
-                        <button type="button" onclick="cancelEditExam()" class="w-full py-3.5 mt-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-xs transition-all">Batal Mengubah</button>
+                        <button type="button" onclick="cancelEditExam()" class="w-full py-3.5 mt-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-655 hover:bg-slate-50 font-bold text-xs transition-all">Batal Mengubah</button>
                     `;
                 }
             }
@@ -1722,7 +1754,7 @@
                     <div class="glass-card rounded-3xl p-5 border-emerald-100 bg-emerald-50/10 flex flex-col h-[520px] dark:border-emerald-955/40">
                         <div class="flex items-center gap-2 pb-3 mb-3 border-b border-emerald-100/55 shrink-0 dark:border-emerald-955/40">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <h4 class="font-extrabold text-sm text-emerald-800 dark:text-emerald-450">Selesai (${finishedList.length})</h4>
+                            <h4 class="font-extrabold text-sm text-emerald-800 dark:text-emerald-455">Selesai (${finishedList.length})</h4>
                         </div>
                         <div class="flex-1 overflow-y-auto space-y-3">
                             ${finishedList.map(item => `
@@ -1773,7 +1805,7 @@
                                 <div class="bg-white dark:bg-slate-800/60 p-3.5 rounded-2xl border border-blue-100/50 shadow-sm dark:border-blue-955/30">
                                     <p class="text-xs font-bold text-slate-900 truncate dark:text-white">${item.student.nama}</p>
                                     <p class="text-[10px] text-slate-400 font-semibold mt-1">NISN: ${item.student.nisn} | Kelas: ${item.student.kelas}</p>
-                                    <span class="inline-flex items-center gap-1 text-[9px] bg-blue-50 border border-blue-100 text-blue-650 font-bold px-2 py-0.5 rounded-lg mt-2 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">Menunggu Mulai</span>
+                                    <span class="inline-flex items-center gap-1 text-[9px] bg-blue-50 border border-blue-100 text-blue-655 font-bold px-2 py-0.5 rounded-lg mt-2 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">Menunggu Mulai</span>
                                 </div>
                             `).join('') || `<p class="text-xs text-slate-400 text-center py-6 font-medium">Tidak ada siswa online.</p>`}
                         </div>
@@ -1922,7 +1954,7 @@
                     <button onclick="renderAdminExams()" class="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 p-2 bg-white dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 shadow-sm transition-all">
                         <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Sesi
                     </button>
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg">Total: ${questions.length} Soal</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-450 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg">Total: ${questions.length} Soal</span>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -2323,7 +2355,7 @@
                 <div class="max-w-2xl mx-auto">
                     <div class="glass-card rounded-3xl p-6 md:p-8">
                         <div class="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
-                            <div class="p-2.5 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 shrink-0 shadow-sm">
+                            <div class="p-2.5 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400 shrink-0 shadow-sm">
                                 <i data-lucide="settings" class="w-5 h-5"></i>
                             </div>
                             <div>
@@ -2409,14 +2441,14 @@
                                 <span class="text-[10px] font-extrabold text-blue-650 dark:text-blue-400 block truncate" title="${mapelName}">${mapelName}</span>
                                 <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Butir Soal No. ${questionIdx}</span>
                             </div>
-                            <button onclick="deleteGalleryImage('${q.id}', '${mapelName.replace(/'/g, "\\'")}', ${questionIdx})" class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-all dark:bg-rose-955/40 dark:text-rose-455" title="Hapus Media Gambar">
+                            <button onclick="deleteGalleryImage('${q.id}', '${mapelName.replace(/'/g, "\\'")}', ${questionIdx})" class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-650 rounded-xl transition-all dark:bg-rose-955/40 dark:text-rose-455" title="Hapus Media Gambar">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
                         <div class="p-4 flex-1 flex items-center justify-center bg-slate-50/50 dark:bg-slate-900/30 min-h-[160px] max-h-[160px]">
-                            <img src="${q.gambar}" class="max-h-32 object-contain rounded-lg shadow-sm border border-slate-200 dark:border-slate-800" alt="Lampiran Soal" />
+                            <img src="${q.gambar}" class="max-h-32 object-contain rounded-lg shadow-sm border border-slate-200 dark:border-slate-800" alt="Pratinjau Gambar" />
                         </div>
-                        <div class="p-4 border-t border-slate-150 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/10">
+                        <div class="p-4 border-t border-slate-150 dark:border-slate-855 bg-slate-50/50 dark:bg-slate-900/10">
                             <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 italic">"${q.teks_soal}"</p>
                         </div>
                     </div>
@@ -2503,7 +2535,7 @@
                             <div class="flex flex-wrap gap-2 mt-3.5">
                                 <p class="text-[11px] text-slate-555 font-bold bg-slate-50 dark:bg-slate-800/50 w-fit px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
                                     <i data-lucide="users" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400"></i>
-                                    <span>Partisipan: <strong class="text-blue-650 dark:text-blue-400">${examResults.length}</strong></span>
+                                    <span>Partisipan: <strong class="text-blue-655 dark:text-blue-400">${examResults.length}</strong></span>
                                 </p>
                                 <p class="text-[11px] text-slate-555 font-bold bg-slate-50 dark:bg-slate-800/50 w-fit px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
                                     <i data-lucide="book-open" class="w-3.5 h-3.5 text-purple-650 dark:text-purple-400"></i>
@@ -2654,7 +2686,7 @@
                     <div class="glass-card rounded-3xl p-6 flex flex-col justify-between h-64 relative overflow-hidden transition-all hover:shadow-xl hover:shadow-blue-500/5">
                         <div class="absolute -right-10 -bottom-10 w-36 h-36 rounded-full bg-blue-500/5 blur-xl"></div>
                         <div>
-                            <span class="px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">Terbuka</span>
+                            <span class="px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400">Terbuka</span>
                             <h4 class="font-extrabold text-slate-900 text-lg leading-tight mt-3 dark:text-white">${e.mata_pelajaran}</h4>
                             <p class="text-xs text-slate-400 font-semibold mt-2 flex items-center gap-1.5">
                                 <i data-lucide="clock" class="w-3.5 h-3.5 text-blue-600"></i> ${e.durasi_menit} Menit
@@ -2772,7 +2804,7 @@
             const isDoubt = engine.doubtful[engine.currentIdx] === true;
             const doubtBtn = document.getElementById('doubtful-btn');
             if (isDoubt) {
-                doubtBtn.className = "flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:border-amber-900/40 dark:text-amber-400 transition-all";
+                doubtBtn.className = "flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-955/40 dark:border-amber-900/40 dark:text-amber-400 transition-all";
             } else {
                 doubtBtn.className = "flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-all";
             }
@@ -2784,7 +2816,7 @@
                     <img src="${currentQst.gambar}" class="max-h-60 rounded-2xl object-contain shadow-md border border-slate-200 dark:border-slate-800 mx-auto" alt="Gambar Referensi Soal" />
                 </div>
                 ` : ''}
-                <div class="leading-relaxed text-slate-850 dark:text-slate-100 font-semibold">${currentQst.teks_soal}</div>
+                <div class="leading-relaxed text-slate-855 dark:text-slate-100 font-semibold">${currentQst.teks_soal}</div>
             `;
             questionBox.style.fontSize = `${engine.fontSizePercent || 100}%`;
 
@@ -2792,7 +2824,7 @@
             optionsBox.innerHTML = currentQst.opsi.map((opt, oIdx) => {
                 const isSelected = engine.answers[engine.currentIdx] === oIdx;
                 return `
-                    <div onclick="selectCbtOption(${oIdx})" class="flex items-center gap-4 p-4 rounded-2xl border option-card-transition cursor-pointer ${isSelected ? 'border-blue-600 bg-blue-50/50 text-blue-900 font-bold ring-2 ring-blue-600/10 dark:border-blue-500 dark:bg-blue-950/20 dark:text-blue-300' : 'border-slate-200 dark:border-slate-850 bg-white dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}">
+                    <div onclick="selectCbtOption(${oIdx})" class="flex items-center gap-4 p-4 rounded-2xl border option-card-transition cursor-pointer ${isSelected ? 'border-blue-600 bg-blue-50/50 text-blue-900 font-bold ring-2 ring-blue-600/10 dark:border-blue-500 dark:bg-blue-955/20 dark:text-blue-300' : 'border-slate-200 dark:border-slate-850 bg-white dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}">
                         <span class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-extrabold uppercase ${isSelected ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}">
                             ${alphabeticKeys[oIdx]}
                         </span>
