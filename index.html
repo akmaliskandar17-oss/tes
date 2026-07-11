@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -24,14 +24,7 @@
 
     <script>
         tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
+            darkMode: 'class'
         }
     </script>
 
@@ -73,7 +66,7 @@
             background-color: #0f172a !important;
         }
         html.dark .glass-card {
-            background: rgba(30, 41, 59, 0.7) !important;
+            background: rgba(30, 41, 59, 0.75) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
         }
@@ -146,7 +139,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
         }
 
         /* Custom active state shadows */
@@ -199,10 +192,10 @@
                 <i id="toast-icon" data-lucide="info" class="w-5 h-5"></i>
             </div>
             <div class="flex-1">
-                <h4 id="toast-title" class="font-bold text-slate-900 text-sm dark:text-white">Pemberitahuan</h4>
-                <p id="toast-message" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Deskripsi info penting di sini.</p>
+                <h4 id="toast-title" class="font-bold text-slate-900 text-sm">Pemberitahuan</h4>
+                <p id="toast-message" class="text-xs text-slate-500 mt-0.5">Deskripsi info penting di sini.</p>
             </div>
-            <button onclick="hideToast()" class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
+            <button onclick="hideToast()" class="text-slate-400 hover:text-slate-600">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
@@ -213,10 +206,10 @@
                 <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mb-4">
                     <i id="dialog-icon" data-lucide="help-circle" class="w-6 h-6"></i>
                 </div>
-                <h3 id="dialog-title" class="text-lg font-bold text-slate-900 dark:text-white">Konfirmasi Tindakan</h3>
-                <p id="dialog-desc" class="text-slate-500 dark:text-slate-400 text-sm mt-2">Apakah Anda yakin?</p>
+                <h3 id="dialog-title" class="text-lg font-bold text-slate-900">Konfirmasi Tindakan</h3>
+                <p id="dialog-desc" class="text-slate-500 text-sm mt-2">Apakah Anda yakin?</p>
                 <div class="flex justify-end gap-3 mt-6">
-                    <button id="dialog-cancel-btn" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">Batal</button>
+                    <button id="dialog-cancel-btn" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors">Batal</button>
                     <button id="dialog-confirm-btn" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-500/20">Ya, Lanjutkan</button>
                 </div>
             </div>
@@ -255,8 +248,8 @@
                         <div>
                             <p class="text-[10px] text-blue-200 font-bold uppercase tracking-wider">Info Sistem</p>
                             <div class="mt-1 text-xs text-white space-y-0.5 font-medium">
-                                <div>Versi: <span id="login-app-version" class="text-blue-200 font-bold">v2.2.0-Live</span></div>
-                                <div>Pembuat: <span id="login-app-creator" class="text-blue-200 font-bold">Webapp Builder - FIREBASE</span></div>
+                                <div>Versi: <span id="login-app-version" class="text-blue-200 font-bold">v1.0.0-Live</span></div>
+                                <div>Pembuat: <span id="login-app-creator" class="text-blue-200 font-bold">Akmal Iskandar, S.Pi (Gemini AI)</span></div>
                             </div>
                         </div>
                     </div>
@@ -277,7 +270,7 @@
                             <span class="font-extrabold text-lg uppercase tracking-wide text-slate-800 dark:text-white">CBT Online</span>
                         </div>
                         <!-- Mobile Dynamic Info -->
-                        <p class="text-[10px] text-slate-400 font-semibold mt-1">Versi: <span id="login-app-version-mobile" class="text-blue-600 dark:text-blue-400 font-bold">v2.2.0-Live</span> | Pembuat: <span id="login-app-creator-mobile" class="text-slate-500 dark:text-slate-400 font-semibold">Webapp Builder - FIREBASE</span></p>
+                        <p class="text-[10px] text-slate-400 font-semibold mt-1">Versi: <span id="login-app-version-mobile" class="text-blue-600 dark:text-blue-400 font-bold">v1.0.0-Live</span> | Pembuat: <span id="login-app-creator-mobile" class="text-slate-500 dark:text-slate-400 font-semibold">Akmal Iskandar, S.Pi (Gemini AI)</span></p>
                     </div>
 
                     <div class="mb-6">
@@ -285,16 +278,13 @@
                         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Silakan masuk menggunakan akun Anda.</p>
                     </div>
 
-                    <!-- Toggle Role Login (Disempurnakan menjadi 3 Kolom Responsif) -->
-                    <div class="grid grid-cols-3 bg-slate-200/60 dark:bg-slate-900 p-1 rounded-2xl mb-6 gap-1">
-                        <button onclick="switchLoginTab('student')" id="tab-btn-student" class="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all text-blue-600 bg-white shadow-sm dark:bg-slate-800 dark:text-blue-400">
-                            <i data-lucide="user" class="w-3.5 h-3.5"></i> Siswa
+                    <!-- Toggle Role Login -->
+                    <div class="flex bg-slate-200/60 dark:bg-slate-900 p-1 rounded-2xl mb-6">
+                        <button onclick="switchLoginTab('student')" id="tab-btn-student" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all text-blue-600 bg-white shadow-sm dark:bg-slate-800 dark:text-blue-450">
+                            <i data-lucide="user" class="w-4 h-4"></i> Siswa
                         </button>
-                        <button onclick="switchLoginTab('admin')" id="tab-btn-admin" class="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-855 dark:hover:text-slate-300">
-                            <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Admin
-                        </button>
-                        <button onclick="switchLoginTab('kepsek')" id="tab-btn-kepsek" class="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-855 dark:hover:text-slate-300">
-                            <i data-lucide="award" class="w-3.5 h-3.5"></i> Kepsek
+                        <button onclick="switchLoginTab('admin')" id="tab-btn-admin" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-800 dark:hover:text-slate-300">
+                            <i data-lucide="shield-alert" class="w-4 h-4"></i> Admin / Guru
                         </button>
                     </div>
 
@@ -347,53 +337,6 @@
                             Login <i data-lucide="settings" class="w-4 h-4"></i>
                         </button>
                     </form>
-
-                    <!-- Kepsek Login Box -->
-                    <form id="form-login-kepsek" onsubmit="handleKepsekLogin(event)" class="space-y-4 hidden">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Email Kepala Sekolah</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                                    <i data-lucide="mail" class="w-5 h-5"></i>
-                                </span>
-                                <input type="email" id="kepsek-email-input" placeholder="kepsek@cbt.com" class="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:border-blue-600 focus:ring-4 focus:ring-blue-100 transition-all outline-none text-slate-800 text-sm font-semibold dark:bg-slate-800 dark:border-slate-700 dark:text-white">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Password</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                                    <i data-lucide="lock" class="w-5 h-5"></i>
-                                </span>
-                                <input type="password" id="kepsek-pass-input" placeholder="••••••••" class="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:border-blue-600 focus:ring-4 focus:ring-blue-100 transition-all outline-none text-slate-800 text-sm font-semibold dark:bg-slate-800 dark:border-slate-700 dark:text-white">
-                            </div>
-                        </div>
-                        <button type="submit" class="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm tracking-wide transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.98] flex items-center justify-center gap-2">
-                            Masuk Sesi Pemantauan <i data-lucide="trending-up" class="w-4 h-4"></i>
-                        </button>
-                    </form>
-
-                    <!-- Floating Helper Sandbox Credentials for direct Preview usage -->
-                    <div class="mt-8 p-4 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-                        <span class="text-[10px] uppercase font-bold tracking-wider text-blue-655 dark:text-blue-400">Informasi Akun Demo (Preview)</span>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2 text-[11px]">
-                            <div>
-                                <p class="font-bold text-slate-700 dark:text-slate-300">Siswa:</p>
-                                <p class="text-slate-500">NISN: <span class="font-mono bg-white dark:bg-slate-800 px-1 rounded border">12345</span></p>
-                                <p class="text-slate-500">Sandi: <span class="font-mono bg-white dark:bg-slate-800 px-1 rounded border">123</span></p>
-                            </div>
-                            <div>
-                                <p class="font-bold text-slate-700 dark:text-slate-300">Admin/Guru:</p>
-                                <p class="text-slate-500">Email: <span class="font-mono bg-white dark:bg-slate-800 px-1 rounded border">admin@cbt.com</span></p>
-                                <p class="text-slate-500">Sandi: <span class="font-mono bg-white dark:bg-slate-800 px-1 rounded border">admin123</span></p>
-                            </div>
-                            <div>
-                                <p class="font-bold text-slate-700 dark:text-slate-300">Kepala Sekolah:</p>
-                                <p class="text-slate-500">Email: <span class="font-mono bg-white dark:bg-slate-800 px-1 rounded border">kepsek@cbt.com</span></p>
-                                <p class="text-slate-500">Sandi: <span class="font-mono bg-white dark:bg-slate-800 px-1 rounded border">kepsek123</span></p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -438,7 +381,7 @@
                             <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
                             <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
                         </button>
-                        <span id="role-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">Siswa</span>
+                        <span id="role-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400">Siswa</span>
                     </div>
                 </header>
 
@@ -459,14 +402,14 @@
         <!-- View Halaman Ruang Ujian (Siswa Only) -->
         <div id="view-exam" class="hidden flex-1 flex flex-col min-h-0 bg-slate-50 dark:bg-slate-950 overflow-hidden">
             <!-- Exam Room Header -->
-            <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between z-10 shadow-sm shrink-0">
+            <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-850 px-6 py-4 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between z-10 shadow-sm shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
                         <i data-lucide="hourglass" class="w-5 h-5"></i>
                     </div>
                     <div>
                         <h3 id="exam-mapel-text" class="text-base font-bold text-slate-950 dark:text-white leading-tight">Nama Mata Pelajaran</h3>
-                        <p id="exam-student-text" class="text-xs text-slate-400 dark:text-slate-450 mt-1 font-semibold">Nama Peserta (NISN)</p>
+                        <p id="exam-student-text" class="text-xs text-slate-400 dark:text-slate-455 mt-1 font-semibold">Nama Peserta (NISN)</p>
                     </div>
                 </div>
 
@@ -477,11 +420,11 @@
                     </button>
                     <!-- Toggle Sidebar Button -->
                     <button onclick="toggleExamSidebar()" class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-bold text-xs shadow-sm transition-all">
-                        <i id="toggle-sidebar-icon" data-lucide="layout-sidebar" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
+                        <i id="toggle-sidebar-icon" data-lucide="layout-sidebar" class="w-4 h-4 text-blue-650 dark:text-blue-400"></i>
                         <span id="toggle-sidebar-text">Sembunyikan Navigasi</span>
                     </button>
                     <!-- Count down timer -->
-                    <div class="flex items-center gap-2 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 px-4 py-2 rounded-xl text-rose-600 dark:text-rose-400 font-bold text-sm tracking-wider shadow-sm">
+                    <div class="flex items-center gap-2 bg-rose-50 dark:bg-rose-955/20 border border-rose-100 dark:border-rose-900/40 px-4 py-2 rounded-xl text-rose-600 dark:text-rose-400 font-bold text-sm tracking-wider shadow-sm">
                         <i data-lucide="alarm-clock" class="w-4 h-4 animate-pulse"></i>
                         <span id="exam-timer-display">00:00:00</span>
                     </div>
@@ -496,7 +439,7 @@
                         <div>
                             <!-- Header Question Badge Indicators -->
                             <div class="flex flex-wrap justify-between items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
-                                <span id="question-number-badge" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Pertanyaan 1 dari 10</span>
+                                <span id="question-number-badge" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-355">Pertanyaan 1 dari 10</span>
                                 
                                 <div class="flex flex-wrap items-center gap-2">
                                     <!-- Zoom Control Toolbar -->
@@ -543,7 +486,7 @@
                 <div id="exam-nav-sidebar" class="w-full lg:w-80 bg-white dark:bg-slate-900 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 p-6 flex flex-col justify-between shrink-0 overflow-y-auto lg:h-full transition-all duration-200">
                     <div>
                         <h4 class="font-bold text-sm text-slate-950 dark:text-white mb-3">Navigasi Pengerjaan</h4>
-                        <p class="text-xs text-slate-400 dark:text-slate-450 leading-normal mb-4">Klik nomor kotak di bawah ini untuk berpindah ke nomor pertanyaan yang diinginkan.</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-455 leading-normal mb-4">Klik nomor kotak di bawah ini untuk berpindah ke nomor pertanyaan yang diinginkan.</p>
                         
                         <div id="exam-navigation-grid" class="grid grid-cols-5 gap-2">
                             <!-- Dynamic Navigation Buttons Grid -->
@@ -631,12 +574,12 @@
                 { id: "sts_01", nisn: "12345", status: "online", examId: null, last_seen: "2026-07-11T22:30:00.000Z" }
             ],
             app_config: [
-                { id: "cfg_01", versi: "v2.2.0-Live", pembuat: "Webapp Builder - FIREBASE" }
+                { id: "cfg_01", versi: "v1.0.0-Live", pembuat: "Akmal Iskandar, S.Pi (Gemini AI)" }
             ]
         };
 
         let appState = {
-            currentUser: null, // { role: 'admin' | 'student' | 'kepsek', data: { ... } }
+            currentUser: null, // { role: 'admin' | 'student', data: { ... } }
             currentActiveTab: "",
             studentFilterClass: "",
             resultFilterClass: "", // Filter Kelas Hasil Ujian
@@ -701,7 +644,7 @@
                 const configs = await getRecords('app_config');
                 let config = configs[0];
                 if (!config) {
-                    config = { id: "cfg_01", versi: "v2.2.0-Live", pembuat: "Webapp Builder - FIREBASE" };
+                    config = { id: "cfg_01", versi: "v1.4.0-Live", pembuat: "Akmal Iskandar, S.Pi (Gemini AI)" };
                     // Hanya inisialisasi penulisan default ke cloud jika user aktif adalah Admin yang sah
                     if (!IS_PREVIEW && auth && auth.currentUser) {
                         try {
@@ -896,7 +839,7 @@
                 iconBg.className = "p-2 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-955/40 dark:text-emerald-400";
                 iconBg.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i>`;
             } else if (type === 'error') {
-                iconBg.className = "p-2 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-955/40 dark:text-rose-450";
+                iconBg.className = "p-2 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-955/40 dark:text-rose-400";
                 iconBg.innerHTML = `<i data-lucide="alert-triangle" class="w-5 h-5"></i>`;
             } else {
                 iconBg.className = "p-2 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-455";
@@ -964,30 +907,19 @@
         window.switchLoginTab = function(role) {
             const tabStd = document.getElementById('tab-btn-student');
             const tabAdm = document.getElementById('tab-btn-admin');
-            const tabKep = document.getElementById('tab-btn-kepsek');
             const formStd = document.getElementById('form-login-student');
             const formAdm = document.getElementById('form-login-admin');
-            const formKep = document.getElementById('form-login-kepsek');
-
-            // Reset tabs classes
-            const inactiveClass = "flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-855 dark:hover:text-slate-300";
-            tabStd.className = inactiveClass;
-            tabAdm.className = inactiveClass;
-            tabKep.className = inactiveClass;
-
-            formStd.classList.add('hidden');
-            formAdm.classList.add('hidden');
-            formKep.classList.add('hidden');
 
             if (role === 'student') {
-                tabStd.className = "flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all text-blue-600 bg-white shadow-sm dark:bg-slate-800 dark:text-blue-400";
+                tabStd.className = "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all text-blue-600 bg-white shadow-sm dark:bg-slate-800 dark:text-blue-450";
+                tabAdm.className = "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-800 dark:hover:text-slate-300";
                 formStd.classList.remove('hidden');
-            } else if (role === 'admin') {
-                tabAdm.className = "flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-900 bg-white shadow-sm dark:bg-slate-800 dark:text-slate-100";
+                formAdm.classList.add('hidden');
+            } else {
+                tabAdm.className = "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all text-slate-900 bg-white shadow-sm dark:bg-slate-800 dark:text-slate-100";
+                tabStd.className = "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all text-slate-500 hover:text-slate-800 dark:hover:text-slate-300";
                 formAdm.classList.remove('hidden');
-            } else if (role === 'kepsek') {
-                tabKep.className = "flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all text-indigo-650 bg-white shadow-sm dark:bg-slate-800 dark:text-indigo-400";
-                formKep.classList.remove('hidden');
+                formStd.classList.add('hidden');
             }
         };
 
@@ -1045,33 +977,6 @@
             }
         };
 
-        window.handleKepsekLogin = async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('kepsek-email-input').value;
-            const pass = document.getElementById('kepsek-pass-input').value;
-
-            if (IS_PREVIEW) {
-                if (email === 'kepsek@cbt.com' && pass === 'kepsek123') {
-                    appState.currentUser = { role: 'kepsek', data: { email, nama: "Drs. H. Mulyadi, M.Pd" } };
-                    showToast("Login Kepala Sekolah", "Masuk melalui Sesi Pemantauan", "success");
-                    setupMainMenu();
-                    switchView('view-main');
-                } else {
-                    showToast("Akses Ditolak", "Sandbox: Gunakan kepsek@cbt.com & pass: kepsek123", "error");
-                }
-            } else {
-                try {
-                    const credentials = await signInWithEmailAndPassword(auth, email, pass);
-                    appState.currentUser = { role: 'kepsek', data: { email, nama: credentials.user.email } };
-                    showToast("Autentikasi Sukses", "Selamat datang Kepala Sekolah.", "success");
-                    setupMainMenu();
-                    switchView('view-main');
-                } catch (err) {
-                    showToast("Akses Gagal", "Email atau Password Salah.", "error");
-                }
-            }
-        };
-
         window.handleLogOut = function() {
             showCustomDialog("Konfirmasi Keluar", "Apakah Anda yakin ingin keluar dari sesi aplikasi?", async () => {
                 if (appState.currentUser && appState.currentUser.role === 'student') {
@@ -1085,8 +990,6 @@
                 document.getElementById('student-pass-input').value = "";
                 document.getElementById('admin-email-input').value = "";
                 document.getElementById('admin-pass-input').value = "";
-                document.getElementById('kepsek-email-input').value = "";
-                document.getElementById('kepsek-pass-input').value = "";
                 switchView('view-login');
                 showToast("Keluar", "Sesi otorisasi Anda telah diakhiri.", "info");
             }, "log-out");
@@ -1095,46 +998,25 @@
         function setupMainMenu() {
             const role = appState.currentUser.role;
             const isStudent = role === 'student';
-            const isKepsek = role === 'kepsek';
             
-            let badgeText = "Admin";
-            let badgeClass = "px-3 py-1 rounded-full text-xs font-bold bg-slate-900 text-slate-100 dark:bg-slate-800 dark:text-slate-300";
-            let asideType = "Panel Admin";
+            document.getElementById('role-badge').textContent = isStudent ? "Siswa" : "Admin";
+            document.getElementById('role-badge').className = isStudent 
+                ? "px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400"
+                : "px-3 py-1 rounded-full text-xs font-bold bg-slate-900 text-slate-100 dark:bg-slate-800 dark:text-slate-300";
+            
+            document.getElementById('aside-panel-type').textContent = isStudent ? "Ruang Siswa" : "Panel Admin";
 
-            if (isStudent) {
-                badgeText = "Siswa";
-                badgeClass = "px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400";
-                asideType = "Ruang Siswa";
-            } else if (isKepsek) {
-                badgeText = "Kepsek";
-                badgeClass = "px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 dark:bg-indigo-955/40 dark:text-indigo-400";
-                asideType = "Pemantauan Kepsek";
-            }
-
-            document.getElementById('role-badge').textContent = badgeText;
-            document.getElementById('role-badge').className = badgeClass;
-            document.getElementById('aside-panel-type').textContent = asideType;
-
-            let menuStructure = [];
-            if (isStudent) {
-                menuStructure = [
-                    { id: 's-exams', icon: 'book-open', text: 'Daftar Ujian', action: 'renderStudentExams()' },
-                    { id: 's-results', icon: 'award', text: 'Riwayat Nilai', action: 'renderStudentResults()' }
-                ];
-            } else if (isKepsek) {
-                menuStructure = [
-                    { id: 'a-results', icon: 'trophy', text: 'Hasil Ujian', action: 'renderAdminResults()' }
-                ];
-            } else {
-                menuStructure = [
-                    { id: 'a-dashboard', icon: 'layout-dashboard', text: 'Dashboard', action: 'renderAdminDashboard()' },
-                    { id: 'a-students', icon: 'users', text: 'Kelola Siswa', action: 'renderAdminStudents()' },
-                    { id: 'a-exams', icon: 'file-text', text: 'Setting Ujian', action: 'renderAdminExams()' },
-                    { id: 'a-results', icon: 'trophy', text: 'Hasil Ujian', action: 'renderAdminResults()' },
-                    { id: 'a-gallery', icon: 'image', text: 'Galeri Media', action: 'renderAdminGallery()' },
-                    { id: 'a-cleanup', icon: 'database', text: 'Bersihkan Data', action: 'renderAdminCleanup()' }
-                ];
-            }
+            const menuStructure = isStudent ? [
+                { id: 's-exams', icon: 'book-open', text: 'Daftar Ujian', action: 'renderStudentExams()' },
+                { id: 's-results', icon: 'award', text: 'Riwayat Nilai', action: 'renderStudentResults()' }
+            ] : [
+                { id: 'a-dashboard', icon: 'layout-dashboard', text: 'Dashboard', action: 'renderAdminDashboard()' },
+                { id: 'a-students', icon: 'users', text: 'Kelola Siswa', action: 'renderAdminStudents()' },
+                { id: 'a-exams', icon: 'file-text', text: 'Setting Ujian', action: 'renderAdminExams()' },
+                { id: 'a-results', icon: 'trophy', text: 'Hasil Ujian', action: 'renderAdminResults()' },
+                { id: 'a-gallery', icon: 'image', text: 'Galeri Media', action: 'renderAdminGallery()' },
+                { id: 'a-cleanup', icon: 'database', text: 'Bersihkan Data', action: 'renderAdminCleanup()' }
+            ];
 
             // Render Navbars Desktop
             const navDesktop = document.getElementById('nav-container-desktop');
@@ -1161,15 +1043,8 @@
 
             // Setup Profile footer
             const userPanel = document.getElementById('user-info-panel-desktop');
-            const displayName = appState.currentUser.data.nama || appState.currentUser.data.email || "User";
-            
-            let subtitle = "Otoritas Penuh";
-            if (isStudent) {
-                subtitle = `Kelas: ${appState.currentUser.data.kelas}`;
-            } else if (isKepsek) {
-                subtitle = "Kepala Sekolah";
-            }
-
+            const displayName = isStudent ? appState.currentUser.data.nama : appState.currentUser.data.nama;
+            const subtitle = isStudent ? `Kelas: ${appState.currentUser.data.kelas}` : "Otoritas Penuh";
             userPanel.innerHTML = `
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold dark:bg-slate-800 dark:text-slate-400 shadow-sm shrink-0">
@@ -1193,14 +1068,14 @@
             
             // Set Active Desktop Buttons
             document.querySelectorAll('#nav-container-desktop button').forEach(b => {
-                b.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-slate-500 hover:text-slate-800 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/40";
+                b.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-slate-500 hover:text-slate-800 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/45";
             });
             const dBtn = document.getElementById(`nav-d-${tabId}`);
             if (dBtn) dBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold bg-blue-50 text-blue-600 transition-all dark:bg-blue-950/20 dark:text-blue-400 shadow-sm border border-blue-100/30 dark:border-blue-950/20";
 
             // Set Active Mobile Buttons
             document.querySelectorAll('#nav-container-mobile button').forEach(b => {
-                if (!b.classList.contains('text-rose-550')) {
+                if (!b.classList.contains('text-rose-500')) {
                     b.className = "flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-slate-400 transition-all flex-1 py-1 dark:text-slate-500";
                 }
             });
@@ -1225,7 +1100,7 @@
                             <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Siswa</p>
                             <h3 class="text-3xl font-extrabold text-slate-900 mt-2 dark:text-white">${students.length}</h3>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center dark:bg-blue-900/40 dark:text-blue-400 shadow-sm">
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center dark:bg-blue-955/40 dark:text-blue-400 shadow-sm">
                             <i data-lucide="users" class="w-6 h-6"></i>
                         </div>
                     </div>
@@ -1234,7 +1109,7 @@
                             <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Sesi Aktif</p>
                             <h3 class="text-3xl font-extrabold text-slate-900 mt-2 dark:text-white">${exams.filter(e => e.is_active).length} / ${exams.length}</h3>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center dark:bg-emerald-900/40 dark:text-emerald-400 shadow-sm">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center dark:bg-emerald-955/40 dark:text-emerald-400 shadow-sm">
                             <i data-lucide="file-text" class="w-6 h-6"></i>
                         </div>
                     </div>
@@ -1243,7 +1118,7 @@
                             <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Butir Soal</p>
                             <h3 class="text-3xl font-extrabold text-slate-900 mt-2 dark:text-white">${questions.length}</h3>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center dark:bg-purple-900/40 dark:text-purple-400 shadow-sm">
+                        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center dark:bg-purple-955/40 dark:text-purple-400 shadow-sm">
                             <i data-lucide="book-open" class="w-6 h-6"></i>
                         </div>
                     </div>
@@ -1252,7 +1127,7 @@
                             <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Sudah Selesai</p>
                             <h3 class="text-3xl font-extrabold text-slate-900 mt-2 dark:text-white">${results.length}</h3>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center dark:bg-rose-900/40 dark:text-rose-400 shadow-sm">
+                        <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center dark:bg-rose-955/40 dark:text-rose-455 shadow-sm">
                             <i data-lucide="check-square" class="w-6 h-6"></i>
                         </div>
                     </div>
@@ -1266,9 +1141,7 @@
                                 <i data-lucide="info" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
                                 Petunjuk Penggunaan Panel Admin
                             </h3>
-                            <p class="text-sm text-slate-500 mt-3 leading-relaxed dark:text-slate-400 font-medium">
-                                Melalui panel administrasi ini, Anda dapat mengelola seluruh konfigurasi ujian. Unggah data siswa dengan templat excel yang sudah disediakan, edit bank soal, pantau aktivitas siswa saat ujian secara live, dan ekspor hasil rekapitulasi nilai ujian ke format PDF atau Excel instan.
-                            </p>
+                            <p class="text-sm text-slate-500 mt-3 leading-relaxed dark:text-slate-400 font-medium">Melalui panel ini, Anda memiliki kendali penuh atas manajemen pengerjaan ujian. Data yang diperbarui di sini akan langsung disinkronkan ke seluruh gawai milik peserta yang terhubung secara real-time.</p>
                         </div>
                     </div>
                 </div>
@@ -1289,7 +1162,7 @@
             const rows = students.map(s => {
                 const isSelected = appState.selectedStudents.includes(s.id);
                 return `
-                <tr class="hover:bg-slate-50/50 border-b border-slate-100 ${isSelected ? 'bg-blue-50/10 dark:bg-blue-950/20' : ''} dark:border-slate-850">
+                <tr class="hover:bg-slate-50/50 border-b border-slate-100 ${isSelected ? 'bg-blue-50/20 dark:bg-blue-955/20' : ''} dark:border-slate-800">
                     <td class="py-4 px-6 text-sm">
                         <input type="checkbox" class="student-checkbox w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700" value="${s.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectStudent('${s.id}', this.checked)">
                     </td>
@@ -1298,10 +1171,10 @@
                     <td class="py-4 px-6 text-sm text-slate-500 dark:text-slate-400 font-bold">${s.kelas}</td>
                     <td class="py-4 px-6 text-sm font-mono text-slate-400 dark:text-slate-500">${s.password}</td>
                     <td class="py-4 px-6 flex items-center gap-2">
-                        <button onclick="startEditStudent('${s.id}')" class="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-xl transition-all dark:text-blue-400 dark:hover:bg-blue-950/40" title="Ubah Data Siswa">
+                        <button onclick="startEditStudent('${s.id}')" class="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-xl transition-all dark:text-blue-400 dark:hover:bg-blue-955/40" title="Ubah Data Siswa">
                             <i data-lucide="edit-3" class="w-4 h-4"></i>
                         </button>
-                        <button onclick="deleteStudent('${s.id}')" class="text-rose-600 hover:text-rose-800 p-2 hover:bg-rose-50 rounded-xl transition-all dark:text-rose-400 dark:hover:bg-rose-950/40" title="Hapus Siswa">
+                        <button onclick="deleteStudent('${s.id}')" class="text-rose-650 hover:text-rose-800 p-2 hover:bg-rose-50 rounded-xl transition-all dark:text-rose-455 dark:hover:bg-rose-955/40" title="Hapus Siswa">
                             <i data-lucide="trash" class="w-4 h-4"></i>
                         </button>
                     </td>
@@ -1321,7 +1194,7 @@
                     formOnSubmit = "handleEditStudentSubmit(event)";
                     currentEditData = editTarget;
                     cancelBtnHtml = `
-                        <button type="button" onclick="cancelEditStudent()" class="w-full py-3.5 mt-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition-all dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">Batal Mengubah</button>
+                        <button type="button" onclick="cancelEditStudent()" class="w-full py-3.5 mt-2 rounded-xl border border-slate-200 text-slate-655 hover:bg-slate-50 font-bold text-xs transition-all dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">Batal Mengubah</button>
                     `;
                 }
             }
@@ -1377,8 +1250,8 @@
                                     Unggah berkas Excel (.xlsx / .xls). Pastikan baris pertama lembar kerja (Sheet) merupakan baris judul kolom (Header) dengan ketentuan format di bawah ini.
                                 </p>
                                 
-                                <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-150 dark:border-slate-700 text-[11px] text-slate-600 font-mono space-y-1">
-                                    <div class="font-bold border-b border-slate-200 dark:border-slate-700 pb-1 mb-1 text-slate-800 dark:text-slate-200 font-sans">Layout Struktur Kolom Excel:</div>
+                                <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-150 dark:border-slate-700 text-[11px] text-slate-650 font-mono space-y-1">
+                                    <div class="font-bold border-b border-slate-200 dark:border-slate-700 pb-1 mb-1 text-slate-800 dark:text-slate-200">Layout Struktur Kolom Excel:</div>
                                     <div class="grid grid-cols-4 gap-2 text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-900 p-1 rounded">
                                         <span>nisn</span><span>nama</span><span>kelas</span><span>password</span>
                                     </div>
@@ -1387,7 +1260,7 @@
                                     </div>
                                 </div>
 
-                                <button type="button" onclick="downloadExcelTemplate()" class="w-full py-2.5 px-3 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                                <button type="button" onclick="downloadExcelTemplate()" class="w-full py-2.5 px-3 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm">
                                     <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh Template Excel (.xlsx)
                                 </button>
 
@@ -1395,14 +1268,14 @@
                                     <div class="relative border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors flex flex-col items-center justify-center cursor-pointer group">
                                         <input type="file" id="bulk-excel-file" accept=".xlsx, .xls" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleExcelFileSelect(this)">
                                         <div class="text-center pointer-events-none">
-                                            <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform dark:bg-blue-900/40 dark:text-blue-400">
+                                            <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform dark:bg-blue-955/40 dark:text-blue-400">
                                                 <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
                                             </div>
                                             <p id="excel-file-label" class="text-xs font-bold text-slate-700 dark:text-slate-300">Pilih berkas Excel sekolah</p>
                                             <p class="text-[10px] text-slate-400 mt-1">atau seret berkas ke sini</p>
                                         </div>
                                     </div>
-                                    <button type="submit" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 dark:bg-emerald-600 dark:hover:bg-emerald-700">
+                                    <button type="submit" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 dark:bg-emerald-600 dark:hover:bg-emerald-700">
                                         <i data-lucide="check" class="w-4 h-4"></i> Proses Dokumen Excel
                                     </button>
                                 </form>
@@ -1427,7 +1300,7 @@
                                 </div>
 
                                 ${appState.selectedStudents.length > 0 ? `
-                                    <button onclick="deleteSelectedStudents()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 shadow-sm dark:bg-rose-950/20 dark:text-rose-400">
+                                    <button onclick="deleteSelectedStudents()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-650 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 shadow-sm dark:bg-rose-955/20 dark:text-rose-400">
                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Terpilih (${appState.selectedStudents.length})
                                     </button>
                                 ` : ''}
@@ -1439,7 +1312,7 @@
                                 <thead>
                                     <tr class="border-b border-slate-200 text-slate-400 text-[10px] font-extrabold uppercase tracking-wider dark:border-slate-700">
                                         <th class="pb-3 px-6 w-12">
-                                            <input type="checkbox" id="check-all-students" ${isAllSelected ? 'checked' : ''} onchange="toggleSelectAllStudents(this.checked)" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700">
+                                            <input type="checkbox" id="check-all-students" ${isAllSelected ? 'checked' : ''} onchange="toggleSelectAllStudents(this.checked)" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 dark:bg-slate-850 dark:border-slate-700">
                                         </th>
                                         <th class="pb-3 px-6">NISN</th>
                                         <th class="pb-3 px-6">Nama Siswa</th>
@@ -1670,7 +1543,7 @@
                     <div>
                         <div class="flex justify-between items-start gap-2">
                             <h4 class="font-extrabold text-slate-900 dark:text-white text-lg leading-tight truncate flex-1" title="${e.mata_pelajaran}">${e.mata_pelajaran}</h4>
-                            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase shrink-0 ${e.is_active ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase shrink-0 ${e.is_active ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-455' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}">
                                 ${e.is_active ? 'Aktif' : 'Off'}
                             </span>
                         </div>
@@ -1680,14 +1553,14 @@
                         <p class="text-[11px] text-blue-600 dark:text-blue-400 font-bold mt-2.5 flex items-center gap-1.5">
                             <i data-lucide="calendar" class="w-4 h-4"></i> Mulai: ${formatWaktuIndo(e.waktu_mulai)}
                         </p>
-                        <p class="text-[11px] text-rose-600 dark:text-rose-400 font-bold mt-1.5 flex items-center gap-1.5">
+                        <p class="text-[11px] text-rose-600 dark:text-rose-455 font-bold mt-1.5 flex items-center gap-1.5">
                             <i data-lucide="calendar-off" class="w-4 h-4"></i> Selesai: ${formatWaktuIndo(e.waktu_selesai)}
                         </p>
                     </div>
 
                     <div class="flex flex-col gap-2 mt-6 border-t border-slate-100 dark:border-slate-800/80 pt-4">
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="manageQuestions('${e.id}', '${e.mata_pelajaran}')" class="py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-900/40">
+                            <button onclick="manageQuestions('${e.id}', '${e.mata_pelajaran}')" class="py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 dark:bg-blue-955/40 dark:text-blue-400 dark:hover:bg-blue-900/40">
                                 <i data-lucide="book-open" class="w-4 h-4"></i> Bank Soal
                             </button>
                             <button onclick="renderStudentMonitor('${e.id}', '${e.mata_pelajaran}')" class="py-2.5 px-3 bg-purple-50 hover:bg-purple-100 text-purple-600 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 dark:bg-purple-950/40 dark:text-purple-400 dark:hover:bg-purple-900/40">
@@ -1698,10 +1571,10 @@
                             <button onclick="toggleExamStatus('${e.id}', ${!e.is_active})" class="py-2 px-1 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-[10px] font-bold rounded-xl transition-all flex items-center justify-center gap-1" title="Aktif/Matikan">
                                 <i data-lucide="power" class="w-3.5 h-3.5"></i> ${e.is_active ? 'Matikan' : 'Aktifkan'}
                             </button>
-                            <button onclick="startEditExam('${e.id}')" class="py-2 px-1 border border-blue-100 dark:border-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 text-[10px] font-bold rounded-xl transition-all flex items-center justify-center gap-1" title="Ubah Detail Sesi">
+                            <button onclick="startEditExam('${e.id}')" class="py-2 px-1 border border-blue-100 dark:border-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-955/20 text-[10px] font-bold rounded-xl transition-all flex items-center justify-center gap-1" title="Ubah Detail Sesi">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Edit
                             </button>
-                            <button onclick="deleteExam('${e.id}')" class="py-2 px-1 border border-rose-100 dark:border-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-[10px] font-bold rounded-xl transition-all flex items-center justify-center gap-1" title="Hapus Sesi">
+                            <button onclick="deleteExam('${e.id}')" class="py-2 px-1 border border-rose-100 dark:border-rose-900/30 text-rose-600 dark:text-rose-455 hover:bg-rose-50 dark:hover:bg-rose-955/20 text-[10px] font-bold rounded-xl transition-all flex items-center justify-center gap-1" title="Hapus Sesi">
                                 <i data-lucide="trash" class="w-3.5 h-3.5"></i> Hapus
                             </button>
                         </div>
@@ -1839,27 +1712,27 @@
                         <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
                     </button>
                     
-                    <button onclick="resetAllStudentsExam('${examId}', '${examName}')" class="py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-rose-500/10">
+                    <button onclick="resetAllStudentsExam('${examId}', '${examName}')" class="py-2.5 px-4 bg-rose-650 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-rose-500/10">
                         <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Ujian Massal
                     </button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Selesai Merampungkan -->
-                    <div class="glass-card rounded-3xl p-5 border-emerald-100 bg-emerald-50/10 flex flex-col h-[520px] dark:border-emerald-900/40">
-                        <div class="flex items-center gap-2 pb-3 mb-3 border-b border-emerald-100/55 shrink-0 dark:border-emerald-900/40">
+                    <div class="glass-card rounded-3xl p-5 border-emerald-100 bg-emerald-50/10 flex flex-col h-[520px] dark:border-emerald-955/40">
+                        <div class="flex items-center gap-2 pb-3 mb-3 border-b border-emerald-100/55 shrink-0 dark:border-emerald-955/40">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <h4 class="font-extrabold text-sm text-emerald-800 dark:text-emerald-400">Selesai (${finishedList.length})</h4>
+                            <h4 class="font-extrabold text-sm text-emerald-800 dark:text-emerald-455">Selesai (${finishedList.length})</h4>
                         </div>
                         <div class="flex-1 overflow-y-auto space-y-3">
                             ${finishedList.map(item => `
-                                <div class="bg-white dark:bg-slate-800/60 p-3.5 rounded-2xl border border-emerald-100/50 shadow-sm flex flex-col justify-between gap-2.5 dark:border-emerald-900/30">
+                                <div class="bg-white dark:bg-slate-800/60 p-3.5 rounded-2xl border border-emerald-100/50 shadow-sm flex flex-col justify-between gap-2.5 dark:border-emerald-955/30">
                                     <div>
                                         <p class="text-xs font-bold text-slate-900 truncate dark:text-white">${item.student.nama}</p>
                                         <p class="text-[10px] text-slate-400 font-semibold mt-1">NISN: ${item.student.nisn} | Kelas: ${item.student.kelas}</p>
-                                        <p class="text-[11px] text-emerald-600 font-extrabold mt-2 bg-emerald-50/40 dark:bg-emerald-900/40 w-fit px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-900/30">Nilai: ${item.result.skor}</p>
+                                        <p class="text-[11px] text-emerald-600 font-extrabold mt-2 bg-emerald-50/40 dark:bg-emerald-955/40 w-fit px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-900/30">Nilai: ${item.result.skor}</p>
                                     </div>
-                                    <button onclick="resetStudentExam('${examId}', '${item.student.nisn}', '${item.student.nama}')" class="w-full py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1 dark:bg-rose-950/30 dark:text-rose-400">
+                                    <button onclick="resetStudentExam('${examId}', '${item.student.nisn}', '${item.student.nama}')" class="w-full py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1 dark:bg-rose-955/30 dark:text-rose-455">
                                         <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reset Siswa
                                     </button>
                                 </div>
@@ -1868,20 +1741,20 @@
                     </div>
 
                     <!-- Sedang Mengerjakan -->
-                    <div class="glass-card rounded-3xl p-5 border-amber-100 bg-amber-50/10 flex flex-col h-[520px] dark:border-amber-900/40">
-                        <div class="flex items-center gap-2 pb-3 mb-3 border-b border-amber-100/55 shrink-0 dark:border-amber-900/40">
+                    <div class="glass-card rounded-3xl p-5 border-amber-100 bg-amber-50/10 flex flex-col h-[520px] dark:border-amber-955/40">
+                        <div class="flex items-center gap-2 pb-3 mb-3 border-b border-amber-100/55 shrink-0 dark:border-amber-955/40">
                             <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            <h4 class="font-extrabold text-sm text-amber-800 dark:text-amber-400">Mengerjakan (${workingList.length})</h4>
+                            <h4 class="font-extrabold text-sm text-amber-800 dark:text-amber-455">Mengerjakan (${workingList.length})</h4>
                         </div>
                         <div class="flex-1 overflow-y-auto space-y-3">
                             ${workingList.map(item => `
-                                <div class="bg-white dark:bg-slate-800/60 p-3.5 rounded-2xl border border-amber-100/50 shadow-sm flex flex-col justify-between gap-2.5 dark:border-amber-900/30">
+                                <div class="bg-white dark:bg-slate-800/60 p-3.5 rounded-2xl border border-amber-100/50 shadow-sm flex flex-col justify-between gap-2.5 dark:border-amber-955/30">
                                     <div>
                                         <p class="text-xs font-bold text-slate-900 truncate dark:text-white">${item.student.nama}</p>
                                         <p class="text-[10px] text-slate-400 font-semibold mt-1">NISN: ${item.student.nisn} | Kelas: ${item.student.kelas}</p>
                                         <p class="text-[10px] text-amber-600 font-bold mt-1.5 animate-pulse flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Aktif Menjawab...</p>
                                     </div>
-                                    <button onclick="resetStudentExam('${examId}', '${item.student.nisn}', '${item.student.nama}')" class="w-full py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1 dark:bg-rose-955/30 dark:text-rose-450">
+                                    <button onclick="resetStudentExam('${examId}', '${item.student.nisn}', '${item.student.nama}')" class="w-full py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1 dark:bg-rose-955/30 dark:text-rose-455">
                                         <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Paksa Reset
                                     </button>
                                 </div>
@@ -1890,17 +1763,17 @@
                     </div>
 
                     <!-- Bersiap / Online -->
-                    <div class="glass-card rounded-3xl p-5 border-blue-100 bg-blue-50/10 flex flex-col h-[520px] dark:border-blue-900/40">
-                        <div class="flex items-center gap-2 pb-3 mb-3 border-b border-blue-100/55 shrink-0 dark:border-blue-900/40">
+                    <div class="glass-card rounded-3xl p-5 border-blue-100 bg-blue-50/10 flex flex-col h-[520px] dark:border-blue-955/40">
+                        <div class="flex items-center gap-2 pb-3 mb-3 border-b border-blue-100/55 shrink-0 dark:border-blue-955/40">
                             <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
                             <h4 class="font-extrabold text-sm text-blue-800 dark:text-blue-400">Online (${onlineList.length})</h4>
                         </div>
                         <div class="flex-1 overflow-y-auto space-y-3">
                             ${onlineList.map(item => `
-                                <div class="bg-white dark:bg-slate-800/60 p-3.5 rounded-2xl border border-blue-100/50 shadow-sm dark:border-blue-900/30">
+                                <div class="bg-white dark:bg-slate-800/60 p-3.5 rounded-2xl border border-blue-100/50 shadow-sm dark:border-blue-955/30">
                                     <p class="text-xs font-bold text-slate-900 truncate dark:text-white">${item.student.nama}</p>
                                     <p class="text-[10px] text-slate-400 font-semibold mt-1">NISN: ${item.student.nisn} | Kelas: ${item.student.kelas}</p>
-                                    <span class="inline-flex items-center gap-1 text-[9px] bg-blue-50 border border-blue-100 text-blue-650 font-bold px-2 py-0.5 rounded-lg mt-2 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">Menunggu Mulai</span>
+                                    <span class="inline-flex items-center gap-1 text-[9px] bg-blue-50 border border-blue-100 text-blue-655 font-bold px-2 py-0.5 rounded-lg mt-2 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">Menunggu Mulai</span>
                                 </div>
                             `).join('') || `<p class="text-xs text-slate-400 text-center py-6 font-medium">Tidak ada siswa online.</p>`}
                         </div>
@@ -1909,14 +1782,14 @@
                     <!-- Belum Login / Offline -->
                     <div class="glass-card rounded-3xl p-5 border-slate-200 bg-slate-50/10 flex flex-col h-[520px] dark:border-slate-800">
                         <div class="flex items-center gap-2 pb-3 mb-3 border-b border-slate-200 shrink-0 dark:border-slate-800">
-                            <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-450"></span>
                             <h4 class="font-extrabold text-sm text-slate-600 dark:text-slate-400">Belum Login (${offlineList.length})</h4>
                         </div>
                         <div class="flex-1 overflow-y-auto space-y-3">
                             ${offlineList.map(item => `
                                 <div class="bg-white dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-150 shadow-sm opacity-65 dark:border-slate-800">
-                                    <p class="text-xs font-bold text-slate-600 truncate dark:text-slate-300">${item.student.nama}</p>
-                                    <p class="text-[10px] text-slate-400 font-semibold mt-1">NISN: ${item.student.nisn} | Kelas: ${item.student.kelas}</p>
+                                    <p class="text-xs font-bold text-slate-600 truncate dark:text-slate-350">${item.student.nama}</p>
+                                    <p class="text-[10px] text-slate-455 font-semibold mt-1">NISN: ${item.student.nisn} | Kelas: ${item.student.kelas}</p>
                                 </div>
                             `).join('') || `<p class="text-xs text-slate-400 text-center py-6 font-medium">Semua siswa sudah masuk.</p>`}
                         </div>
@@ -1995,10 +1868,10 @@
             const listHtml = questions.map((q, idx) => `
                 <div class="glass-card rounded-3xl p-6 relative">
                     <div class="absolute top-4 right-4 flex items-center gap-1">
-                        <button onclick="startEditQuestion('${q.id}', '${examId}', '${mapelName}')" class="text-blue-600 hover:bg-blue-50 p-2 rounded-xl transition-all dark:text-blue-400 dark:hover:bg-blue-900/40" title="Edit Soal">
+                        <button onclick="startEditQuestion('${q.id}', '${examId}', '${mapelName}')" class="text-blue-600 hover:bg-blue-50 p-2 rounded-xl transition-all dark:text-blue-400 dark:hover:bg-blue-955/40" title="Edit Soal">
                             <i data-lucide="edit-2" class="w-4 h-4"></i>
                         </button>
-                        <button onclick="deleteQuestion('${q.id}', '${examId}', '${mapelName}')" class="text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition-all dark:text-rose-400 dark:hover:bg-rose-900/40" title="Hapus Soal">
+                        <button onclick="deleteQuestion('${q.id}', '${examId}', '${mapelName}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded-xl transition-all dark:text-rose-455 dark:hover:bg-rose-955/40" title="Hapus Soal">
                             <i data-lucide="trash" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -2087,23 +1960,23 @@
                                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Opsi Jawaban Pilihan Ganda</label>
                                 
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-extrabold text-slate-400 font-mono">A</span>
+                                    <span class="text-xs font-extrabold text-slate-400">A</span>
                                     <input type="text" id="add-q-oa" required value="${currentEditQ.opsi[0]}" placeholder="Opsi A" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-extrabold text-slate-400 font-mono">B</span>
+                                    <span class="text-xs font-extrabold text-slate-400">B</span>
                                     <input type="text" id="add-q-ob" required value="${currentEditQ.opsi[1]}" placeholder="Opsi B" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-extrabold text-slate-400 font-mono">C</span>
+                                    <span class="text-xs font-extrabold text-slate-400">C</span>
                                     <input type="text" id="add-q-oc" required value="${currentEditQ.opsi[2]}" placeholder="Opsi C" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-extrabold text-slate-400 font-mono">D</span>
+                                    <span class="text-xs font-extrabold text-slate-400">D</span>
                                     <input type="text" id="add-q-od" required value="${currentEditQ.opsi[3]}" placeholder="Opsi D" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-extrabold text-slate-400 font-mono">E</span>
+                                    <span class="text-xs font-extrabold text-slate-400">E</span>
                                     <input type="text" id="add-q-oe" required value="${currentEditQ.opsi[4]}" placeholder="Opsi E" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                                 </div>
                             </div>
@@ -2231,7 +2104,7 @@
                     <td class="py-4 px-6 text-sm font-semibold text-slate-500 dark:text-slate-400">${kelasInfo}</td>
                     <td class="py-4 px-6 text-sm font-medium text-slate-600 dark:text-slate-400">${r.mapel}</td>
                     <td class="py-4 px-6">
-                        <span class="px-3.5 py-1.5 rounded-xl font-extrabold text-sm ${r.skor >= 70 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-955/40 dark:text-rose-400'}">
+                        <span class="px-3.5 py-1.5 rounded-xl font-extrabold text-sm ${r.skor >= 70 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-955/40 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-955/40 dark:text-rose-455'}">
                             ${r.skor} / 100
                         </span>
                     </td>
@@ -2458,17 +2331,17 @@
                     <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between border border-slate-200 dark:border-slate-800">
                         <div class="p-4 bg-slate-100/50 dark:bg-slate-800/80 flex items-center justify-between border-b border-slate-200 dark:border-slate-700">
                             <div class="min-w-0 flex-1 pr-2">
-                                <span class="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 block truncate" title="${mapelName}">${mapelName}</span>
-                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 font-sans">Butir Soal No. ${questionIdx}</span>
+                                <span class="text-[10px] font-extrabold text-blue-650 dark:text-blue-400 block truncate" title="${mapelName}">${mapelName}</span>
+                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Butir Soal No. ${questionIdx}</span>
                             </div>
-                            <button onclick="deleteGalleryImage('${q.id}', '${mapelName.replace(/'/g, "\\'")}', ${questionIdx})" class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-650 rounded-xl transition-all dark:bg-rose-950/40 dark:text-rose-400" title="Hapus Media Gambar">
+                            <button onclick="deleteGalleryImage('${q.id}', '${mapelName.replace(/'/g, "\\'")}', ${questionIdx})" class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-650 rounded-xl transition-all dark:bg-rose-955/40 dark:text-rose-455" title="Hapus Media Gambar">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
                         <div class="p-4 flex-1 flex items-center justify-center bg-slate-50/50 dark:bg-slate-900/30 min-h-[160px] max-h-[160px]">
                             <img src="${q.gambar}" class="max-h-32 object-contain rounded-lg shadow-sm border border-slate-200 dark:border-slate-800" alt="Pratinjau Gambar" />
                         </div>
-                        <div class="p-4 border-t border-slate-150 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/10">
+                        <div class="p-4 border-t border-slate-150 dark:border-slate-855 bg-slate-50/50 dark:bg-slate-900/10">
                             <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 italic">"${q.teks_soal}"</p>
                         </div>
                     </div>
@@ -2537,9 +2410,9 @@
                 if (isEnded) {
                     statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">Selesai</span>';
                 } else if (hasResults) {
-                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">Berjalan</span>';
+                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-50 text-amber-600 dark:bg-amber-955/40 dark:text-amber-455">Berjalan</span>';
                 } else {
-                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">Siap</span>';
+                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-blue-50 text-blue-655 dark:bg-blue-955/40 dark:text-blue-400">Siap</span>';
                 }
 
                 return `
@@ -2553,26 +2426,26 @@
                                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Selesai: ${formatWaktuIndo(e.waktu_selesai)}
                             </p>
                             <div class="flex flex-wrap gap-2 mt-3.5">
-                                <p class="text-[11px] text-slate-500 font-bold bg-slate-50 dark:bg-slate-800/50 w-fit px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
+                                <p class="text-[11px] text-slate-555 font-bold bg-slate-50 dark:bg-slate-800/50 w-fit px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
                                     <i data-lucide="users" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400"></i>
-                                    <span>Partisipan: <strong class="text-blue-600 dark:text-blue-400">${examResults.length}</strong></span>
+                                    <span>Partisipan: <strong class="text-blue-655 dark:text-blue-400">${examResults.length}</strong></span>
                                 </p>
-                                <p class="text-[11px] text-slate-500 font-bold bg-slate-50 dark:bg-slate-800/50 w-fit px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
-                                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400"></i>
+                                <p class="text-[11px] text-slate-555 font-bold bg-slate-50 dark:bg-slate-800/50 w-fit px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1.5">
+                                    <i data-lucide="book-open" class="w-3.5 h-3.5 text-purple-650 dark:text-purple-400"></i>
                                     <span>Soal Ujian: <strong class="text-purple-600 dark:text-purple-400">${examQuestions.length}</strong></span>
                                 </p>
                             </div>
                         </div>
 
                         <div class="flex flex-col gap-2 mt-6 border-t border-slate-100 dark:border-slate-800 pt-4">
-                            <button onclick="purgeExamResultsData('${e.id}', '${e.mata_pelajaran.replace(/'/g, "\\'")}')" ${!hasResults ? 'disabled' : ''} class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-750 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-rose-50 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 dark:bg-rose-950/30 dark:text-rose-400">
+                            <button onclick="purgeExamResultsData('${e.id}', '${e.mata_pelajaran.replace(/'/g, "\\'")}')" ${!hasResults ? 'disabled' : ''} class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-rose-50 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 dark:bg-rose-955/30 dark:text-rose-455 dark:hover:bg-rose-900/40">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Database Hasil Ujian
                             </button>
                             
-                            <button onclick="purgeExamQuestionsData('${e.id}', '${e.mata_pelajaran.replace(/'/g, "\\'")}')" ${!hasQuestions ? 'disabled' : ''} class="w-full py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-600 hover:text-purple-750 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-purple-50 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 dark:bg-purple-950/30 dark:text-purple-400">
+                            <button onclick="purgeExamQuestionsData('${e.id}', '${e.mata_pelajaran.replace(/'/g, "\\'")}')" ${!hasQuestions ? 'disabled' : ''} class="w-full py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-600 hover:text-purple-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-purple-50 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 dark:bg-purple-955/30 dark:text-purple-400 dark:hover:bg-purple-900/40">
                                 <i data-lucide="book-open" class="w-4 h-4"></i> Hapus Database Bank Soal
                             </button>
-                            <p class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold text-center mt-1 leading-normal font-sans">Pilih "Hasil Ujian" untuk mereset skor pengerjaan, pilih "Bank Soal" untuk menghapus seluruh butir soal ujian terkait.</p>
+                            <p class="text-[9px] text-slate-400 dark:text-slate-455 font-semibold text-center mt-1 leading-normal">Pilih "Hasil Ujian" untuk mereset skor pengerjaan, pilih "Bank Soal" untuk menghapus seluruh butir soal ujian terkait.</p>
                         </div>
                     </div>
                 `;
@@ -2583,7 +2456,7 @@
                 <div class="glass-card rounded-3xl p-6 md:p-8 mb-6 relative overflow-hidden">
                     <div class="absolute right-0 top-0 w-64 h-64 rounded-full bg-blue-500/5 blur-2xl pointer-events-none"></div>
                     <div class="flex items-center gap-3 relative z-10">
-                        <div class="p-2.5 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-450 shrink-0">
+                        <div class="p-2.5 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-955/40 dark:text-rose-400 shrink-0">
                             <i data-lucide="database" class="w-5 h-5"></i>
                         </div>
                         <div>
@@ -2684,7 +2557,7 @@
                     `;
                 } else if (isEnded) {
                     actionButtonHtml = `
-                        <button disabled class="w-full py-3.5 rounded-xl bg-slate-100 text-slate-400 border border-slate-200 font-bold text-xs flex flex-col items-center justify-center cursor-not-allowed dark:bg-slate-800 dark:border-slate-700 dark:text-slate-500">
+                        <button disabled class="w-full py-3.5 rounded-xl bg-slate-100 text-slate-450 border border-slate-200 font-bold text-xs flex flex-col items-center justify-center cursor-not-allowed dark:bg-slate-800 dark:border-slate-700 dark:text-slate-500">
                             <span class="flex items-center gap-1.5"><i data-lucide="calendar-off" class="w-3.5 h-3.5"></i> Sesi Telah Berakhir</span>
                         </button>
                     `;
@@ -2706,12 +2579,12 @@
                     <div class="glass-card rounded-3xl p-6 flex flex-col justify-between h-64 relative overflow-hidden transition-all hover:shadow-xl hover:shadow-blue-500/5">
                         <div class="absolute -right-10 -bottom-10 w-36 h-36 rounded-full bg-blue-500/5 blur-xl"></div>
                         <div>
-                            <span class="px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">Terbuka</span>
+                            <span class="px-3 py-1 rounded-full text-[9px] font-extrabold uppercase bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400">Terbuka</span>
                             <h4 class="font-extrabold text-slate-900 text-lg leading-tight mt-3 dark:text-white">${e.mata_pelajaran}</h4>
                             <p class="text-xs text-slate-400 font-semibold mt-2 flex items-center gap-1.5">
                                 <i data-lucide="clock" class="w-3.5 h-3.5 text-blue-600"></i> ${e.durasi_menit} Menit
                             </p>
-                            <p class="text-[10px] text-slate-500 font-bold mt-2 flex flex-col gap-0.5 dark:text-slate-400 font-sans">
+                            <p class="text-[10px] text-slate-500 font-bold mt-2 flex flex-col gap-0.5 dark:text-slate-400">
                                 <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3 h-3 text-blue-600 dark:text-blue-400"></i> Mulai: ${formatWaktuIndo(e.waktu_mulai)}</span>
                                 <span class="flex items-center gap-1.5"><i data-lucide="calendar-off" class="w-3 h-3 text-rose-500"></i> Selesai: ${formatWaktuIndo(e.waktu_selesai)}</span>
                             </p>
@@ -2739,11 +2612,11 @@
                 <tr class="hover:bg-slate-50/50 border-b border-slate-100 dark:border-slate-800">
                     <td class="py-4 px-6 text-sm font-bold text-slate-900 dark:text-slate-100">${r.mapel}</td>
                     <td class="py-4 px-6">
-                        <span class="px-3 py-1.5 rounded-xl font-extrabold text-sm ${r.skor >= 70 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-95b/40 dark:text-rose-400'}">
+                        <span class="px-3 py-1.5 rounded-xl font-extrabold text-sm ${r.skor >= 70 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-955/40 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-955/40 dark:text-rose-455'}">
                             ${r.skor} / 100
                         </span>
                     </td>
-                    <td class="py-4 px-6 text-xs font-semibold text-slate-400 dark:text-slate-450">${new Date(r.waktu_selesai).toLocaleString('id-ID')}</td>
+                    <td class="py-4 px-6 text-xs font-semibold text-slate-400 dark:text-slate-455">${new Date(r.waktu_selesai).toLocaleString('id-ID')}</td>
                     <td class="py-4 px-6 text-sm font-bold text-emerald-600">Tersubmit</td>
                 </tr>
             `).join('');
@@ -2752,7 +2625,7 @@
             content.innerHTML = `
                 <div class="glass-card rounded-3xl p-6 overflow-hidden">
                     <h3 class="font-extrabold text-base text-slate-900 mb-4 dark:text-white flex items-center gap-2">
-                        <i data-lucide="award" class="w-5 h-5 text-blue-600"></i>
+                        <i data-lucide="award" class="w-5 h-5 text-blue-650"></i>
                         Riwayat Ujian Selesai
                     </h3>
                     <div class="overflow-x-auto">
@@ -2824,7 +2697,7 @@
             const isDoubt = engine.doubtful[engine.currentIdx] === true;
             const doubtBtn = document.getElementById('doubtful-btn');
             if (isDoubt) {
-                doubtBtn.className = "flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:border-amber-900/40 dark:text-amber-400 transition-all";
+                doubtBtn.className = "flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-955/40 dark:border-amber-900/40 dark:text-amber-400 transition-all";
             } else {
                 doubtBtn.className = "flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-all";
             }
@@ -2836,7 +2709,7 @@
                     <img src="${currentQst.gambar}" class="max-h-60 rounded-2xl object-contain shadow-md border border-slate-200 dark:border-slate-800 mx-auto" alt="Gambar Referensi Soal" />
                 </div>
                 ` : ''}
-                <div class="leading-relaxed text-slate-800 dark:text-slate-100 font-semibold">${currentQst.teks_soal}</div>
+                <div class="leading-relaxed text-slate-855 dark:text-slate-100 font-semibold">${currentQst.teks_soal}</div>
             `;
             questionBox.style.fontSize = `${engine.fontSizePercent || 100}%`;
 
@@ -2844,8 +2717,8 @@
             optionsBox.innerHTML = currentQst.opsi.map((opt, oIdx) => {
                 const isSelected = engine.answers[engine.currentIdx] === oIdx;
                 return `
-                    <div onclick="selectCbtOption(${oIdx})" class="flex items-center gap-4 p-4 rounded-2xl border option-card-transition cursor-pointer ${isSelected ? 'border-blue-600 bg-blue-50/50 text-blue-900 font-bold ring-2 ring-blue-600/10 dark:border-blue-500 dark:bg-blue-950/20 dark:text-blue-300' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}">
-                        <span class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-extrabold uppercase ${isSelected ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-750 text-slate-500 dark:text-slate-400'}">
+                    <div onclick="selectCbtOption(${oIdx})" class="flex items-center gap-4 p-4 rounded-2xl border option-card-transition cursor-pointer ${isSelected ? 'border-blue-600 bg-blue-50/50 text-blue-900 font-bold ring-2 ring-blue-600/10 dark:border-blue-500 dark:bg-blue-955/20 dark:text-blue-300' : 'border-slate-200 dark:border-slate-855 bg-white dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}">
+                        <span class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-extrabold uppercase ${isSelected ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}">
                             ${alphabeticKeys[oIdx]}
                         </span>
                         <span class="text-sm select-none font-semibold">${opt}</span>
@@ -2866,7 +2739,7 @@
 
                 let themeClass = "border border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 text-slate-600 dark:text-slate-300";
                 if (isDoubt) {
-                    themeClass = "bg-amber-400 dark:bg-amber-500 text-white font-bold ring-2 ring-amber-400/20";
+                    themeClass = "bg-amber-400 dark:bg-amber-550 text-white font-bold ring-2 ring-amber-400/20";
                 } else if (isAnswered) {
                     themeClass = "bg-emerald-500 dark:bg-emerald-600 text-white font-bold ring-2 ring-emerald-500/20";
                 }
