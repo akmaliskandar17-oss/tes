@@ -848,7 +848,7 @@
                         q = query(targetCol, where(queryFilters.field, "==", queryFilters.value));
                     }
                     const snap = await getDocs(q);
-                    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    return snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
                 } catch (err) {
                     console.error("Gagal mengambil records:", err);
                     return [];
