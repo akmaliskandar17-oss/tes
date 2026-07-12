@@ -848,9 +848,16 @@
                         q = query(targetCol, where(queryFilters.field, "==", queryFilters.value));
                     }
                     const snap = await getDocs(q);
-                    return snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 } catch (err) {
                     console.error("Gagal mengambil records:", err);
+                    if (err.code === "permission-denied" || err.message.includes("permissions")) {
+                        showToast(
+                            "Akses Database Ditolak", 
+                            "Firestore Rules Anda memblokir permintaan ini. Silakan periksa kembali konfigurasi tab Rules di Firebase Console Anda.", 
+                            "error"
+                        );
+                    }
                     return [];
                 }
             }
@@ -863,8 +870,16 @@
                 mockDB[colName].push(completeRecord);
                 return completeRecord;
             } else {
-                const ref = await addDoc(collection(db, colName), docData);
-                return { id: ref.id, ...docData };
+                try {
+                    const ref = await addDoc(collection(db, colName), docData);
+                    return { id: ref.id, ...docData };
+                } catch (err) {
+                    console.error("Gagal membuat record:", err);
+                    if (err.code === "permission-denied" || err.message.includes("permissions")) {
+                        showToast("Gagal Menyimpan", "Izin menulis ke database ditolak oleh server Firebase.", "error");
+                    }
+                    throw err;
+                }
             }
         }
 
@@ -875,7 +890,15 @@
                     mockDB[colName][targetIdx] = { ...mockDB[colName][targetIdx], ...docData };
                 }
             } else {
-                await updateDoc(doc(db, colName, docId), docData);
+                try {
+                    await updateDoc(doc(db, colName, docId), docData);
+                } catch (err) {
+                    console.error("Gagal mengubah record:", err);
+                    if (err.code === "permission-denied" || err.message.includes("permissions")) {
+                        showToast("Akses Ditolak", "Gagal memperbarui data karena batasan Firestore Security Rules.", "error");
+                    }
+                    throw err;
+                }
             }
         }
 
@@ -883,7 +906,15 @@
             if (IS_PREVIEW || !db) {
                 mockDB[colName] = mockDB[colName].filter(r => r.id !== docId);
             } else {
-                await deleteDoc(doc(db, colName, docId));
+                try {
+                    await deleteDoc(doc(db, colName, docId));
+                } catch (err) {
+                    console.error("Gagal menghapus record:", err);
+                    if (err.code === "permission-denied" || err.message.includes("permissions")) {
+                        showToast("Akses Ditolak", "Gagal menghapus data dari database server.", "error");
+                    }
+                    throw err;
+                }
             }
         }
 
