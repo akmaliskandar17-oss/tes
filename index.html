@@ -125,12 +125,14 @@
             border-color: #334155 !important;
             box-shadow: 0 10px 50px rgba(0,0,0,0.5) !important;
         }
+        
+        /* OPTIMASI: Menghapus tag !important agar CSS state 'isSelected' aktif berjalan mulus di mode gelap */
         html.dark .option-card-transition {
-            background-color: #1e293b !important;
-            border-color: #334155 !important;
+            background-color: #1e293b;
+            border-color: #334155;
         }
         html.dark .option-card-transition:hover {
-            background-color: #334155 !important;
+            background-color: #334155;
         }
 
         /* Utilitas Glassmorphism */
@@ -209,7 +211,7 @@
                 <h3 id="dialog-title" class="text-lg font-bold text-slate-900">Konfirmasi Tindakan</h3>
                 <p id="dialog-desc" class="text-slate-500 text-sm mt-2">Apakah Anda yakin?</p>
                 <div class="flex justify-end gap-3 mt-6">
-                    <button id="dialog-cancel-btn" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors">Batal</button>
+                    <button id="dialog-cancel-btn" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-655 text-sm font-semibold hover:bg-slate-50 transition-colors">Batal</button>
                     <button id="dialog-confirm-btn" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-500/20">Ya, Lanjutkan</button>
                 </div>
             </div>
@@ -261,7 +263,7 @@
                     <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md">
                         <i data-lucide="graduation-cap" class="w-6 h-6 text-white"></i>
                     </div>
-                    <span class="font-extrabold text-xl tracking-wide uppercase">CBT Online</span>
+                    <span class="font-extrabold text-xl tracking-wide uppercase">AIS CBT</span>
                 </div>
                 <div class="relative z-10 my-auto">
                     <h1 class="text-4xl font-extrabold leading-tight">Sistem Asesmen Sekolah Mandiri Modern & Real-Time</h1>
@@ -301,7 +303,7 @@
                     </div>
 
                     <div class="mb-6">
-                        <h2 class="text-2xl font-extrabold text-slate-950 dark:text-white">SMKN 3 SELAYAR</h2>
+                        <h2 class="text-2xl font-extrabold text-slate-950 dark:text-white">SELAMAT DATANG</h2>
                         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Silakan masuk menggunakan akun Anda.</p>
                     </div>
 
@@ -828,7 +830,7 @@
                 if (!config) {
                     config = { 
                         id: "cfg_01", 
-                        versi: "v1.0.0-Live", 
+                        versi: "v1.6.2-Live", 
                         pembuat: "Akmal Iskandar, S.Pi (Gemini AI)",
                         max_violations: 3,
                         block_copy_paste: true,
@@ -1502,7 +1504,7 @@
                                 </div>
 
                                 ${appState.selectedStudents.length > 0 ? `
-                                    <button onclick="deleteSelectedStudents()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-650 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 shadow-sm dark:bg-rose-955/20 dark:text-rose-400">
+                                    <button onclick="deleteSelectedStudents()" class="py-2.5 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-655 text-xs font-extrabold rounded-xl transition-all flex items-center gap-1.5 shadow-sm dark:bg-rose-955/20 dark:text-rose-400">
                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Terpilih (${appState.selectedStudents.length})
                                     </button>
                                 ` : ''}
@@ -2583,7 +2585,7 @@
         window.deleteGalleryImage = function(qId, mapelName, questionIdx) {
             showCustomDialog(
                 "Hapus Gambar Soal",
-                `Apakah Anda yakin ingin menghapus lampiran gambar pada Soal No. ${questionIdx} di sesi "${mapelName}"? Pertanyaan teks aslinya akan tetap dipertahaman, hanya berkas gambarnya yang akan dihapus dari penyimpanan.`,
+                `Apakah Anda yakin ingin menghapus lampiran gambar pada Soal No. ${questionIdx} di sesi "${mapelName}"? Pertanyaan teks aslinya akan tetap dipertahankan, hanya berkas gambarnya yang akan dihapus dari penyimpanan.`,
                 async () => {
                     await editRecord('questions', qId, { gambar: "" });
                     showToast("Selesai", "Lampiran gambar berhasil dihapus secara permanen.", "success");
@@ -2767,7 +2769,7 @@
                     <div class="glass-card rounded-3xl p-6 md:p-8 space-y-6">
                         <form onsubmit="saveAntiCheatSettings(event)" class="space-y-6">
                             <!-- Input Batas Pelanggaran -->
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-850">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-855">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Batas Maksimal Pelanggaran</h4>
                                     <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Batas toleransi siswa berpindah tab/meninggalkan layar ujian sebelum tindakan diambil.</p>
@@ -2778,7 +2780,7 @@
                             </div>
 
                             <!-- Toggle Blokir Klik Kanan -->
-                            <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-850">
+                            <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-855">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Blokir Menu Klik Kanan</h4>
                                     <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Mencegah aksi klik kanan yang memungkinkan siswa melakukan inspeksi elemen atau pencarian jawaban.</p>
@@ -2790,7 +2792,7 @@
                             </div>
 
                             <!-- Toggle Blokir Copy Paste -->
-                            <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-850">
+                            <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-855">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Blokir Copy, Paste, & Cut</h4>
                                     <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Menonaktifkan fungsi salin (Ctrl+C), tempel (Ctrl+V), dan potong (Ctrl+X) baik dari mouse maupun pintasan keyboard.</p>
@@ -2802,7 +2804,7 @@
                             </div>
 
                             <!-- Toggle Fullscreen -->
-                            <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-850">
+                            <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-855">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Enforce Fullscreen (Layar Penuh)</h4>
                                     <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Memaksa browser siswa masuk ke mode Layar Penuh saat ujian berjalan dan memperingatkan jika keluar.</p>
@@ -2887,7 +2889,7 @@
                 let actionButtonHtml = '';
                 if (isCompleted) {
                     actionButtonHtml = `
-                        <button disabled class="w-full py-3.5 rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-600 font-bold text-sm flex items-center justify-center gap-1.5 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/40">
+                        <button disabled class="w-full py-3.5 rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-600 font-bold text-sm flex items-center justify-center gap-1.5 dark:bg-emerald-955/40 dark:text-emerald-400 dark:border-emerald-900/40">
                             <i data-lucide="check" class="w-4 h-4"></i> Sudah Dikerjakan
                         </button>
                     `;
@@ -3140,22 +3142,19 @@
             renderExamNavigationGrid();
         };
 
+        // OPTIMASI: Menyederhanakan penentuan visibilitas sidebar ujian tanpa eksekusi data-lucide berulang-ulang
         window.toggleExamSidebar = function() {
             const sidebar = document.getElementById('exam-nav-sidebar');
-            const icon = document.getElementById('toggle-sidebar-icon');
             const text = document.getElementById('toggle-sidebar-text');
             if (!sidebar) return;
 
             if (sidebar.classList.contains('hidden')) {
                 sidebar.classList.remove('hidden');
                 if (text) text.textContent = "Sembunyikan Navigasi";
-                if (icon) icon.setAttribute('data-lucide', 'layout-sidebar');
             } else {
                 sidebar.classList.add('hidden');
                 if (text) text.textContent = "Tampilkan Navigasi";
-                if (icon) icon.setAttribute('data-lucide', 'layout-sidebar');
             }
-            lucide.createIcons();
         };
 
         window.zoomQuestion = function(direction) {
