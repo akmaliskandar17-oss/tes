@@ -1067,18 +1067,17 @@
                 return records;
             } else {
                 try {
-                    const authenticated = await ensureAuth();
-                    if (!authenticated || !auth.currentUser) return [];
+                    await ensureAuth();
+                    if (!auth.currentUser) return [];
                     const targetCol = getCollectionRef(colName);
                     let q = targetCol;
                     if (queryFilters) {
                         q = query(targetCol, where(queryFilters.field, "==", queryFilters.value));
                     }
                     const snap = await getDocs(q);
-                    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    return snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
                 } catch (err) {
                     console.error("Gagal mengambil records:", err);
-                    showOnScreenError(`Failed to fetch collection [${colName}]: ` + err.message);
                     return [];
                 }
             }
@@ -1092,13 +1091,12 @@
                 return completeRecord;
             } else {
                 try {
-                    const authenticated = await ensureAuth();
-                    if (!authenticated || !auth.currentUser) return docData;
+                    await ensureAuth();
+                    if (!auth.currentUser) return docData;
                     const ref = await addDoc(getCollectionRef(colName), docData);
-                    return { id: ref.id, ...docData };
+                    return { ...docData, id: ref.id };
                 } catch (err) {
                     console.error("Gagal menulis record:", err);
-                    showOnScreenError(`Failed to create record in [${colName}]: ` + err.message);
                     return docData;
                 }
             }
