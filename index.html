@@ -180,39 +180,67 @@
                 display: flex !important;
             }
         }
-
-        /* Ticker Animasi Marquee (Fitur 4) */
-        @keyframes marquee {
-            0% { transform: translate3d(100%, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-        .animate-marquee {
-            display: inline-block;
-            animation: marquee 25s linear infinite;
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased overflow-hidden">
 
+    <script>
+        // Intersepsi galat global seketika untuk kemudahan debugging
+        window.addEventListener('error', function(event) {
+            showOnScreenError(event.message, event.filename, event.lineno);
+        });
+        window.addEventListener('unhandledrejection', function(event) {
+            showOnScreenError(event.reason ? event.reason.message || event.reason : 'Unhandled Promise Rejection');
+        });
+
+        function showOnScreenError(message, source, lineno) {
+            let container = document.getElementById('debug-error-console');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'debug-error-console';
+                container.className = 'fixed bottom-4 left-4 right-4 z-[9999999] bg-rose-900/95 text-rose-100 p-4 rounded-2xl shadow-2xl border border-rose-500 max-h-80 overflow-y-auto text-xs font-mono';
+                container.innerHTML = `
+                    <div class="flex justify-between items-center mb-2 border-b border-rose-700 pb-1.5 font-bold text-sm">
+                        <span class="flex items-center gap-1.5 text-rose-300">🚨 Deteksi Masalah Sistem</span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="text-rose-300 hover:text-white font-bold px-2 py-0.5 rounded bg-rose-800/50">Tutup</button>
+                    </div>
+                    <div id="debug-error-list" class="space-y-1"></div>
+                    <div id="debug-troubleshoot-container"></div>
+                    <p class="text-[10px] text-rose-300 mt-2 border-t border-rose-800 pt-1">Saran: Jika ini merupakan kesalahan 'CORS' atau 'Origin', jangan klik ganda file index.html secara lokal. Gunakan Local Server (seperti Live Server VS Code) atau unggah langsung ke Blogger.</p>
+                `;
+                document.body.appendChild(container);
+            }
+            const list = document.getElementById('debug-error-list');
+            if (list) {
+                const item = document.createElement('p');
+                item.className = 'border-l-2 border-rose-400 pl-2 py-0.5';
+                item.textContent = `${new Date().toLocaleTimeString()}: ${message} ${source ? `(${source.split('/').pop()}:${lineno})` : ''}`;
+                list.appendChild(item);
+            }
+
+            // Deteksi cerdas galat perizinan database (Permissions Denied)
+            let isPermissionError = message.toLowerCase().includes("permission") || message.toLowerCase().includes("insufficient");
+            if (isPermissionError) {
+                const troubleshootContainer = document.getElementById('debug-troubleshoot-container');
+                if (troubleshootContainer && troubleshootContainer.innerHTML === "") {
+                    troubleshootContainer.innerHTML = `
+                        <div class="mt-3 p-3.5 bg-rose-950/85 rounded-xl border border-rose-500/30 text-[11px] text-rose-200 space-y-2">
+                            <p class="font-bold text-amber-300 flex items-center gap-1.5">🛠️ Langkah Solusi Cepat (Firebase Console):</p>
+                            <ol class="list-decimal pl-4 space-y-1 text-slate-300">
+                                <li>Buka <strong>Firebase Console</strong> proyek Anda di browser.</li>
+                                <li>Masuk ke menu <strong>Authentication</strong> -> Tab <strong>Sign-in method</strong> -> Aktifkan penyedia <strong>Anonymous</strong> (Anonim) -> Simpan.</li>
+                                <li>Masuk ke menu <strong>Firestore Database</strong> -> Tab <strong>Rules</strong> (Aturan) -> Tempel isi dari editor kanan <code class="bg-rose-900/50 px-1 py-0.5 rounded text-white font-mono">firestore.rules</code> -> Klik <strong>Publish</strong>.</li>
+                            </ol>
+                        </div>
+                    `;
+                }
+            }
+        }
+    </script>
+
     <!-- Container Utama untuk mengisolasi aplikasi dari elemen bawaan Blogger -->
     <div id="cbt-blogger-container">
         
-        <!-- Global Broadcast Banner (Fitur 4) -->
-        <div id="global-broadcast-banner" class="bg-amber-500 text-white py-2.5 px-4 text-xs font-extrabold flex items-center gap-3 hidden shrink-0 z-[999995] shadow-md border-b border-amber-600/25">
-            <span class="flex h-2.5 w-2.5 relative shrink-0">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
-            </span>
-            <div class="flex-1 overflow-hidden">
-                <div id="broadcast-message-marquee" class="whitespace-nowrap animate-marquee hover:[animation-play-state:paused] cursor-pointer font-bold tracking-wide">
-                    PENGUMUMAN DARI PENGAWAS: -
-                </div>
-            </div>
-            <button onclick="dismissBroadcast()" class="text-white/80 hover:text-white transition-colors p-1 rounded hover:bg-white/10 shrink-0">
-                <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-        </div>
-
         <!-- Global Toast Alert -->
         <div id="custom-toast" class="fixed top-5 right-5 z-[1000000] max-w-sm w-full bg-white border border-slate-100 shadow-2xl rounded-2xl p-4 flex items-start gap-3 transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none">
             <div id="toast-icon-bg" class="p-2 rounded-xl bg-blue-50 text-blue-600">
@@ -272,36 +300,15 @@
             </div>
         </div>
 
-        <!-- Drilldown Modal (Fitur 5 - Live Chart Drilldown) -->
-        <div id="drilldown-modal" class="fixed inset-0 z-[999999] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-            <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl p-6 transform scale-95 opacity-0 transition-all duration-300 flex flex-col max-h-[85vh] border border-slate-100 dark:border-slate-800">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-                    <div class="flex items-center gap-2.5">
-                        <div id="drilldown-icon-bg" class="p-2.5 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400">
-                            <i id="drilldown-icon" data-lucide="users" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <h3 id="drilldown-title" class="text-base font-bold text-slate-900 dark:text-white">Detail Distribusi Nilai</h3>
-                            <p id="drilldown-subtitle" class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Siswa yang berada pada kategori ini</p>
-                        </div>
-                    </div>
-                    <button onclick="closeDrilldownModal()" class="text-slate-450 hover:text-slate-700 dark:hover:text-slate-250 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                <div class="flex-1 overflow-y-auto my-4 space-y-3 pr-1" id="drilldown-list-container">
-                    <!-- Dynamic List Populated Here -->
-                </div>
-                <div class="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <button onclick="closeDrilldownModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-750 dark:text-slate-350 text-sm font-bold transition-all shadow-sm">Tutup</button>
-                </div>
-            </div>
-        </div>
-
         <!-- View Halaman Login -->
         <div id="view-login" class="min-h-screen flex flex-col md:flex-row items-stretch justify-center h-full w-full bg-slate-50 relative">
+            <!-- Warning Banner for file:// protocol -->
+            <div id="local-protocol-warning" class="hidden absolute top-0 left-0 right-0 z-55 bg-amber-500 text-white px-4 py-3 text-center text-xs font-semibold shadow-md flex items-center justify-center gap-2">
+                <span>⚠️ Protokol Lokal Dideteksi (file://). Fitur Firebase/PWA tidak dapat berfungsi sebelum Anda mengunggah kode ini ke Blogger atau menggunakan Live Server lokal!</span>
+            </div>
+
             <!-- Floating Theme Toggle in Login page -->
-            <div class="absolute top-5 right-5 z-50">
+            <div class="absolute top-14 md:top-5 right-5 z-50">
                 <button onclick="toggleThemeMode()" class="p-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 transition-all theme-toggle-btn">
                     <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
                     <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
@@ -343,7 +350,7 @@
             </div>
 
             <!-- Right Login Form Side -->
-            <div class="flex-1 flex items-center justify-center p-6 sm:p-12">
+            <div class="flex-1 flex items-center justify-center p-6 sm:p-12 mt-10 md:mt-0">
                 <div class="max-w-md w-full">
                     <div class="md:hidden flex flex-col items-center gap-1 mb-8 justify-center">
                         <div class="flex items-center gap-2 justify-center">
@@ -357,7 +364,7 @@
                     </div>
 
                     <div class="mb-6">
-                        <h2 class="text-2xl font-extrabold text-slate-950 dark:text-white">SMKN 3 SELAYAR</h2>
+                        <h2 class="text-2xl font-extrabold text-slate-955 dark:text-white">SMKN 3 SELAYAR</h2>
                         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Silakan masuk menggunakan akun Anda.</p>
                     </div>
 
@@ -574,7 +581,7 @@
                 <!-- Navigation Sidebar Sheet -->
                 <div id="exam-nav-sidebar" class="w-full lg:w-80 bg-white dark:bg-slate-900 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 p-6 flex flex-col justify-between shrink-0 overflow-y-auto lg:h-full transition-all duration-200">
                     <div>
-                        <h4 class="font-bold text-sm text-slate-950 dark:text-white mb-3">Navigasi Pengerjaan</h4>
+                        <h4 class="font-bold text-sm text-slate-955 dark:text-white mb-3">Navigasi Pengerjaan</h4>
                         <p class="text-xs text-slate-400 dark:text-slate-455 leading-normal mb-4">Klik nomor kotak di bawah ini untuk berpindah ke nomor pertanyaan yang diinginkan.</p>
                         
                         <div id="exam-navigation-grid" class="grid grid-cols-5 gap-2">
@@ -597,10 +604,11 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         // APP CONFIGURATIONS & DEPLOYMENT SWITCH
-        const IS_PREVIEW = false; // SET FALSE JIKA SUDAH TERHUBUNG KE REAL FIREBASE
+        // SET FALSE JIKA SUDAH TERHUBUNG KE REAL FIREBASE PROYEK ANDA
+        const IS_PREVIEW = false; 
         
         const firebaseConfig = {
             apiKey: "AIzaSyCg_iznsQaDRvn28c9IunJUztR7_CvOczA",
@@ -701,10 +709,7 @@
             app_config: [
                 { id: "cfg_01", versi: "v1.0.0-Live", pembuat: "Akmal Iskandar, S.Pi (Gemini AI)", max_violations: 3, block_copy_paste: true, block_right_click: true, enforce_fullscreen: true, auto_submit: true, randomize_questions: true, randomize_options: true }
             ],
-            exam_progress: [],
-            broadcasts: [
-                { id: "bcast_01", message: "", active: false, timestamp: "" }
-            ]
+            exam_progress: []
         };
 
         let appState = {
@@ -924,12 +929,11 @@
                         try {
                             await createRecord('app_config', config);
                         } catch (err) {
-                            console.log("Inisialisasi cloud dilewati untuk Guest.");
+                            console.log("Inisialisasi cloud dilewati.");
                         }
                     }
                 }
                 
-                // Perbarui tampilan UI di login muka
                 const verEl = document.getElementById('login-app-version');
                 const creEl = document.getElementById('login-app-creator');
                 const verElMob = document.getElementById('login-app-version-mobile');
@@ -942,7 +946,6 @@
                 
                 appState.appConfig = config;
 
-                // Muat konfigurasi anti-cheat global & pengacakan
                 appState.antiCheatSettings = {
                     max_violations: config.max_violations !== undefined ? Number(config.max_violations) : 3,
                     block_copy_paste: config.block_copy_paste !== undefined ? (config.block_copy_paste === true || config.block_copy_paste === "true" || config.block_copy_paste === 1) : true,
@@ -996,8 +999,14 @@
             }
         }
 
-        // Initialize Firebase Connectors
         function initFirebase() {
+            // Check protocol security
+            if (window.location.protocol === 'file:') {
+                const warningBanner = document.getElementById('local-protocol-warning');
+                if (warningBanner) warningBanner.classList.remove('hidden');
+                showToast("Protokol Tidak Aman", "Anda menjalankan index.html langsung dari file lokal. Fitur Firebase diblokir browser. Gunakan Live Server lokal atau unggah ke Blogger.", "error");
+            }
+
             if (!IS_PREVIEW) {
                 try {
                     app = initializeApp(firebaseConfig);
@@ -1005,6 +1014,7 @@
                     db = getFirestore(app);
                 } catch (err) {
                     console.error("Firebase Gagal Memuat. Beralih ke Mode Sandbox/Demo:", err);
+                    showOnScreenError("Firebase Init Error: " + err.message);
                 }
             }
         }
@@ -1026,13 +1036,24 @@
             if (auth.currentUser) return true;
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } catch (tokenErr) {
+                        console.warn("Custom token invalid, falling back to anonymous auth:", tokenErr);
+                        await signInAnonymously(auth);
+                    }
                 } else {
                     await signInAnonymously(auth);
                 }
                 return true;
             } catch (err) {
                 console.error("Autentikasi Firestore gagal:", err);
+                if (err.code === 'auth/operation-not-allowed') {
+                    showToast("Firebase Auth Error", "Anonymous Sign-In dinonaktifkan di Firebase Console Anda! Silakan ikuti petunjuk aktivasi.", "error");
+                } else {
+                    showToast("Koneksi Firebase Gagal", "Gagal mengautentikasi: " + err.message, "error");
+                }
+                showOnScreenError("Auth Connection Failed: " + err.message + " (" + err.code + ")");
                 return false;
             }
         }
@@ -1046,8 +1067,8 @@
                 return records;
             } else {
                 try {
-                    await ensureAuth();
-                    if (!auth.currentUser) return [];
+                    const authenticated = await ensureAuth();
+                    if (!authenticated || !auth.currentUser) return [];
                     const targetCol = getCollectionRef(colName);
                     let q = targetCol;
                     if (queryFilters) {
@@ -1057,6 +1078,7 @@
                     return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 } catch (err) {
                     console.error("Gagal mengambil records:", err);
+                    showOnScreenError(`Failed to fetch collection [${colName}]: ` + err.message);
                     return [];
                 }
             }
@@ -1070,12 +1092,13 @@
                 return completeRecord;
             } else {
                 try {
-                    await ensureAuth();
-                    if (!auth.currentUser) return docData;
+                    const authenticated = await ensureAuth();
+                    if (!authenticated || !auth.currentUser) return docData;
                     const ref = await addDoc(getCollectionRef(colName), docData);
                     return { id: ref.id, ...docData };
                 } catch (err) {
                     console.error("Gagal menulis record:", err);
+                    showOnScreenError(`Failed to create record in [${colName}]: ` + err.message);
                     return docData;
                 }
             }
@@ -1089,11 +1112,12 @@
                 }
             } else {
                 try {
-                    await ensureAuth();
-                    if (!auth.currentUser) return;
+                    const authenticated = await ensureAuth();
+                    if (!authenticated || !auth.currentUser) return;
                     await updateDoc(getDocRef(colName, docId), docData);
                 } catch (err) {
                     console.error("Gagal mengubah record:", err);
+                    showOnScreenError(`Failed to update record [${docId}] in [${colName}]: ` + err.message);
                 }
             }
         }
@@ -1103,11 +1127,12 @@
                 mockDB[colName] = mockDB[colName].filter(r => r.id !== docId);
             } else {
                 try {
-                    await ensureAuth();
-                    if (!auth.currentUser) return;
+                    const authenticated = await ensureAuth();
+                    if (!authenticated || !auth.currentUser) return;
                     await deleteDoc(getDocRef(colName, docId));
                 } catch (err) {
                     console.error("Gagal menghapus record:", err);
+                    showOnScreenError(`Failed to delete record [${docId}] in [${colName}]: ` + err.message);
                 }
             }
         }
@@ -1206,7 +1231,7 @@
             const confirmBtn = document.getElementById('dialog-confirm-btn');
             const inputContainer = document.getElementById('dialog-input-container');
 
-            if (inputContainer) inputContainer.classList.add('hidden'); // Ensure hidden for standard confirmation dialogues
+            if (inputContainer) inputContainer.classList.add('hidden');
 
             titleEl.textContent = title;
             descEl.textContent = desc;
@@ -1315,143 +1340,6 @@
             }
         };
 
-        window.setupDashboardRealtimeListener = function() {
-            if (IS_PREVIEW || !db) {
-                // Di mode Sandbox Preview, simulasikan submit berkala siswa untuk memperlihatkan sinkronisasi real-time
-                if (!window.simulatedFeedActive) {
-                    window.simulatedFeedActive = true;
-                    setInterval(() => {
-                        if (appState.currentUser && appState.currentUser.role === 'admin') {
-                            const availableStudents = mockDB.students.filter(s => 
-                                !mockDB.results.some(r => r.nisn_siswa === s.nisn)
-                            );
-                            
-                            if (availableStudents.length > 0) {
-                                const randomStudent = availableStudents[Math.floor(Math.random() * availableStudents.length)];
-                                const randomExam = mockDB.exams[Math.floor(Math.random() * mockDB.exams.length)];
-                                const newScore = Math.floor(Math.random() * 41) + 60; // Skor acak antara 60-100
-                                
-                                mockDB.results.push({
-                                    id: "res_" + Math.random().toString(36).substr(2, 9),
-                                    id_ujian: randomExam.id,
-                                    nisn_siswa: randomStudent.nisn,
-                                    nama_siswa: randomStudent.nama,
-                                    mapel: randomExam.mata_pelajaran,
-                                    skor: newScore,
-                                    waktu_selesai: new Date().toISOString()
-                                });
-                                
-                                if (appState.currentActiveTab === 'a-dashboard') {
-                                    renderAdminDashboard();
-                                } else if (appState.currentActiveTab === 'a-results') {
-                                    renderAdminResults();
-                                }
-                                
-                                showToast("Live Sync", `Siswa "${randomStudent.nama}" baru saja mengumpulkan lembar jawaban!`, "success");
-                            }
-                        }
-                    }, 15000); // Simulasi input data setiap 15 detik
-                }
-                return;
-            }
-
-            // Integrasi Event Listener Cloud Firestore Real-time (RULE 3 Compliance)
-            try {
-                const targetCol = getCollectionRef('results');
-                onSnapshot(targetCol, (snapshot) => {
-                    if (appState.currentUser && appState.currentUser.role === 'admin') {
-                        if (appState.currentActiveTab === 'a-dashboard') {
-                            renderAdminDashboard();
-                        } else if (appState.currentActiveTab === 'a-results') {
-                            renderAdminResults();
-                        }
-                    }
-                }, (err) => {
-                    console.error("Gagal melakukan listening snapshot real-time:", err);
-                });
-            } catch (e) {
-                console.error("Gagal mempersiapkan sinkronisasi cloud real-time:", e);
-            }
-        };
-
-        window.showChartDrillDown = async function(bracketName, minScore, maxScore, icon, colorClass) {
-            const results = await getRecords('results');
-            const students = await getRecords('students');
-            
-            // Mencari relasi pengerjaan siswa yang masuk ke dalam bracket skor tertentu
-            const filteredResults = results.filter(r => r.skor >= minScore && r.skor <= maxScore);
-            
-            const detailedResults = filteredResults.map(r => {
-                const matchedStudent = students.find(s => s.nisn === r.nisn_siswa);
-                return {
-                    ...r,
-                    kelas: matchedStudent ? matchedStudent.kelas : 'N/A'
-                };
-            });
-
-            window.showDrilldownModal(
-                `Kategori: ${bracketName}`,
-                `Menampilkan ${detailedResults.length} siswa dengan perolehan nilai terkait.`,
-                icon,
-                colorClass,
-                detailedResults
-            );
-        };
-
-        window.showDrilldownModal = function(title, subtitle, icon, colorClass, studentsInBracket) {
-            const modal = document.getElementById('drilldown-modal');
-            const box = modal.querySelector('div');
-            
-            document.getElementById('drilldown-title').textContent = title;
-            document.getElementById('drilldown-subtitle').textContent = subtitle;
-            
-            const iconBg = document.getElementById('drilldown-icon-bg');
-            iconBg.className = `p-2.5 rounded-xl ${colorClass}`;
-            iconBg.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5"></i>`;
-
-            const listContainer = document.getElementById('drilldown-list-container');
-            if (studentsInBracket.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="py-12 text-center text-slate-400 dark:text-slate-500 font-bold flex flex-col items-center justify-center">
-                        <i data-lucide="user-minus" class="w-10 h-10 mb-2.5 opacity-40"></i>
-                        Tidak ada siswa di kategori ini.
-                    </div>
-                `;
-            } else {
-                listContainer.innerHTML = studentsInBracket.map(item => `
-                    <div class="p-3.5 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/50 rounded-2xl flex items-center justify-between gap-3 hover:border-blue-100 dark:hover:border-blue-900/30 transition-colors">
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-bold text-slate-900 dark:text-white truncate">${item.nama_siswa}</p>
-                            <p class="text-xs text-slate-450 dark:text-slate-400 mt-1 font-semibold">NISN: ${item.nisn_siswa} | Kelas: ${item.kelas}</p>
-                            <p class="text-[10px] text-slate-400 dark:text-slate-500 truncate mt-0.5">${item.mapel}</p>
-                        </div>
-                        <div class="shrink-0">
-                            <span class="px-3 py-1.5 rounded-xl font-extrabold text-sm ${item.skor >= 70 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-955/40 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-955/40 dark:text-rose-455'}">
-                                ${item.skor}
-                            </span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-            
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                box.classList.remove('scale-95', 'opacity-0');
-                box.classList.add('scale-100', 'opacity-100');
-            }, 50);
-            lucide.createIcons();
-        };
-
-        window.closeDrilldownModal = function() {
-            const modal = document.getElementById('drilldown-modal');
-            const box = modal.querySelector('div');
-            box.classList.remove('scale-100', 'opacity-100');
-            box.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 150);
-        };
-
         window.handleStudentLogin = async function(e) {
             e.preventDefault();
             const nisn = document.getElementById('nisn-input').value;
@@ -1486,7 +1374,6 @@
                     showToast("Login Pengawas", "Masuk melalui Sandbox Mode (admin@cbt.com / admin123)", "success");
                     setupMainMenu();
                     switchView('view-main');
-                    window.setupDashboardRealtimeListener();
                 } else {
                     showToast("Akses Ditolak", "Sandbox: Gunakan admin@cbt.com & pass: admin123", "error");
                 }
@@ -1501,9 +1388,9 @@
                     showToast("Autentikasi Sukses", "Selamat datang Admin.", "success");
                     setupMainMenu();
                     switchView('view-main');
-                    window.setupDashboardRealtimeListener();
                 } catch (err) {
                     showToast("Akses Gagal", "Email atau Password Salah.", "error");
+                    showOnScreenError("Admin Login Fail: " + err.message);
                 }
             }
         };
@@ -1624,52 +1511,6 @@
             const questions = await getRecords('questions');
             const results = await getRecords('results');
 
-            const totalResults = results.length;
-            let avgScore = 0;
-            let maxScore = 0;
-            let minScore = 0;
-            let passingCount = 0;
-            let b1 = 0, b2 = 0, b3 = 0, b4 = 0;
-
-            if (totalResults > 0) {
-                const scores = results.map(r => r.skor);
-                avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / totalResults);
-                maxScore = Math.max(...scores);
-                minScore = Math.min(...scores);
-                passingCount = scores.filter(s => s >= 70).length;
-
-                b1 = scores.filter(s => s < 70).length;
-                b2 = scores.filter(s => s >= 70 && s < 80).length;
-                b3 = scores.filter(s => s >= 80 && s < 90).length;
-                b4 = scores.filter(s => s >= 90).length;
-            }
-
-            const passingRate = totalResults > 0 ? Math.round((passingCount / totalResults) * 100) : 0;
-            const maxBracket = Math.max(b1, b2, b3, b4, 1);
-            const barHeight = 80;
-            const h1 = (b1 / maxBracket) * barHeight;
-            const h2 = (b2 / maxBracket) * barHeight;
-            const h3 = (b3 / maxBracket) * barHeight;
-            const h4 = (b4 / maxBracket) * barHeight;
-
-            // Perhitungan grafik kedua: Rerata Nilai per Kelas (Fitur 5 Visualisasi Kedua)
-            const classAverages = {};
-            if (totalResults > 0) {
-                results.forEach(r => {
-                    const matchedStudent = students.find(s => s.nisn === r.nisn_siswa);
-                    const kelas = matchedStudent ? matchedStudent.kelas : 'N/A';
-                    if (!classAverages[kelas]) {
-                        classAverages[kelas] = { total: 0, count: 0 };
-                    }
-                    classAverages[kelas].total += r.skor;
-                    classAverages[kelas].count += 1;
-                });
-            }
-            const classAvgList = Object.keys(classAverages).map(kelas => ({
-                kelas: kelas,
-                avg: Math.round(classAverages[kelas].total / classAverages[kelas].count)
-            })).sort((a, b) => b.avg - a.avg);
-
             const content = document.getElementById('content-container');
             content.innerHTML = `
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -1711,136 +1552,7 @@
                     </div>
                 </div>
 
-                <!-- SVG Live Chart Section (Fitur 5 Ter-upgrade) -->
-                <div class="glass-card rounded-3xl p-6 md:p-8 mb-6 relative overflow-hidden">
-                    <div class="absolute right-0 top-0 w-64 h-64 rounded-full bg-blue-500/5 blur-2xl pointer-events-none"></div>
-                    
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-100 dark:border-slate-800 pb-4 relative z-10">
-                        <h3 class="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="bar-chart-3" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
-                            Statistik & Analisis Hasil Belajar Siswa
-                        </h3>
-                        
-                        <!-- Pulsing Live Sync Indicator -->
-                        <div class="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-955/20 text-emerald-600 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/30 rounded-full text-[9px] font-extrabold tracking-widest animate-pulse">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            LIVE SYNC ACTIVE
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch relative z-10">
-                        <!-- Summary Stats (Col 1) -->
-                        <div class="space-y-3 flex flex-col justify-between">
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center flex-1">
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Rerata Nilai:</span>
-                                <span class="text-blue-600 dark:text-blue-400 font-extrabold text-base">${avgScore} / 100</span>
-                            </div>
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center flex-1">
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nilai Tertinggi:</span>
-                                <span class="text-emerald-600 dark:text-emerald-400 font-extrabold text-base">${maxScore}</span>
-                            </div>
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center flex-1">
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nilai Terendah:</span>
-                                <span class="text-rose-600 dark:text-rose-400 font-extrabold text-base">${minScore}</span>
-                            </div>
-                            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center flex-1">
-                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Rasio Kelulusan:</span>
-                                <span class="text-amber-500 font-extrabold text-base">${passingRate}%</span>
-                            </div>
-                        </div>
-
-                        <!-- SVG Column Bar Chart with Clickable Drilldown (Col 2 & 3) -->
-                        <div class="lg:col-span-2 flex flex-col justify-between bg-slate-50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 min-h-[16rem]">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="text-xs font-bold text-slate-450 dark:text-slate-400 uppercase tracking-wide">Grafik Distribusi (Klik Batang untuk Drill-down)</h4>
-                            </div>
-                            
-                            <div class="flex items-end justify-center h-44 w-full">
-                                <svg viewBox="0 0 360 140" class="w-full h-full max-w-sm">
-                                    <!-- Horizontal Grid Lines -->
-                                    <line x1="20" y1="20" x2="340" y2="20" stroke="#cbd5e1" stroke-dasharray="3" class="opacity-30 dark:stroke-slate-700" />
-                                    <line x1="20" y1="60" x2="340" y2="60" stroke="#cbd5e1" stroke-dasharray="3" class="opacity-30 dark:stroke-slate-700" />
-                                    <line x1="20" y1="100" x2="340" y2="100" stroke="#cbd5e1" class="opacity-60 dark:stroke-slate-600" />
-                                    
-                                    <!-- Bar 1: <70 (Rose) -->
-                                    <rect x="40" y="${100 - h1}" width="30" height="${h1}" rx="3" fill="#f43f5e" class="opacity-80 cursor-pointer transition-all duration-200 hover:opacity-100 hover:scale-105 origin-bottom" onclick="window.showChartDrillDown('Kurang dari 70 (&lt;70)', 0, 69, 'shield-alert', 'bg-rose-50 text-rose-600 dark:bg-rose-955/40 dark:text-rose-400')" />
-                                    <text x="55" y="${100 - h1 - 5}" font-family="Inter, sans-serif" font-size="9" font-weight="bold" fill="#f43f5e" text-anchor="middle">${b1}</text>
-                                    
-                                    <!-- Bar 2: 70-79 (Amber) -->
-                                    <rect x="120" y="${100 - h2}" width="30" height="${h2}" rx="3" fill="#f59e0b" class="opacity-80 cursor-pointer transition-all duration-200 hover:opacity-100 hover:scale-105 origin-bottom" onclick="window.showChartDrillDown('Cukup (70-79)', 70, 79, 'award', 'bg-amber-50 text-amber-600 dark:bg-amber-955/40 dark:text-amber-400')" />
-                                    <text x="135" y="${100 - h2 - 5}" font-family="Inter, sans-serif" font-size="9" font-weight="bold" fill="#f59e0b" text-anchor="middle">${b2}</text>
-                                    
-                                    <!-- Bar 3: 80-89 (Blue) -->
-                                    <rect x="200" y="${100 - h3}" width="30" height="${h3}" rx="3" fill="#3b82f6" class="opacity-80 cursor-pointer transition-all duration-200 hover:opacity-100 hover:scale-105 origin-bottom" onclick="window.showChartDrillDown('Baik (80-89)', 80, 89, 'trophy', 'bg-blue-50 text-blue-600 dark:bg-blue-955/40 dark:text-blue-400')" />
-                                    <text x="215" y="${100 - h3 - 5}" font-family="Inter, sans-serif" font-size="9" font-weight="bold" fill="#3b82f6" text-anchor="middle">${b3}</text>
-                                    
-                                    <!-- Bar 4: 90-100 (Emerald) -->
-                                    <rect x="280" y="${100 - h4}" width="30" height="${h4}" rx="3" fill="#10b981" class="opacity-80 cursor-pointer transition-all duration-200 hover:opacity-100 hover:scale-105 origin-bottom" onclick="window.showChartDrillDown('Sangat Baik (90-100)', 90, 100, 'crown', 'bg-emerald-50 text-emerald-600 dark:bg-emerald-955/40 dark:text-emerald-400')" />
-                                    <text x="295" y="${100 - h4 - 5}" font-family="Inter, sans-serif" font-size="9" font-weight="bold" fill="#10b981" text-anchor="middle">${b4}</text>
-                                    
-                                    <!-- Labels -->
-                                    <text x="55" y="115" font-family="Inter, sans-serif" font-size="8" font-weight="bold" fill="#94a3b8" text-anchor="middle">&lt;70</text>
-                                    <text x="135" y="115" font-family="Inter, sans-serif" font-size="8" font-weight="bold" fill="#94a3b8" text-anchor="middle">70-79</text>
-                                    <text x="215" y="115" font-family="Inter, sans-serif" font-size="8" font-weight="bold" fill="#94a3b8" text-anchor="middle">80-89</text>
-                                    <text x="295" y="115" font-family="Inter, sans-serif" font-size="8" font-weight="bold" fill="#94a3b8" text-anchor="middle">90-100</text>
-                                </svg>
-                            </div>
-                        </div>
-
-                        <!-- Class Averages Horizontal Graph (Col 4 - Fitur 5 Visualisasi Kedua) -->
-                        <div class="bg-slate-50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col justify-between min-h-[16rem]">
-                            <h4 class="text-xs font-bold text-slate-450 dark:text-slate-400 uppercase tracking-wide mb-3">Rerata Nilai per Kelas</h4>
-                            
-                            <div class="flex-1 overflow-y-auto space-y-3.5 pr-1 max-h-[11rem]">
-                                ${classAvgList.length === 0 ? `
-                                    <div class="h-full flex items-center justify-center py-10 text-xs text-slate-400 font-bold">
-                                        Belum ada nilai ter-sinkronisasi.
-                                    </div>
-                                ` : classAvgList.map(item => `
-                                    <div class="space-y-1.5">
-                                        <div class="flex justify-between items-center text-[11px] font-bold">
-                                            <span class="text-slate-600 dark:text-slate-300">Kelas ${item.kelas}</span>
-                                            <span class="text-blue-600 dark:text-blue-450">${item.avg} / 100</span>
-                                        </div>
-                                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                                            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-500" style="width: ${item.avg}%"></div>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Broadcast Center Card (Fitur 4) -->
-                    <div class="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col justify-between">
-                        <div class="absolute right-0 top-0 w-48 h-48 rounded-full bg-amber-500/5 blur-2xl pointer-events-none"></div>
-                        <div class="relative z-10 w-full">
-                            <h3 class="font-extrabold text-lg text-slate-900 dark:text-white flex items-center gap-2 mb-3">
-                                <i data-lucide="radio" class="w-5 h-5 text-amber-500"></i>
-                                Broadcast Center (Real-Time)
-                            </h3>
-                            <p class="text-xs text-slate-400 dark:text-slate-400 font-semibold mb-4 leading-normal">
-                                Kirim pengumuman penting atau ralat soal langsung ke seluruh layar gawai siswa yang sedang ujian secara seketika (*real-time*).
-                            </p>
-                            <form onsubmit="sendBroadcast(event)" class="space-y-3">
-                                <div class="relative">
-                                    <input type="text" id="broadcast-input" placeholder="Tulis pengumuman di sini (contoh: Sisa waktu 10 menit)..." class="w-full px-4 py-3 bg-white border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition-all outline-none text-slate-800 dark:text-white">
-                                </div>
-                                <div class="flex gap-2.5">
-                                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition-all shadow-md shadow-amber-500/15 flex items-center justify-center gap-1.5">
-                                        <i data-lucide="send" class="w-3.5 h-3.5"></i> Siarkan
-                                    </button>
-                                    <button type="button" onclick="clearBroadcast()" class="py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm">
-                                        <i data-lucide="bell-off" class="w-3.5 h-3.5"></i> Berhenti
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Petunjuk Penggunaan -->
+                <div class="grid grid-cols-1 gap-6">
                     <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col justify-between relative overflow-hidden">
                         <div class="absolute right-0 top-0 w-64 h-64 rounded-full bg-blue-500/5 blur-2xl pointer-events-none"></div>
                         <div class="relative z-10">
@@ -1967,7 +1679,7 @@
                                     </div>
                                 </div>
 
-                                <button type="button" onclick="downloadExcelTemplate()" class="w-full py-2.5 px-3 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                                <button type="button" onclick="downloadExcelTemplate()" class="w-full py-2.5 px-3 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-855 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm">
                                     <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh Template Excel (.xlsx)
                                 </button>
 
@@ -2019,7 +1731,7 @@
                                 <thead>
                                     <tr class="border-b border-slate-200 text-slate-400 text-[10px] font-extrabold uppercase tracking-wider dark:border-slate-700">
                                         <th class="pb-3 px-6 w-12">
-                                            <input type="checkbox" id="check-all-students" ${isAllSelected ? 'checked' : ''} onchange="toggleSelectAllStudents(this.checked)" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 dark:bg-slate-850 dark:border-slate-700">
+                                            <input type="checkbox" id="check-all-students" ${isAllSelected ? 'checked' : ''} onchange="toggleSelectAllStudents(this.checked)" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 dark:bg-slate-855 dark:border-slate-700">
                                         </th>
                                         <th class="pb-3 px-6">NISN</th>
                                         <th class="pb-3 px-6">Nama Siswa</th>
@@ -2145,7 +1857,7 @@
             const label = document.getElementById('excel-file-label');
             if (input.files && input.files[0]) {
                 label.textContent = input.files[0].name;
-                label.className = "text-xs font-bold text-blue-600 dark:text-blue-450 truncate max-w-[200px]";
+                label.className = "text-xs font-bold text-blue-600 dark:text-blue-455 truncate max-w-[200px]";
             } else {
                 label.textContent = "Pilih berkas Excel sekolah";
                 label.className = "text-xs font-bold text-slate-700 dark:text-slate-300";
@@ -2442,7 +2154,7 @@
                         <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
                     </button>
                     
-                    <button onclick="resetAllStudentsExam('${examId}', '${examName.replace(/'/g, "\\'")}')" class="py-2.5 px-4 bg-rose-650 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-rose-500/10">
+                    <button onclick="resetAllStudentsExam('${examId}', '${examName.replace(/'/g, "\\'")}')" class="py-2.5 px-4 bg-rose-655 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-rose-500/10">
                         <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Ujian Massal
                     </button>
                 </div>
@@ -2811,112 +2523,6 @@
             }, "trash");
         };
 
-        window.listenToBroadcasts = async function() {
-            await ensureAuth();
-            if (IS_PREVIEW || !db) {
-                setInterval(() => {
-                    const bcast = mockDB.broadcasts[0];
-                    updateBroadcastUI(bcast);
-                }, 2000);
-            } else {
-                try {
-                    const targetCol = getCollectionRef('broadcasts');
-                    onSnapshot(targetCol, (snapshot) => {
-                        let activeBcast = null;
-                        snapshot.forEach(doc => {
-                            const data = doc.data();
-                            if (data.active) {
-                                activeBcast = { id: doc.id, ...data };
-                            }
-                        });
-                        updateBroadcastUI(activeBcast);
-                    }, (err) => {
-                        console.error("Gagal mendengarkan broadcast:", err);
-                    });
-                } catch(e) {
-                    console.error("Inisialisasi broadcast listener gagal:", e);
-                }
-            }
-        };
-
-        window.updateBroadcastUI = function(bcast) {
-            const banner = document.getElementById('global-broadcast-banner');
-            const messageEl = document.getElementById('broadcast-message-marquee');
-            if (bcast && bcast.active && bcast.message && bcast.message.trim() !== "") {
-                messageEl.textContent = `PENGUMUMAN LIVE: ${bcast.message} (${new Date(bcast.timestamp).toLocaleTimeString('id-ID')} WITA)`;
-                banner.classList.remove('hidden');
-                lucide.createIcons();
-            } else {
-                banner.classList.add('hidden');
-            }
-        };
-
-        window.dismissBroadcast = function() {
-            document.getElementById('global-broadcast-banner').classList.add('hidden');
-        };
-
-        window.sendBroadcast = async function(e) {
-            e.preventDefault();
-            const message = document.getElementById('broadcast-input').value.trim();
-            if (!message) {
-                showToast("Batal", "Pesan pengumuman tidak boleh kosong.", "error");
-                return;
-            }
-
-            const bcastData = {
-                message: message,
-                active: true,
-                timestamp: new Date().toISOString()
-            };
-
-            if (IS_PREVIEW || !db) {
-                mockDB.broadcasts[0] = { id: "bcast_01", ...bcastData };
-                showToast("Siaran Aktif", "Pesan sandbox berhasil disiarkan.", "success");
-            } else {
-                try {
-                    const targetCol = getCollectionRef('broadcasts');
-                    const snaps = await getDocs(targetCol);
-                    if (!snaps.empty) {
-                        const docId = snaps.docs[0].id;
-                        await editRecord('broadcasts', docId, bcastData);
-                    } else {
-                        await createRecord('broadcasts', bcastData);
-                    }
-                    showToast("Siaran Terkirim", "Pesan disebarkan secara real-time.", "success");
-                } catch (err) {
-                    showToast("Gagal", "Sistem error saat mengirim siaran.", "error");
-                }
-            }
-            document.getElementById('broadcast-input').value = "";
-            renderAdminDashboard();
-        };
-
-        window.clearBroadcast = async function() {
-            const bcastData = {
-                message: "",
-                active: false,
-                timestamp: new Date().toISOString()
-            };
-
-            if (IS_PREVIEW || !db) {
-                mockDB.broadcasts[0] = { id: "bcast_01", ...bcastData };
-                showToast("Siaran Berakhir", "Siaran sandbox dihentikan.", "success");
-            } else {
-                try {
-                    const targetCol = getCollectionRef('broadcasts');
-                    const snaps = await getDocs(targetCol);
-                    if (!snaps.empty) {
-                        const docId = snaps.docs[0].id;
-                        await editRecord('broadcasts', docId, bcastData);
-                    }
-                    showToast("Siaran Dihentikan", "Pengumuman berhasil ditarik kembali.", "success");
-                } catch (err) {
-                    showToast("Gagal", "Sistem error saat menarik siaran.", "error");
-                }
-            }
-            renderAdminDashboard();
-        };
-
         window.renderAdminResults = async function() {
             document.getElementById('header-view-title').textContent = "Rekapan Ujian Siswa";
             
@@ -3117,7 +2723,7 @@
                 doc.setFont("helvetica", "normal");
                 doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 24);
                 
-                const classLabel = appState.resultFilterClass ? `Kelas ${appState.resultFilterClass}` : 'Semua Kelas';
+                const classLabel = appState.resultFilterClass ? `Kelas ${classLabel}` : 'Semua Kelas';
                 doc.text(`Saringan Kelas: ${classLabel}`, 14, 29);
 
                 const bodyData = results.map((r, idx) => {
@@ -3411,7 +3017,7 @@
                                 <div class="flex items-center justify-between gap-4 py-2">
                                     <div class="space-y-1">
                                         <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Acak Urutan Soal (Fisher-Yates)</h4>
-                                        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Mengacak urutan butir soal sehingga nomor urut soal setiap siswa berbeda secara unik.</p>
+                                        <p class="text-xs text-slate-400 dark:text-slate-505 font-medium">Mengacak urutan butir soal sehingga nomor urut soal setiap siswa berbeda secara unik.</p>
                                     </div>
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" id="settings-randomize-questions" ${settings.randomize_questions ? 'checked' : ''} class="sr-only peer">
@@ -3422,7 +3028,7 @@
                                 <div class="flex items-center justify-between gap-4 py-2">
                                     <div class="space-y-1">
                                         <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Acak Urutan Pilihan Jawaban</h4>
-                                        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Mengacak urutan huruf pilihan ganda (A, B, C, D, E) tanpa mengubah kunci jawaban asli.</p>
+                                        <p class="text-xs text-slate-400 dark:text-slate-505 font-medium">Mengacak urutan huruf pilihan ganda (A, B, C, D, E) tanpa mengubah kunci jawaban asli.</p>
                                     </div>
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" id="settings-randomize-options" ${settings.randomize_options ? 'checked' : ''} class="sr-only peer">
@@ -3435,7 +3041,7 @@
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-855">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Batas Maksimal Pelanggaran</h4>
-                                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Batas toleransi siswa berpindah tab/meninggalkan layar ujian sebelum tindakan diambil.</p>
+                                    <p class="text-xs text-slate-400 dark:text-slate-505 font-medium">Batas toleransi siswa berpindah tab/meninggalkan layar ujian sebelum tindakan diambil.</p>
                                 </div>
                                 <div class="w-24 shrink-0">
                                     <input type="number" id="settings-max-violations" required min="1" max="10" value="${settings.max_violations}" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-center text-sm font-bold text-slate-800 dark:text-white focus:border-blue-600 transition-all outline-none">
@@ -3446,11 +3052,11 @@
                             <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-855">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Blokir Menu Klik Kanan</h4>
-                                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Mencegah aksi klik kanan yang memungkinkan siswa melakukan inspeksi elemen atau pencarian jawaban.</p>
+                                    <p class="text-xs text-slate-400 dark:text-slate-505 font-medium">Mencegah aksi klik kanan yang memungkinkan siswa melakukan inspeksi elemen atau pencarian jawaban.</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="settings-block-right-click" ${settings.block_right_click ? 'checked' : ''} class="sr-only peer">
-                                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-750 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-755 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
 
@@ -3458,11 +3064,11 @@
                             <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-855">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Blokir Copy, Paste, & Cut</h4>
-                                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Menonaktifkan fungsi salin (Ctrl+C), tempel (Ctrl+V), dan potong (Ctrl+X) baik dari mouse maupun pintasan keyboard.</p>
+                                    <p class="text-xs text-slate-400 dark:text-slate-505 font-medium">Menonaktifkan fungsi salin (Ctrl+C), tempel (Ctrl+V), dan potong (Ctrl+X) baik dari mouse maupun pintasan keyboard.</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="settings-block-copy-paste" ${settings.block_copy_paste ? 'checked' : ''} class="sr-only peer">
-                                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-750 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-755 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
 
@@ -3470,11 +3076,11 @@
                             <div class="flex items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-855">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Enforce Fullscreen (Layar Penuh)</h4>
-                                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Memaksa browser siswa masuk ke mode Layar Penuh saat ujian berjalan dan memperingatkan jika keluar.</p>
+                                    <p class="text-xs text-slate-400 dark:text-slate-505 font-medium">Memaksa browser siswa masuk ke mode Layar Penuh saat ujian berjalan dan memperingatkan jika keluar.</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="settings-enforce-fullscreen" ${settings.enforce_fullscreen ? 'checked' : ''} class="sr-only peer">
-                                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-750 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-755 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
 
@@ -3482,11 +3088,11 @@
                             <div class="flex items-center justify-between gap-4 pb-4">
                                 <div class="space-y-1">
                                     <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">Kirim Lembar Jawaban Otomatis (Force Submit)</h4>
-                                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Otomatis menyelesaikan ujian siswa dan mengirimkan lembar jawabannya ke server ketika batas pelanggaran terlampaui.</p>
+                                    <p class="text-xs text-slate-400 dark:text-slate-550 font-medium">Otomatis menyelesaikan ujian siswa dan mengirimkan lembar jawabannya ke server ketika batas pelanggaran terlampaui.</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="settings-auto-submit" ${settings.auto_submit ? 'checked' : ''} class="sr-only peer">
-                                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-750 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-755 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
 
@@ -3713,7 +3319,6 @@
         }
 
         function shuffleOptions(question) {
-            const originalCorrectText = question.opsi[question.jawaban_benar];
             const optionsWithMetadata = question.opsi.map((opt, idx) => ({ 
                 text: opt, 
                 isCorrect: idx === question.jawaban_benar 
@@ -3904,7 +3509,7 @@
             appState.examEngine.currentIdx = idx;
             renderExamQuestion();
             renderExamNavigationGrid();
-            window.saveExamProgress(); // simpan posisi nomor soal saat melompat
+            window.saveExamProgress();
         };
 
         window.nextQuestion = function() {
@@ -3913,7 +3518,7 @@
                 engine.currentIdx++;
                 renderExamQuestion();
                 renderExamNavigationGrid();
-                window.saveExamProgress(); // simpan posisi nomor soal terbaru
+                window.saveExamProgress();
             } else {
                 showToast("Batas Akhir", "Anda berada di soal terakhir.", "info");
             }
@@ -3925,7 +3530,7 @@
                 engine.currentIdx--;
                 renderExamQuestion();
                 renderExamNavigationGrid();
-                window.saveExamProgress(); // simpan posisi nomor soal terbaru
+                window.saveExamProgress();
             } else {
                 showToast("Batas Awal", "Anda berada di soal pertama.", "info");
             }
@@ -3936,7 +3541,7 @@
             engine.answers[engine.currentIdx] = optionIndex;
             renderExamQuestion();
             renderExamNavigationGrid();
-            window.saveExamProgress(); // simpan jawaban siswa ke cloud secara real-time
+            window.saveExamProgress();
         };
 
         window.toggleDoubtful = function() {
@@ -3944,7 +3549,7 @@
             engine.doubtful[engine.currentIdx] = !engine.doubtful[engine.currentIdx];
             renderExamQuestion();
             renderExamNavigationGrid();
-            window.saveExamProgress(); // simpan status ragu-ragu
+            window.saveExamProgress();
         };
 
         window.toggleExamSidebar = function() {
@@ -4004,7 +3609,6 @@
                 
                 timerDisplay.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 
-                // Auto-Save sisa durasi pengerjaan setiap 15 detik ke cloud secara berkala
                 if (appState.examEngine.timerVal > 0 && appState.examEngine.timerVal % 15 === 0) {
                     window.saveExamProgress();
                 }
@@ -4030,7 +3634,6 @@
         async function submitExamResults(isForced = false) {
             clearInterval(appState.examEngine.timerId);
             
-            // Matikan pelacak anti-contek ketika ujian sudah dikirim
             window.disableAntiCheat();
 
             const engine = appState.examEngine;
@@ -4056,7 +3659,6 @@
             await createRecord('results', record);
             await updateStudentStatus(appState.currentUser.data.nisn, 'finished', engine.activeExam.id);
             
-            // Bersihkan database exam_progress dari berkas cadangan jika siswa sudah selesai mengirimkan ujian
             try {
                 const studentNisn = appState.currentUser.data.nisn;
                 const examId = engine.activeExam.id;
@@ -4066,7 +3668,7 @@
                     await removeRecord('exam_progress', matchedProgress.id);
                 }
             } catch (e) {
-                console.error("Gagal membersihkan backup progress setelah selesai ujian:", e);
+                console.error("Gagal membersihkan backup progress:", e);
             }
 
             if (isForced) {
@@ -4087,7 +3689,6 @@
             initFirebase();
             registerPWA();
             loadAppConfig();
-            listenToBroadcasts();
             switchView('view-login');
         };
     </script>
