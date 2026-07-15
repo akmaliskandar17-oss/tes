@@ -83,7 +83,10 @@
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
               <i class="fa-solid fa-lock"></i>
             </span>
-            <input type="password" id="login-siswa-password" required class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" placeholder="Masukkan password">
+            <input type="password" id="login-siswa-password" required class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" placeholder="Masukkan password">
+            <button type="button" onclick="togglePasswordVisibility('login-siswa-password', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-all focus:outline-none">
+              <i class="fa-solid fa-eye"></i>
+            </button>
           </div>
         </div>
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.01] text-sm">
@@ -108,7 +111,10 @@
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
               <i class="fa-solid fa-lock"></i>
             </span>
-            <input type="password" id="login-admin-password" required class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" placeholder="Masukkan password">
+            <input type="password" id="login-admin-password" required class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" placeholder="Masukkan password">
+            <button type="button" onclick="togglePasswordVisibility('login-admin-password', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-all focus:outline-none">
+              <i class="fa-solid fa-eye"></i>
+            </button>
           </div>
         </div>
         <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.01] text-sm">
@@ -116,8 +122,13 @@
         </button>
       </form>
 
-      <div class="mt-6 text-center">
+      <div class="mt-6 text-center space-y-2">
         <p class="text-xs text-slate-400">PWA Offline-Ready & Security Compliant</p>
+        <div class="text-[10px] text-slate-400 font-medium flex items-center justify-center gap-1.5 pt-2.5 border-t border-slate-100/80">
+          <span>Versi 2.4.0</span>
+          <span class="h-1 w-1 bg-slate-300 rounded-full"></span>
+          <span>Dikembangkan oleh <a href="https://github.com/akmaliskandar17-oss" target="_blank" class="text-blue-500 hover:text-blue-600 font-semibold hover:underline transition-all">akmaliskandar17-oss</a></span>
+        </div>
       </div>
     </div>
   </div>
@@ -373,13 +384,13 @@
         </div>
 
         <!-- Panel Siswa Evaluasi Nilai -->
-        <div id="panel-siswa-nilai" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hidden max-w-2xl mx-auto">
+        <div id="panel-siswa-nilai" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hidden max-w-4xl mx-auto">
           <div class="text-center mb-6 border-b border-slate-100 pb-5">
             <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
               <i class="fa-solid fa-square-poll-vertical text-2xl"></i>
             </div>
             <h3 class="text-lg font-bold text-slate-800">Evaluasi Nilai Akhir</h3>
-            <p class="text-xs text-slate-400 mt-1">Status kelulusan dan nilai monitor dari guru & industri</p>
+            <p class="text-xs text-slate-400 mt-1">Status kelulusan dan nilai monitor dari guru & industri sesuai format rapor</p>
           </div>
           
           <div id="panel-siswa-nilai-container" class="space-y-5">
@@ -590,7 +601,12 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">Password Akses</label>
-            <input type="text" id="siswa-password" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="siswa123">
+            <div class="relative">
+              <input type="password" id="siswa-password" required class="w-full pl-3 pr-10 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="siswa123">
+              <button type="button" onclick="togglePasswordVisibility('siswa-password', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-all focus:outline-none">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
           </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -652,7 +668,7 @@
     </div>
   </div>
 
-  <!-- Modal Log Absensi Harian Siswa (Untuk Akun Guru) -->
+  <!-- Modal Log Absensi Harian Siswa -->
   <div id="modal-log-absensi" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-xl shadow-xl overflow-hidden scale-95 transition-all">
       <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
@@ -689,7 +705,7 @@
 
   <!-- Modal Evaluasi Nilai Siswa -->
   <div id="modal-nilai" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-xl overflow-hidden scale-95 transition-all">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl shadow-xl overflow-hidden scale-95 transition-all">
       <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
         <h3 class="text-sm font-bold">Beri Evaluasi & Nilai PKL</h3>
         <button onclick="closeNilaiModal()" class="text-slate-400 hover:text-white transition-all">
@@ -702,16 +718,50 @@
           <span class="block text-xs font-bold text-slate-400 uppercase mb-2">Pemberian Nilai Akhir Siswa</span>
           <h4 class="text-sm font-bold text-slate-800" id="nilai-siswa-nama">-</h4>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Nilai Teknis (Aspek Kerja)</label>
-            <input type="number" id="nilai-teknis" min="0" max="100" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0 - 100">
+        
+        <div class="space-y-4">
+          <!-- Nilai Praktek / Hard Skill -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-150">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nilai Praktek (Skill)</label>
+            <input type="number" id="nilai-praktek" min="0" max="100" required class="w-full sm:w-1/3 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0 - 100">
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Nilai Non-Teknis (Sikap)</label>
-            <input type="number" id="nilai-non-teknis" min="0" max="100" required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0 - 100">
+
+          <!-- Sikap / Softskill Section (image_224489.png) -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-150 space-y-3">
+            <span class="block text-xs font-bold text-slate-700 uppercase">Sikap (Softskill)</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Disiplin</label>
+                <input type="number" id="nilai-disiplin" min="0" max="100" required class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0-100">
+              </div>
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Kerjasama</label>
+                <input type="number" id="nilai-kerjasama" min="0" max="100" required class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0-100">
+              </div>
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Inisiatif</label>
+                <input type="number" id="nilai-inisiatif" min="0" max="100" required class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0-100">
+              </div>
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Kerajinan</label>
+                <input type="number" id="nilai-kerajinan" min="0" max="100" required class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0-100">
+              </div>
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Tanggung Jawab</label>
+                <input type="number" id="nilai-tanggung-jawab" min="0" max="100" required class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0-100">
+              </div>
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Sikap</label>
+                <input type="number" id="nilai-sikap" min="0" max="100" required class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0-100">
+              </div>
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Prestasi</label>
+                <input type="number" id="nilai-prestasi" min="0" max="100" required class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="0-100">
+              </div>
+            </div>
           </div>
         </div>
+        
         <div>
           <label class="block text-xs font-semibold text-slate-500 mb-1">Catatan Evaluasi / Saran</label>
           <textarea id="nilai-catatan" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20" rows="3" placeholder="Masukkan evaluasi bimbingan..."></textarea>
@@ -903,6 +953,20 @@
       document.getElementById('modal-confirm-text').textContent = text;
       confirmCallback = callback;
       modal.classList.remove('hidden');
+    }
+
+    window.togglePasswordVisibility = function(inputId, buttonEl) {
+      const passwordInput = document.getElementById(inputId);
+      const icon = buttonEl.querySelector('i');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
     }
 
     document.getElementById('btn-confirm-cancel').onclick = function() {
@@ -1430,25 +1494,70 @@
           </div>
         `;
       } else {
-        const rataRata = Math.round((parseInt(nilai.teknis) + parseInt(nilai.nonTeknis)) / 2);
+        const praktek = nilai.praktek !== undefined ? nilai.praktek : (nilai.teknis || 0);
+        const disiplin = nilai.disiplin || 0;
+        const kerjasama = nilai.kerjasama || 0;
+        const inisiatif = nilai.inisiatif || 0;
+        const kerajinan = nilai.kerajinan || 0;
+        const tanggungJawab = nilai.tanggungJawab || 0;
+        const sikap = nilai.sikap !== undefined ? nilai.sikap : (nilai.nonTeknis || 0);
+        const prestasi = nilai.prestasi || 0;
+
+        const softskillAverage = Math.round((disiplin + kerjasama + inisiatif + kerajinan + tanggungJawab + sikap + prestasi) / 7);
+        const totalAverage = Math.round((praktek + softskillAverage) / 2);
+
         container.innerHTML = `
-          <div class="grid grid-cols-2 gap-4">
-            <div class="bg-indigo-50/50 border border-indigo-100 p-4 rounded-2xl text-center">
-              <span class="text-[10px] font-bold text-indigo-500 uppercase">Kompetensi Teknis</span>
-              <span class="block text-3xl font-extrabold text-indigo-700 mt-1">${nilai.teknis}</span>
+          <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm bg-white">
+            <table class="w-full text-center text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                  <th class="py-3 px-3 border-r border-slate-200" rowspan="2">Nama Siswa</th>
+                  <th class="py-2 px-2 border-b border-slate-200" colspan="7">Sikap (Softskill)</th>
+                  <th class="py-3 px-3 border-l border-slate-200" rowspan="2">Nilai Praktek (Skill)</th>
+                </tr>
+                <tr class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                  <th class="py-2 px-1.5 border-r border-slate-200">Disiplin</th>
+                  <th class="py-2 px-1.5 border-r border-slate-200">Kerjasama</th>
+                  <th class="py-2 px-1.5 border-r border-slate-200">Inisiatif</th>
+                  <th class="py-2 px-1.5 border-r border-slate-200">Kerajinan</th>
+                  <th class="py-2 px-1.5 border-r border-slate-200">Tanggung Jawab</th>
+                  <th class="py-2 px-1.5 border-r border-slate-200">Sikap</th>
+                  <th class="py-2 px-1.5">Prestasi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="font-medium text-slate-800 text-[11px] hover:bg-slate-50/50 transition-all">
+                  <td class="py-3 px-3 border-r border-slate-200 font-bold text-slate-900">${currentUserData.nama}</td>
+                  <td class="py-3 px-1.5 border-r border-slate-200">${disiplin}</td>
+                  <td class="py-3 px-1.5 border-r border-slate-200">${kerjasama}</td>
+                  <td class="py-3 px-1.5 border-r border-slate-200">${inisiatif}</td>
+                  <td class="py-3 px-1.5 border-r border-slate-200">${kerajinan}</td>
+                  <td class="py-3 px-1.5 border-r border-slate-200">${tanggungJawab}</td>
+                  <td class="py-3 px-1.5 border-r border-slate-200">${sikap}</td>
+                  <td class="py-3 px-1.5">${prestasi}</td>
+                  <td class="py-3 px-3 border-l border-slate-200 text-indigo-600 font-extrabold text-xs">${praktek}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div class="p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-emerald-600 uppercase">Rata-Rata Sikap</span>
+                <span class="text-xs font-semibold text-slate-500 block">Sikap (Softskill)</span>
+              </div>
+              <span class="text-xl font-black text-emerald-700">${softskillAverage} <span class="text-xs text-slate-400 font-bold">/ 100</span></span>
             </div>
-            <div class="bg-indigo-50/50 border border-indigo-100 p-4 rounded-2xl text-center">
-              <span class="text-[10px] font-bold text-indigo-500 uppercase">Sikap (Non-Teknis)</span>
-              <span class="block text-3xl font-extrabold text-indigo-700 mt-1">${nilai.nonTeknis}</span>
+            <div class="p-4 bg-indigo-50/60 border border-indigo-100 rounded-2xl flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-indigo-500 uppercase">Nilai Akhir Gabungan</span>
+                <span class="text-xs font-semibold text-slate-500 block">Rata-Rata Total</span>
+              </div>
+              <span class="text-xl font-black text-indigo-700">${totalAverage} <span class="text-xs text-slate-400 font-bold">/ 100</span></span>
             </div>
           </div>
-          <div class="p-4 bg-slate-50 border border-slate-150 rounded-2xl flex items-center justify-between">
-            <div>
-              <span class="text-[10px] font-bold text-slate-400 uppercase">Rata-Rata Nilai</span>
-              <span class="text-sm font-bold text-slate-800 block">Indeks Predikat</span>
-            </div>
-            <span class="text-2xl font-black text-slate-800">${rataRata} <span class="text-xs text-slate-400 font-bold">/ 100</span></span>
-          </div>
+
           <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
             <span class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Ulasan Evaluasi Guru:</span>
             <p class="text-xs text-slate-600 leading-relaxed italic font-medium">"${nilai.catatan || 'Kinerja keseluruhan memuaskan.'}"</p>
@@ -1456,7 +1565,6 @@
         `;
       }
     }
-
 
     // ================== 2. ADMIN/GURU LAYOUT RENDERING ==================
     const renderAdminDashboard = () => {
@@ -1770,114 +1878,106 @@
           closeFormDudiModal();
           triggerUIRerender();
         } catch(e) {
-          showToast("Gagal menyimpan data DUDI ke Firestore.", "error");
+          showToast("Gagal menyimpan data DUDI ke Cloud.", "error");
         }
       }
     }
 
     window.deleteDudi = function(dudiId) {
       showConfirm(
-        "Konfirmasi Hapus Mitra DUDI",
-        "Apakah Anda yakin ingin menghapus data mitra DUDI ini? Beberapa siswa mungkin terhubung.",
+        "Konfirmasi Hapus DUDI",
+        "Apakah Anda yakin ingin menghapus data mitra industri ini? Tindakan ini tidak dapat dibatalkan.",
         async () => {
           if (IS_PREVIEW) {
             let list = getLocal('dudi') || [];
             list = list.filter(d => d.id !== dudiId);
             saveLocal('dudi', list);
             cachedDudi = list;
-            showToast("Data DUDI berhasil dihapus.");
+            showToast("Mitra DUDI berhasil dihapus.");
             triggerUIRerender();
           } else {
             try {
               await deleteDoc(doc(db, "dudi", dudiId));
-              showToast("Daring: Berkas DUDI telah dihapus.");
+              showToast("Daring: Berkas industri telah dihapus.");
               triggerUIRerender();
             } catch(e) {
-              showToast("Gagal menghapus data DUDI di cloud.", "error");
+              showToast("Gagal menghapus data di cloud.", "error");
             }
           }
         }
       );
     }
 
-    // VERIFIKASI JURNAL
     const renderAdminJurnal = () => {
-      const container = document.getElementById('da-jurnal-main-list');
-      container.innerHTML = '';
+      const list = document.getElementById('da-jurnal-main-list');
+      list.innerHTML = '';
 
-      if (cachedJurnal.length === 0) {
-        container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Belum ada aktivitas jurnal masuk.</div>`;
+      const pendingList = cachedJurnal.filter(j => j.status === 'Pending').sort((a,b) => b.tanggal.localeCompare(a.tanggal));
+
+      if (pendingList.length === 0) {
+        list.innerHTML = `
+          <div class="text-center py-10 bg-slate-50 border border-slate-100 rounded-2xl">
+            <i class="fa-solid fa-square-check text-3xl text-emerald-500 mb-3 block"></i>
+            <p class="text-xs text-slate-500 font-bold">Semua jurnal siswa sudah diverifikasi!</p>
+          </div>
+        `;
       } else {
-        const sortedJurnal = [...cachedJurnal].sort((a,b) => {
-          if (a.status === 'Pending' && b.status !== 'Pending') return -1;
-          if (a.status !== 'Pending' && b.status === 'Pending') return 1;
-          return b.tanggal.localeCompare(a.tanggal);
-        });
-
-        sortedJurnal.forEach(j => {
+        pendingList.forEach(j => {
           const s = cachedSiswa.find(x => x.nisn === j.nisn) || { nama: 'Siswa', kelas: '-' };
+          const dudi = cachedDudi.find(d => d.id === s.dudiId) || { namaPerusahaan: 'Lokasi PKL' };
+          
           const div = document.createElement('div');
-          div.className = "p-5 border border-slate-200 bg-white rounded-2xl shadow-sm flex flex-col gap-3";
-
-          let badge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-500 border border-amber-100 flex items-center gap-1 h-fit w-fit"><span class="w-1 h-1 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>`;
-          if (j.status === 'Disetujui') badge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1 h-fit w-fit"><i class="fa-solid fa-circle-check"></i> Disetujui</span>`;
-          if (j.status === 'Ditolak') badge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 flex items-center gap-1 h-fit w-fit"><i class="fa-solid fa-triangle-exclamation"></i> Ditolak</span>`;
-
+          div.className = "bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3";
+          
           div.innerHTML = `
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div class="flex items-start justify-between gap-3">
               <div>
-                <span class="text-xs font-bold text-slate-800 block">${s.nama} (${s.kelas})</span>
-                <span class="text-[10px] text-slate-400">${j.tanggal}</span>
+                <h4 class="text-sm font-bold text-slate-900">${s.nama}</h4>
+                <p class="text-[10px] text-slate-400 font-semibold uppercase">${s.kelas} | ${dudi.namaPerusahaan}</p>
               </div>
-              ${badge}
+              <span class="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-100 px-3 py-1 rounded-xl block">${j.tanggal}</span>
             </div>
-            <p class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium">${j.kegiatan}</p>
-            ${j.dokumentasiUrl ? `<a href="${j.dokumentasiUrl}" target="_blank" class="text-[10px] font-bold text-blue-500 hover:underline flex items-center gap-1"><i class="fa-solid fa-link"></i> Lihat Dokumentasi Lampiran</a>` : ''}
+            <div class="bg-slate-50 p-4 border border-slate-150 rounded-xl">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Rincian Pekerjaan:</span>
+              <p class="text-xs text-slate-600 font-medium leading-relaxed">${j.kegiatan}</p>
+              ${j.dokumentasiUrl ? `<a href="${j.dokumentasiUrl}" target="_blank" class="text-[10px] text-blue-500 hover:underline mt-2 inline-block font-bold"><i class="fa-solid fa-paperclip"></i> Lihat Lampiran</a>` : ''}
+            </div>
             
-            ${j.status === 'Pending' ? `
-              <div class="border-t border-slate-100 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <input type="text" id="feedback-${j.id}" class="w-full sm:flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20" placeholder="Umpan balik / catatan revisi untuk siswa...">
-                <div class="flex gap-2 w-full sm:w-auto">
-                  <button onclick="approveJurnal('${j.id}', 'Disetujui')" class="flex-1 sm:flex-initial px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-bold transition-all">Setujui</button>
-                  <button onclick="approveJurnal('${j.id}', 'Ditolak')" class="flex-1 sm:flex-initial px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[10px] font-bold transition-all">Tolak</button>
-                </div>
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+              <input type="text" placeholder="Tulis catatan umpan balik / evaluasi untuk siswa..." id="comment-jr-${j.id}" class="flex-1 px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+              <div class="flex gap-2">
+                <button onclick="respondJurnal('${j.id}', 'Disetujui')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/10 flex items-center gap-1.5 transition-all"><i class="fa-solid fa-check"></i> Setujui</button>
+                <button onclick="respondJurnal('${j.id}', 'Ditolak')" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-500/10 flex items-center gap-1.5 transition-all"><i class="fa-solid fa-xmark"></i> Tolak</button>
               </div>
-            ` : `
-              ${j.catatanGuru ? `
-                <div class="border-t border-slate-100 pt-2 flex gap-2 items-start text-slate-400 text-[10px] italic">
-                  <i class="fa-solid fa-comment-dots mt-0.5"></i>
-                  <span>Umpan Balik: "${j.catatanGuru}"</span>
-                </div>
-              ` : ''}
-            `}
+            </div>
           `;
-          container.appendChild(div);
+          list.appendChild(div);
         });
       }
     }
 
-    window.approveJurnal = async function(id, status) {
-      const fbInput = document.getElementById(`feedback-${id}`);
-      const feedback = fbInput ? fbInput.value.trim() : '';
+    window.respondJurnal = async function(id, status) {
+      const commentInput = document.getElementById(`comment-jr-${id}`);
+      const commentVal = commentInput ? commentInput.value.trim() : '';
 
       if (IS_PREVIEW) {
         const list = getLocal('jurnal') || [];
         const idx = list.findIndex(j => j.id === id);
         if (idx !== -1) {
           list[idx].status = status;
-          list[idx].catatanGuru = feedback;
+          list[idx].catatanGuru = commentVal;
           saveLocal('jurnal', list);
           cachedJurnal = list;
-          showToast(`Jurnal berhasil diverifikasi (${status})!`);
+          showToast(`Berhasil menandai jurnal sebagai ${status}`);
           triggerUIRerender();
         }
       } else {
         try {
           await updateDoc(doc(db, "jurnal", id), {
             status: status,
-            catatanGuru: feedback
+            catatanGuru: commentVal
           });
-          showToast(`Daring: Jurnal berhasil diverifikasi (${status})!`);
+          showToast(`Daring: Jurnal berhasil ${status}!`);
           triggerUIRerender();
         } catch(e) {
           showToast("Gagal memperbarui status jurnal.", "error");
@@ -1885,7 +1985,6 @@
       }
     }
 
-    // RENDER REKAPITULASI DAN LOG ABSENSI UNTUK AKUN GURU
     const renderAdminNilai = () => {
       const list = document.getElementById('da-rekap-table-body');
       list.innerHTML = '';
@@ -1903,6 +2002,20 @@
           const jDisetujui = myJurnals.filter(j => j.status === 'Disetujui').length;
 
           const nilai = s.nilaiAkhir;
+          let showPraktek = '-';
+          let showSikapRerata = '-';
+
+          if (nilai) {
+            showPraktek = nilai.praktek !== undefined ? nilai.praktek : (nilai.teknis || '-');
+            const disiplin = nilai.disiplin || 0;
+            const kerjasama = nilai.kerjasama || 0;
+            const inisiatif = nilai.inisiatif || 0;
+            const kerajinan = nilai.kerajinan || 0;
+            const tanggungJawab = nilai.tanggungJawab || 0;
+            const sikap = nilai.sikap !== undefined ? nilai.sikap : (nilai.nonTeknis || 0);
+            const prestasi = nilai.prestasi || 0;
+            showSikapRerata = Math.round((disiplin + kerjasama + inisiatif + kerajinan + tanggungJawab + sikap + prestasi) / 7);
+          }
 
           const tr = document.createElement('tr');
           tr.className = "hover:bg-slate-50 transition-all border-b border-slate-100 text-slate-600";
@@ -1917,8 +2030,8 @@
               </button>
             </td>
             <td class="py-3 px-4 text-center text-slate-700 font-bold">${jDisetujui} / ${myJurnals.length}</td>
-            <td class="py-3 px-4 text-center text-indigo-600 font-black">${nilai ? nilai.teknis : '-'}</td>
-            <td class="py-3 px-4 text-center text-indigo-600 font-black">${nilai ? nilai.nonTeknis : '-'}</td>
+            <td class="py-3 px-4 text-center text-indigo-600 font-black">${showPraktek}</td>
+            <td class="py-3 px-4 text-center text-indigo-600 font-black">${showSikapRerata}</td>
             <td class="py-3 px-4 text-center">
               <button onclick="openNilaiModal('${s.nisn}')" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-[10px] font-bold transition-all">
                 Beri Nilai
@@ -1930,7 +2043,6 @@
       }
     }
 
-    // Modal Evaluasi Nilai Siswa
     window.openNilaiModal = function(nisn) {
       const modal = document.getElementById('modal-nilai');
       const s = cachedSiswa.find(x => x.nisn === nisn);
@@ -1940,12 +2052,24 @@
       document.getElementById('nilai-siswa-nama').textContent = `${s.nama} (${s.kelas})`;
 
       if (s.nilaiAkhir) {
-        document.getElementById('nilai-teknis').value = s.nilaiAkhir.teknis;
-        document.getElementById('nilai-non-teknis').value = s.nilaiAkhir.nonTeknis;
-        document.getElementById('nilai-catatan').value = s.nilaiAkhir.catatan;
+        document.getElementById('nilai-praktek').value = s.nilaiAkhir.praktek !== undefined ? s.nilaiAkhir.praktek : (s.nilaiAkhir.teknis || '');
+        document.getElementById('nilai-disiplin').value = s.nilaiAkhir.disiplin || '';
+        document.getElementById('nilai-kerjasama').value = s.nilaiAkhir.kerjasama || '';
+        document.getElementById('nilai-inisiatif').value = s.nilaiAkhir.inisiatif || '';
+        document.getElementById('nilai-kerajinan').value = s.nilaiAkhir.kerajinan || '';
+        document.getElementById('nilai-tanggung-jawab').value = s.nilaiAkhir.tanggungJawab || '';
+        document.getElementById('nilai-sikap').value = s.nilaiAkhir.sikap !== undefined ? s.nilaiAkhir.sikap : (s.nilaiAkhir.nonTeknis || '');
+        document.getElementById('nilai-prestasi').value = s.nilaiAkhir.prestasi || '';
+        document.getElementById('nilai-catatan').value = s.nilaiAkhir.catatan || '';
       } else {
-        document.getElementById('nilai-teknis').value = '';
-        document.getElementById('nilai-non-teknis').value = '';
+        document.getElementById('nilai-praktek').value = '';
+        document.getElementById('nilai-disiplin').value = '';
+        document.getElementById('nilai-kerjasama').value = '';
+        document.getElementById('nilai-inisiatif').value = '';
+        document.getElementById('nilai-kerajinan').value = '';
+        document.getElementById('nilai-tanggung-jawab').value = '';
+        document.getElementById('nilai-sikap').value = '';
+        document.getElementById('nilai-prestasi').value = '';
         document.getElementById('nilai-catatan').value = '';
       }
 
@@ -1961,13 +2085,25 @@
     window.submitEvaluasiNilai = async function(event) {
       event.preventDefault();
       const nisn = document.getElementById('nilai-siswa-nisn').value;
-      const teknis = document.getElementById('nilai-teknis').value;
-      const nonTeknis = document.getElementById('nilai-non-teknis').value;
+      const praktek = document.getElementById('nilai-praktek').value;
+      const disiplin = document.getElementById('nilai-disiplin').value;
+      const kerjasama = document.getElementById('nilai-kerjasama').value;
+      const inisiatif = document.getElementById('nilai-inisiatif').value;
+      const kerajinan = document.getElementById('nilai-kerajinan').value;
+      const tanggungJawab = document.getElementById('nilai-tanggung-jawab').value;
+      const sikap = document.getElementById('nilai-sikap').value;
+      const prestasi = document.getElementById('nilai-prestasi').value;
       const catatan = document.getElementById('nilai-catatan').value.trim();
 
       const valObj = {
-        teknis: parseInt(teknis),
-        nonTeknis: parseInt(nonTeknis),
+        praktek: parseInt(praktek),
+        disiplin: parseInt(disiplin),
+        kerjasama: parseInt(kerjasama),
+        inisiatif: parseInt(inisiatif),
+        kerajinan: parseInt(kerajinan),
+        tanggungJawab: parseInt(tanggungJawab),
+        sikap: parseInt(sikap),
+        prestasi: parseInt(prestasi),
         catatan: catatan
       };
 
@@ -2091,8 +2227,3 @@
   </script>
 </body>
 </html>
-```
-eof
-
-### Apa yang Telah Diperbaiki?
-1. **Pembersihan Kebocoran Teks:** Seluruh penutup berkas HTML kini diakhiri secara kokoh dengan tag `</html>` diikuti penutup data berkas `
