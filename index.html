@@ -8,7 +8,7 @@
   <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- PWA Manifest Data URI -->
   <link rel="manifest" href='data:application/json,{"name":"E-PKL Monitoring SMK","short_name":"E-PKL","description":"Aplikasi Monitoring PKL SMK berbasis Serverless","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#4f46e5","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3557/3557635.png","sizes":"512x512","type":"image/png"}]}'>
@@ -30,7 +30,6 @@
       -webkit-backdrop-filter: blur(16px);
       border-right: 1px solid rgba(226, 232, 240, 0.8);
     }
-    /* Sembunyikan default scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -47,7 +46,7 @@
     }
   </style>
 
-  <!-- Firebase SDK Legacy/Compat (Sangat Andal untuk Lingkungan Tersemat/Blogger) -->
+  <!-- Firebase SDK Legacy/Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -79,17 +78,19 @@
 
     // PASTE FIREBASE CONFIG ANDA DI SINI
     const firebaseConfig = {
+      const firebaseConfig = {
   apiKey: "AIzaSyDqbjTQ-pPF6pbE4xTQ7OFxmwPbyrR9nPY",
   authDomain: "epkl-40293.firebaseapp.com",
   projectId: "epkl-40293",
   storageBucket: "epkl-40293.firebasestorage.app",
   messagingSenderId: "529989930159",
   appId: "1:529989930159:web:1a962e4f4413d2ef10585a"
+
     };
 
     // Global State
     let appState = {
-      currentUser: null, // { role: 'admin'|'student', email?: string, studentData?: object }
+      currentUser: null, // { role: 'admin'|'student', email?: string, nisn?: string, studentData?: object }
       activeTab: 'dashboard',
       students: [],
       attendance: [],
@@ -133,7 +134,6 @@
         } catch (error) {
           console.error("Firebase init failed:", error);
           showToast("Koneksi Gagal", "Gagal menghubungi Firebase. Berpindah ke Mode Preview lokal.", "error");
-          // Fallback ke preview
           appState.isFallbackPreview = true;
         }
       }
@@ -141,7 +141,6 @@
 
     async function autoSetupDatabase() {
       if (IS_PREVIEW || appState.isFallbackPreview) {
-        // Mode Preview: Gunakan LocalStorage untuk persisten
         if (!localStorage.getItem("epkl_students")) {
           localStorage.setItem("epkl_students", JSON.stringify(DUMMY_STUDENTS));
           localStorage.setItem("epkl_attendance", JSON.stringify(DUMMY_ATTENDANCE));
@@ -152,48 +151,37 @@
         return;
       }
 
-      // Mode Real Firebase: Cek koleksi 'students'
-      showLoading(true, "Mengecek kesiapan Database...");
-      try {
-        const studentSnapshot = await db.collection("students").limit(1).get();
-        if (studentSnapshot.empty) {
-          showLoading(true, "Database kosong. Melakukan penyusunan data awal secara otomatis...");
-          
-          // Masukkan data siswa default
-          for (let student of DUMMY_STUDENTS) {
-            await db.collection("students").doc(student.nisn).set(student);
+      // Dilakukan secara aman HANYA jika admin terautentikasi dan database kosong
+      if (appState.currentUser && appState.currentUser.role === 'admin') {
+        try {
+          const studentSnapshot = await db.collection("students").limit(1).get();
+          if (studentSnapshot.empty) {
+            showLoading(true, "Mempersiapkan data sekolah perdana...");
+            
+            for (let student of DUMMY_STUDENTS) {
+              await db.collection("students").doc(student.nisn).set(student);
+            }
+            for (let att of DUMMY_ATTENDANCE) {
+              await db.collection("attendance").doc(att.id).set(att);
+            }
+            for (let jr of DUMMY_JURNALS) {
+              await db.collection("jurnals").doc(jr.id).set(jr);
+            }
+            for (let gr of DUMMY_GRADES) {
+              await db.collection("grades").doc(gr.nisn).set(gr);
+            }
+            console.log("Database Firestore berhasil disetup otomatis.");
+            showToast("Database Siap", "Data awal berhasil diunggah ke Cloud Firestore!", "success");
           }
-          // Masukkan data kehadiran default
-          for (let att of DUMMY_ATTENDANCE) {
-            await db.collection("attendance").doc(att.id).set(att);
-          }
-          // Masukkan data jurnal default
-          for (let jr of DUMMY_JURNALS) {
-            await db.collection("jurnals").doc(jr.id).set(jr);
-          }
-          // Masukkan data nilai default
-          for (let gr of DUMMY_GRADES) {
-            await db.collection("grades").doc(gr.nisn).set(gr);
-          }
-          console.log("Database Firestore berhasil disetup otomatis dengan data dummy.");
-          showToast("Database Siap", "Data awal telah berhasil dibuat otomatis di Cloud Firestore!", "success");
+        } catch (error) {
+          console.error("Error auto-setup database:", error);
+        } finally {
+          showLoading(false);
         }
-      } catch (error) {
-        console.error("Error auto-setup database:", error);
-      } finally {
-        showLoading(false);
       }
     }
 
-    async function fetchData() {
-      if (IS_PREVIEW || appState.isFallbackPreview) {
-        appState.students = JSON.parse(localStorage.getItem("epkl_students")) || [];
-        appState.attendance = JSON.parse(localStorage.getItem("epkl_attendance")) || [];
-        appState.jurnals = JSON.parse(localStorage.getItem("epkl_jurnals")) || [];
-        appState.grades = JSON.parse(localStorage.getItem("epkl_grades")) || [];
-        return;
-      }
-
+    async function fetchDataAdmin() {
       try {
         const studentsSnap = await db.collection("students").get();
         appState.students = studentsSnap.docs.map(doc => doc.data());
@@ -207,8 +195,56 @@
         const gradesSnap = await db.collection("grades").get();
         appState.grades = gradesSnap.docs.map(doc => doc.data());
       } catch (error) {
-        console.error("Gagal menarik data dari Firestore:", error);
-        showToast("Error Sinkronisasi", "Gagal memuat data dari Cloud Database.", "error");
+        console.error("Gagal menarik data admin:", error);
+        showToast("Error Sinkronisasi", "Gagal memuat database sekolah.", "error");
+      }
+    }
+
+    async function fetchDataStudent(nisn) {
+      try {
+        // Ambil profil data diri siswa tunggal
+        const studentDoc = await db.collection("students").doc(nisn).get();
+        if (studentDoc.exists) {
+          appState.currentUser.studentData = studentDoc.data();
+          appState.students = [studentDoc.data()];
+        }
+
+        // Ambil presensi khusus milik siswa tersebut (menggunakan filter server)
+        const attendanceSnap = await db.collection("attendance").where("nisn", "==", nisn).get();
+        appState.attendance = attendanceSnap.docs.map(doc => doc.data());
+
+        // Ambil jurnal khusus milik siswa tersebut
+        const jurnalsSnap = await db.collection("jurnals").where("nisn", "==", nisn).get();
+        appState.jurnals = jurnalsSnap.docs.map(doc => doc.data());
+
+        // Ambil nilai khusus milik siswa tersebut
+        const gradeDoc = await db.collection("grades").doc(nisn).get();
+        if (gradeDoc.exists) {
+          appState.grades = [gradeDoc.data()];
+        } else {
+          appState.grades = [];
+        }
+      } catch (error) {
+        console.error("Gagal menarik data siswa:", error);
+        showToast("Error Sinkronisasi", "Gagal mengambil data dari server sekolah.", "error");
+      }
+    }
+
+    async function fetchData() {
+      if (IS_PREVIEW || appState.isFallbackPreview) {
+        appState.students = JSON.parse(localStorage.getItem("epkl_students")) || [];
+        appState.attendance = JSON.parse(localStorage.getItem("epkl_attendance")) || [];
+        appState.jurnals = JSON.parse(localStorage.getItem("epkl_jurnals")) || [];
+        appState.grades = JSON.parse(localStorage.getItem("epkl_grades")) || [];
+        return;
+      }
+
+      if (!appState.currentUser) return;
+
+      if (appState.currentUser.role === 'admin') {
+        await fetchDataAdmin();
+      } else if (appState.currentUser.role === 'student') {
+        await fetchDataStudent(appState.currentUser.nisn);
       }
     }
 
@@ -233,7 +269,7 @@
         await fetchData();
       } catch (error) {
         console.error(`Gagal menyimpan data pada ${collection}:`, error);
-        showToast("Error Menyimpan", "Gagal mengunggah perubahan ke Cloud.", "error");
+        showToast("Error Menyimpan", "Gagal mengirim data ke server sekolah.", "error");
         throw error;
       }
     }
@@ -315,8 +351,11 @@
       showLoading(true, "Keluar dari sistem...");
       setTimeout(() => {
         if (!IS_PREVIEW && !appState.isFallbackPreview) {
-          auth.signOut();
+          if (appState.currentUser && appState.currentUser.role === 'admin') {
+            auth.signOut();
+          }
         }
+        localStorage.removeItem("epkl_active_student_nisn");
         appState.currentUser = null;
         appState.activeTab = 'dashboard';
         showLoading(false);
@@ -420,41 +459,66 @@
       showLoading(true, "Memvalidasi kredensial Anda...");
 
       if (role === 'student') {
-        // SISWA: Verifikasi dengan data di Firestore / LocalStorage
-        const sMatch = appState.students.find(s => s.nisn === idVal && s.password === passwordVal);
-        if (sMatch) {
-          setTimeout(() => {
+        if (IS_PREVIEW || appState.isFallbackPreview) {
+          const sMatch = appState.students.find(s => s.nisn === idVal && s.password === passwordVal);
+          if (sMatch) {
             appState.currentUser = { role: 'student', nisn: idVal, studentData: sMatch };
+            localStorage.setItem("epkl_active_student_nisn", idVal);
             showLoading(false);
             routeTo('dashboard');
             showToast("Login Berhasil", `Selamat datang kembali, ${sMatch.nama}!`, "success");
-          }, 800);
-        } else {
-          setTimeout(() => {
+          } else {
             showLoading(false);
-            showToast("Login Gagal", "NISN atau Password tidak sesuai dengan database sekolah.", "error");
-          }, 800);
+            showToast("Login Gagal", "NISN atau Password tidak sesuai.", "error");
+          }
+        } else {
+          try {
+            // Ambil dan validasi profil NISN secara spesifik dari Firestore
+            const studentDoc = await db.collection("students").doc(idVal).get();
+            if (studentDoc.exists) {
+              const sData = studentDoc.data();
+              if (sData.password === passwordVal) {
+                appState.currentUser = { role: 'student', nisn: idVal, studentData: sData };
+                localStorage.setItem("epkl_active_student_nisn", idVal);
+                await fetchData();
+                showLoading(false);
+                routeTo('dashboard');
+                showToast("Login Berhasil", `Selamat datang, ${sData.nama}!`, "success");
+              } else {
+                showLoading(false);
+                showToast("Login Gagal", "Kata sandi salah.", "error");
+              }
+            } else {
+              showLoading(false);
+              showToast("Login Gagal", "NISN tidak terdaftar di database sekolah.", "error");
+            }
+          } catch (error) {
+            showLoading(false);
+            showToast("Error", "Gagal menghubungi server database sekolah.", "error");
+            console.error(error);
+          }
         }
       } else {
-        // ADMIN: Verifikasi dengan Firebase Auth (atau dummy jika preview)
+        // Admin Login
         if (IS_PREVIEW || appState.isFallbackPreview) {
           if (idVal === "admin@smk.sch.id" && passwordVal === "admin123") {
-            setTimeout(() => {
-              appState.currentUser = { role: 'admin', email: idVal };
-              showLoading(false);
-              routeTo('dashboard');
-              showToast("Login Berhasil", "Selamat datang, Guru Pembimbing!", "success");
-            }, 800);
+            appState.currentUser = { role: 'admin', email: idVal };
+            showLoading(false);
+            routeTo('dashboard');
+            showToast("Login Berhasil", "Selamat datang, Guru Pembimbing!", "success");
           } else {
-            setTimeout(() => {
-              showLoading(false);
-              showToast("Login Gagal", "Akun Admin Preview salah. Gunakan admin@smk.sch.id / admin123", "error");
-            }, 800);
+            showLoading(false);
+            showToast("Login Gagal", "Akun Admin Preview salah. Gunakan admin@smk.sch.id / admin123", "error");
           }
         } else {
           try {
             const userCredential = await auth.signInWithEmailAndPassword(idVal, passwordVal);
             appState.currentUser = { role: 'admin', email: userCredential.user.email, uid: userCredential.user.uid };
+            
+            // Lakukan inisialisasi data otomatis jika database masih benar-benar kosong
+            await autoSetupDatabase();
+            await fetchData();
+            
             showLoading(false);
             routeTo('dashboard');
             showToast("Login Berhasil", "Koneksi Admin terautentikasi.", "success");
@@ -544,6 +608,9 @@
         `;
       }
 
+      const activeUserName = role === 'admin' ? 'Guru Pembimbing' : (appState.currentUser.studentData ? appState.currentUser.studentData.nama : 'Memuat...');
+      const activeUserSub = role === 'admin' ? appState.currentUser.email : appState.currentUser.nisn;
+
       appDiv.innerHTML = `
         <!-- Desktop Fixed Sidebar -->
         <aside class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 glass-sidebar z-30">
@@ -562,8 +629,8 @@
             <div class="pt-4 border-t border-slate-200/80">
               <div class="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-xl mb-3">
                 <div class="truncate mr-2">
-                  <p class="text-xs font-bold text-slate-800 truncate">${role === 'admin' ? 'Guru Pembimbing' : appState.currentUser.studentData.nama}</p>
-                  <p class="text-[10px] text-slate-400 truncate">${role === 'admin' ? appState.currentUser.email : appState.currentUser.studentData.nisn}</p>
+                  <p class="text-xs font-bold text-slate-800 truncate">${activeUserName}</p>
+                  <p class="text-[10px] text-slate-400 truncate">${activeUserSub}</p>
                 </div>
                 <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${role === 'admin' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}">${role.toUpperCase()}</span>
               </div>
@@ -605,7 +672,7 @@
     }
 
     function renderStudentDashboard() {
-      const student = appState.currentUser.studentData;
+      const student = appState.currentUser.studentData || { nama: "Siswa", nisn: "-", kelas: "-", perusahaan: "Menunggu Penempatan", pembimbing: "Belum Diplot", status: "Belum Penempatan" };
       const today = new Date().toISOString().split('T')[0];
       
       const attendanceList = appState.attendance.filter(a => a.nisn === student.nisn);
@@ -696,7 +763,7 @@
     }
 
     function renderStudentPresensi() {
-      const student = appState.currentUser.studentData;
+      const student = appState.currentUser.studentData || { nisn: "" };
       const today = new Date().toISOString().split('T')[0];
       const attendanceList = appState.attendance.filter(a => a.nisn === student.nisn).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
       const todayAbsen = attendanceList.find(a => a.tanggal === today);
@@ -822,7 +889,7 @@
 
     async function submitPresensi(e) {
       e.preventDefault();
-      const student = appState.currentUser.studentData;
+      const student = appState.currentUser.studentData || { nisn: "242501001" };
       const status = document.getElementById("presensi-status").value;
       const lokasi = document.getElementById("presensi-lokasi").value.trim();
       const tanggal = new Date().toISOString().split('T')[0];
@@ -866,7 +933,7 @@
     }
 
     function renderStudentJurnal() {
-      const student = appState.currentUser.studentData;
+      const student = appState.currentUser.studentData || { nisn: "" };
       const journalsList = appState.jurnals.filter(j => j.nisn === student.nisn).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
 
       let journalCards = '';
@@ -941,7 +1008,7 @@
 
     async function submitJurnal(e) {
       e.preventDefault();
-      const student = appState.currentUser.studentData;
+      const student = appState.currentUser.studentData || { nisn: "242501001" };
       const tanggal = document.getElementById("jurnal-tanggal").value;
       const kegiatan = document.getElementById("jurnal-kegiatan").value.trim();
       const lampiran = document.getElementById("jurnal-lampiran").value.trim();
@@ -970,7 +1037,7 @@
     }
 
     function renderStudentNilai() {
-      const student = appState.currentUser.studentData;
+      const student = appState.currentUser.studentData || { nisn: "" };
       const grade = appState.grades.find(g => g.nisn === student.nisn);
 
       let gradeHtml = '';
@@ -1060,7 +1127,6 @@
       const today = new Date().toISOString().split('T')[0];
       const todayAbsen = appState.attendance.filter(a => a.tanggal === today && a.status === 'Hadir').length;
 
-      // Siswa bermasalah (belum absen hari ini padahal status aktif)
       const unsubmittedAttendance = appState.students.filter(s => {
         if (s.status !== 'Aktif') return false;
         const hasAbsen = appState.attendance.some(a => a.nisn === s.nisn && a.tanggal === today);
@@ -1216,7 +1282,7 @@
           </div>
         </div>
 
-        <!-- Student Editor Modal Modal (Dinamis) -->
+        <!-- Student Editor Modal -->
         <div id="student-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
           <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden p-6 relative">
             <h3 id="modal-title" class="text-lg font-bold text-slate-800 mb-4">Edit Data Siswa</h3>
@@ -1307,7 +1373,6 @@
 
     async function saveStudentForm(e) {
       e.preventDefault();
-      const action = document.getElementById("form-action").value;
       const nisn = document.getElementById("form-nisn").value.trim();
       const nama = document.getElementById("form-nama").value.trim();
       const kelas = document.getElementById("form-kelas").value.trim();
@@ -1467,7 +1532,7 @@
         <div id="grading-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
           <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden p-6 relative">
             <h3 class="text-lg font-bold text-slate-800 mb-2">Penilaian Kompetensi PKL</h3>
-            <p id="grading-student-title" class="text-xs text-slate-400 font-semibold uppercase mb-4">Ahmad Fauzi (XII RPL 1)</p>
+            <p id="grading-student-title" class="text-xs text-slate-400 font-semibold uppercase mb-4">Nama Siswa</p>
             <form id="grading-form" onsubmit="saveGradeForm(event)" class="space-y-4">
               <input type="hidden" id="grading-nisn">
               <div class="grid grid-cols-3 gap-4">
@@ -1485,7 +1550,7 @@
                 </div>
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase">Catatan Catatan Hasil Penilaian</label>
+                <label class="block text-xs font-bold text-slate-500 uppercase">Catatan Hasil Penilaian</label>
                 <textarea id="grading-catatan" rows="3" required placeholder="Tuliskan saran perbaikan untuk masa depan siswa setelah lulus dari industri..." class="mt-1 w-full py-2 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"></textarea>
               </div>
               <div class="flex justify-end gap-3 pt-2">
@@ -1544,7 +1609,7 @@
         showToast("Nilai Disimpan", "Evaluasi akhir berhasil disimpan ke server.", "success");
         routeTo("penilaian");
       } catch (err) {
-        showToast("Gagal", "Gagal mengunggah penilain.", "error");
+        showToast("Gagal", "Gagal mengunggah penilaian.", "error");
       } finally {
         showLoading(false);
       }
@@ -1576,7 +1641,6 @@
             renderStudentDashboard();
         }
       } else {
-        // Admin View
         switch (appState.activeTab) {
           case 'dashboard':
             renderAdminDashboard();
@@ -1600,7 +1664,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           const swCode = `
-            const CACHE_NAME = 'epkl-v1';
+            const CACHE_NAME = 'epkl-v2';
             self.addEventListener('install', (e) => {
               self.skipWaiting();
             });
@@ -1608,7 +1672,7 @@
               e.waitUntil(clients.claim());
             });
             self.addEventListener('fetch', (e) => {
-              // Menyimpan aset offline jika dibutuhkan masa mendatang
+              // Aset offline PWA
             });
           `;
           try {
@@ -1626,9 +1690,48 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
       initFirebase();
-      await autoSetupDatabase();
-      await fetchData();
-      renderApp();
+      
+      if (IS_PREVIEW || appState.isFallbackPreview) {
+        // Mode offline simulasi
+        await autoSetupDatabase();
+        await fetchData();
+        
+        // Memulihkan sesi siswa offline jika ada
+        const cachedNisn = localStorage.getItem("epkl_active_student_nisn");
+        if (cachedNisn) {
+          const sMatch = appState.students.find(s => s.nisn === cachedNisn);
+          if (sMatch) {
+            appState.currentUser = { role: 'student', nisn: cachedNisn, studentData: sMatch };
+          }
+        }
+        renderApp();
+      } else {
+        // Mode Real Cloud Database
+        showLoading(true, "Menghubungkan ke server sekolah...");
+        
+        // Listener Status Autentikasi Admin
+        auth.onAuthStateChanged(async (user) => {
+          if (user) {
+            appState.currentUser = { role: 'admin', email: user.email, uid: user.uid };
+            await autoSetupDatabase();
+            await fetchData();
+            renderApp();
+            showLoading(false);
+          } else {
+            // Memulihkan sesi login siswa online (Hybrid Client Session)
+            const cachedNisn = localStorage.getItem("epkl_active_student_nisn");
+            if (cachedNisn) {
+              appState.currentUser = { role: 'student', nisn: cachedNisn };
+              await fetchData();
+              renderApp();
+              showLoading(false);
+            } else {
+              renderApp();
+              showLoading(false);
+            }
+          }
+        });
+      }
       initPWA();
     });
   </script>
