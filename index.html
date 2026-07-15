@@ -14,7 +14,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- PWA Manifest Data URI -->
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlNpc3RlbSBNb25pdG9yaW5nIFBLTCIsCiAgInNob3J0X25hbWUiOiAiTW9uUEtMIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNDM2MXBlIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9wbGFjZWhvbGQuY28vMTkyeDE5Mi80MzYxcGUvd2hpdGU/dGV4dD1QS0wiLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9wbGFjZWhvbGQuY28vNTEyeDUxMi80MzYxcGUvd2hpdGU/dGV4dD1QS0wiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0=">
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlNpc3RlbSBNb25pdG9yaW5nIFBLTCIsCiAgInNob3J0X25hbWUiOiAiTW9uUEtMIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2GvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjNDM2MXBlIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9wbGFjZWhvbGQuY28vMTkyeDE5Mi80MzYxcGUvd2hpdGU/dGV4dD1QS0wiLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9wbGFjZWhvbGQuY28vNTEyeDUxMi80MzYxcGUvd2hpdGU/dGV4dD1QS0wiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0=">
 
   <style>
     body {
@@ -183,7 +183,6 @@
         
         <!-- SECTION: DASHBOARD SISWA -->
         <section id="view-dashboard-siswa" class="hidden space-y-6">
-          <!-- Widget Info Singkat Siswa -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Informasi Tempat PKL -->
             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden md:col-span-2">
@@ -191,7 +190,7 @@
               <h3 class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-4 relative z-10">Tempat PKL & Pembimbing</h3>
               <div class="space-y-4 relative z-10">
                 <div>
-                  <h2 class="text-xl font-black text-slate-900" id="ds-dudi-name">PT. Mencari Cinta Sejati</h2>
+                  <h2 class="text-xl font-black text-slate-900" id="ds-dudi-name">Menunggu Penempatan</h2>
                   <p class="text-sm text-slate-500 mt-1 flex items-start gap-2">
                     <i class="fa-solid fa-map-location-dot mt-0.5 text-slate-400 shrink-0"></i>
                     <span id="ds-dudi-address">Menunggu penempatan alamat...</span>
@@ -288,7 +287,7 @@
             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
               <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                 <h3 class="text-sm font-bold text-slate-800">Absensi Kehadiran Harian</h3>
-                <span class="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase tracking-wider" id="absen-current-date">Rabu, 15 Juli 2026</span>
+                <span class="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase tracking-wider" id="absen-current-date">Hari ini</span>
               </div>
 
               <!-- Kamera / Bukti Foto Unggahan -->
@@ -774,12 +773,24 @@
 
   <!-- ==================== JAVASCRIPT SYSTEM ENGINE (MODULE TYPE) ==================== -->
   <script type="module">
-    let IS_PREVIEW = false; // Set false jika ingin menghubungkan ke Firebase langsung
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, deleteDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Import Firebase SDK Modules (Wajib untuk Script type="module")
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    // KONFIGURASI APLIKASI
+    let IS_PREVIEW = false; // Set false JIKA INGIN TERHUBUNG KE FIREBASE SECARA MANDIRI
+
+    // Deteksi otomatis jika platform menyediakan config terintegrasi
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    let envFirebaseConfig = null;
+    if (typeof __firebase_config !== 'undefined') {
+      try {
+        envFirebaseConfig = JSON.parse(__firebase_config);
+        IS_PREVIEW = false; // Gunakan Firebase otomatis jika config sistem terdeteksi
+      } catch (e) {
+        console.warn("Gagal parse __firebase_config", e);
+      }
+    }
 
     const firebaseConfig = {
   apiKey: "AIzaSyCaFDE5BvPbk_nj_TjZinjyncjZNkEZN8w",
@@ -810,7 +821,7 @@
         auth = getAuth(app);
         db = getFirestore(app);
       } catch (err) {
-        console.error("Gagal inisialisasi Firebase Cloud, dialihkan ke mode preview.", err);
+        console.error("Gagal inisialisasi Firebase Cloud, dialihkan ke mode pratinjau lokal.", err);
         IS_PREVIEW = true;
       }
     }
@@ -845,37 +856,83 @@
       jurnal: []
     };
 
+    function getCollectionRef(collectionName) {
+      if (IS_PREVIEW) return null;
+      return collection(db, 'artifacts', appId, 'public', 'data', collectionName);
+    }
+
+    function getDocRef(collectionName, docId) {
+      if (IS_PREVIEW) return null;
+      return doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId);
+    }
+
+    async function initFirebaseAuth() {
+      if (IS_PREVIEW) return null;
+      try {
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : undefined;
+        let userCredential;
+        if (initialAuthToken) {
+          userCredential = await signInWithCustomToken(auth, initialAuthToken);
+        } else {
+          userCredential = await signInAnonymously(auth);
+        }
+        return userCredential.user;
+      } catch (err) {
+        console.error("Gagal melakukan login terautentikasi kustom, mencoba anonim:", err);
+        try {
+          const userCredential = await signInAnonymously(auth);
+          return userCredential.user;
+        } catch (e) {
+          console.error("Autentikasi anonim pun gagal:", e);
+          throw e;
+        }
+      }
+    }
+
     async function autoSetupDatabase() {
       if (IS_PREVIEW) {
-        const localData = localStorage.getItem("monpkl_state");
-        if (localData) {
-          state = JSON.parse(localData);
-        } else {
-          state = DUMMY_SENSITIVE;
-          saveToLocalStorage();
-        }
+        fallbackToLocal();
       } else {
         try {
-          // Melakukan cek dan seeding otomatis langsung ke Firestore Cloud
-          const snapSiswa = await getDocs(collection(db, "siswa"));
+          // RULE 3 - Wajib jalankan Auth dahulu sebelum query database
+          const user = await initFirebaseAuth();
+          if (!user) {
+            console.warn("Autentikasi Firebase gagal. Menggunakan mode simulasi lokal.");
+            fallbackToLocal();
+            return;
+          }
+
+          // Cek apakah database Firestore masih kosong menggunakan query sederhana (RULE 2)
+          const snapSiswa = await getDocs(getCollectionRef("siswa"));
           if (snapSiswa.empty) {
+            console.log("Menyuntikkan data inisialisasi awal (seeding) ke Firestore...");
             for (let s of DUMMY_SENSITIVE.siswa) {
-              await setDoc(doc(db, "siswa", s.id), s);
+              await setDoc(getDocRef("siswa", s.id), s);
             }
             for (let d of DUMMY_SENSITIVE.dudi) {
-              await setDoc(doc(db, "dudi", d.id), d);
+              await setDoc(getDocRef("dudi", d.id), d);
             }
             for (let g of DUMMY_SENSITIVE.guru) {
-              await setDoc(doc(db, "guru", g.email), g);
+              await setDoc(getDocRef("guru", g.email), g);
             }
-            showToast("Database Firestore Berhasil Diinisialisasi!");
+            console.log("Seeding data awal Cloud berhasil dilakukan.");
           }
           await pullDataFromCloud();
         } catch (err) {
-          console.error("Gagal menarik data cloud, kembali ke lokal.", err);
-          IS_PREVIEW = true;
-          autoSetupDatabase();
+          console.error("Firebase Cloud terhambat, otomatis beralih ke cadangan offline/lokal.", err);
+          fallbackToLocal();
         }
+      }
+    }
+
+    function fallbackToLocal() {
+      IS_PREVIEW = true;
+      const localData = localStorage.getItem("monpkl_state");
+      if (localData) {
+        state = JSON.parse(localData);
+      } else {
+        state = DUMMY_SENSITIVE;
+        saveToLocalStorage();
       }
     }
 
@@ -886,29 +943,29 @@
     async function pullDataFromCloud() {
       if (IS_PREVIEW) return;
       try {
-        const snapS = await getDocs(collection(db, "siswa"));
+        const snapS = await getDocs(getCollectionRef("siswa"));
         state.siswa = snapS.docs.map(doc => doc.data());
 
-        const snapD = await getDocs(collection(db, "dudi"));
+        const snapD = await getDocs(getCollectionRef("dudi"));
         state.dudi = snapD.docs.map(doc => doc.data());
 
-        const snapG = await getDocs(collection(db, "guru"));
+        const snapG = await getDocs(getCollectionRef("guru"));
         state.guru = snapG.docs.map(doc => doc.data());
 
-        const snapP = await getDocs(collection(db, "presensi"));
+        const snapP = await getDocs(getCollectionRef("presensi"));
         state.presensi = snapP.docs.map(doc => doc.data());
 
-        const snapJ = await getDocs(collection(db, "jurnal"));
+        const snapJ = await getDocs(getCollectionRef("jurnal"));
         state.jurnal = snapJ.docs.map(doc => doc.data());
       } catch (err) {
-        console.error("Gagal melakukan penarikan awan:", err);
+        console.error("Gagal menyinkronkan data dari Cloud:", err);
       }
     }
 
     async function pushToCloud(collectionName, docId, data) {
       if (IS_PREVIEW) return;
       try {
-        await setDoc(doc(db, collectionName, docId), data);
+        await setDoc(getDocRef(collectionName, docId), data);
       } catch (err) {
         console.error(`Gagal mengirim data ke ${collectionName}:`, err);
       }
@@ -917,7 +974,7 @@
     async function deleteFromCloud(collectionName, docId) {
       if (IS_PREVIEW) return;
       try {
-        await deleteDoc(doc(db, collectionName, docId));
+        await deleteDoc(getDocRef(collectionName, docId));
       } catch (err) {
         console.error(`Gagal menghapus data di ${collectionName}:`, err);
       }
@@ -964,24 +1021,30 @@
           errorMsg.innerText = "NISN atau Kata Sandi siswa salah!";
         }
       } else {
-        // Alur hybrid: cek akun admin / guru lokal terlebih dahulu
+        // Alur login Guru (Bisa via akun lokal / Firebase Auth)
         const localGuru = state.guru.find(g => g.email === identifier && g.password === password);
         if (localGuru) {
           currentUser = localGuru;
           launchSession('guru');
         } else if (!IS_PREVIEW) {
-          // Firebase Cloud Auth login sebagai cadangan
           try {
             const userCredential = await signInWithEmailAndPassword(auth, identifier, password);
-            currentUser = {
-              email: userCredential.user.email,
-              nama: userCredential.user.displayName || "Admin Cloud",
-              isSuper: identifier.includes("admin@")
-            };
+            await pullDataFromCloud(); // Tarik data terbaru setelah otentikasi berhasil
+            
+            const cloudGuru = state.guru.find(g => g.email === userCredential.user.email);
+            if (cloudGuru) {
+              currentUser = cloudGuru;
+            } else {
+              currentUser = {
+                email: userCredential.user.email,
+                nama: userCredential.user.displayName || "Admin Cloud",
+                isSuper: identifier.includes("admin@")
+              };
+            }
             launchSession('guru');
           } catch (err) {
             errorDiv.classList.remove('hidden');
-            errorMsg.innerText = "Kombinasi Email & Sandi Guru salah!";
+            errorMsg.innerText = "Akun Guru tidak terdaftar atau sandi salah!";
           }
         } else {
           errorDiv.classList.remove('hidden');
@@ -1131,7 +1194,6 @@
       }
     }
 
-    // Modal Utility
     window.openModal = function(modalId) {
       document.getElementById(modalId).classList.remove('hidden');
     };
@@ -1140,7 +1202,6 @@
       document.getElementById(modalId).classList.add('hidden');
     };
 
-    // Dialog Konfirmasi Kustom
     window.showConfirmDialog = function(title, message, onConfirm) {
       document.getElementById('confirm-title').innerText = title;
       document.getElementById('confirm-message').innerText = message;
@@ -1166,7 +1227,6 @@
     };
 
     function renderDashboardSiswa() {
-      // Ambil Info Mitra DUDI Siswa
       const dudi = state.dudi.find(d => d.id === currentUser.dudiId);
       const guru = state.guru.find(g => g.email === currentUser.guruEmail);
 
@@ -1234,7 +1294,6 @@
       
       showToast(loadingMessage || "Mengunggah berkas ke Google Drive...");
       try {
-        // Menggunakan fetch POST dengan tipe teks mentah untuk memotong hambatan preflight OPTIONS CORS
         const response = await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
           mode: "cors",
@@ -1246,7 +1305,7 @@
         });
         const result = await response.json();
         if (result.status === "success") {
-          return result.url; // Mengembalikan tautan publik foto di Google Drive
+          return result.url;
         } else {
           console.error("Kesalahan unggah GAS:", result.message);
           showToast("Gagal mengunggah foto ke Google Drive!");
@@ -1322,11 +1381,9 @@
     };
 
     function renderPresensiSiswa() {
-      // Set Hari Aktif
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       document.getElementById('absen-current-date').innerText = new Date().toLocaleDateString('id-ID', options);
 
-      // Cari presensi hari ini
       const todayStr = new Date().toISOString().split('T')[0];
       const todayP = state.presensi.find(p => p.siswaId === currentUser.id && p.tanggal === todayStr);
 
@@ -1348,7 +1405,6 @@
             btnPulang.className = "py-4 bg-slate-200 text-slate-400 font-extrabold rounded-2xl flex flex-col items-center gap-1 cursor-not-allowed";
           }
         } else {
-          // Status Izin / Sakit
           btnMasuk.disabled = true;
           btnMasuk.className = "py-4 bg-slate-200 text-slate-400 font-extrabold rounded-2xl flex flex-col items-center gap-1 cursor-not-allowed";
           btnPulang.disabled = true;
@@ -1393,7 +1449,7 @@
       
       let fotoDriveUrl = "";
       if (tempFotoBase64) {
-        fotoDriveUrl = await uploadFotoKeDriveGeneric(tempFotoBase64, tempFotoFileName, tempFotoMimeType, "Mengunggah bukti foto absensi ke Google Drive...");
+        fotoDriveUrl = await uploadFotoKeDriveGeneric(tempFotoBase64, tempFotoFileName, tempFotoMimeType, "Mengunggah bukti foto absensi...");
       }
 
       const pNew = {
@@ -1412,7 +1468,7 @@
       saveToLocalStorage();
       await pushToCloud("presensi", pNew.id, pNew);
       
-      cancelAbsenFoto(null); // Bersihkan sisa unggahan
+      cancelAbsenFoto(null);
       showToast("Berhasil mencatat kehadiran masuk hari ini!");
       renderPresensiSiswa();
     };
@@ -1513,7 +1569,7 @@
 
       let fotoDriveUrl = "";
       if (tempJurnalBase64) {
-        fotoDriveUrl = await uploadFotoKeDriveGeneric(tempJurnalBase64, tempJurnalFileName, tempJurnalMimeType, "Mengunggah foto dokumentasi kegiatan ke Google Drive...");
+        fotoDriveUrl = await uploadFotoKeDriveGeneric(tempJurnalBase64, tempJurnalFileName, tempJurnalMimeType, "Mengunggah dokumentasi jurnal...");
       }
 
       const jNew = {
@@ -1530,7 +1586,7 @@
       saveToLocalStorage();
       await pushToCloud("jurnal", jNew.id, jNew);
 
-      cancelJurnalFoto(null); // Bersihkan preview form unggahan
+      cancelJurnalFoto(null);
       showToast("Jurnal harian berhasil terekam!");
       document.getElementById('jurnal-kegiatan').value = "";
       renderJurnalSiswa();
@@ -1863,7 +1919,6 @@
 
       const newId = oldId || `siswa-${Date.now()}`;
       
-      // Ambil nilai lama jika ada agar tidak terhapus
       const oldData = oldId ? state.siswa.find(s => s.id === oldId) : null;
       const oldNilai = oldData ? oldData.nilai : null;
 
@@ -2001,7 +2056,6 @@
         list = list.filter(j => j.isVerified);
       }
 
-      // Urutkan dari tanggal terbaru
       list.sort((a,b) => b.tanggal.localeCompare(a.tanggal));
 
       if (list.length > 0) {
@@ -2056,7 +2110,6 @@
     };
 
     window.downloadExcelTemplate = function() {
-      // Buat Baris Panduan Isian Lembar Pertama
       const headers = [["NAMA_LENGKAP", "NISN_USERNAME", "KELAS", "SANDI_LOGIN", "ID_DUDI", "EMAIL_GURU"]];
       const dummyRow = [["Akbar Maulana", "1234509", "XII RPL 1", "siswa123", "PILIH_KODE_DUDI_LIHAT_HALAMAN_SEBELAH", "budi@smk.sch.id"]];
       
@@ -2064,7 +2117,6 @@
       const wsMain = XLSX.utils.aoa_to_sheet(headers.concat(dummyRow));
       XLSX.utils.book_append_sheet(wb, wsMain, "Input Siswa");
 
-      // Buat Lembar Panduan Kode Penempatan (DUDI & Guru Aktif) untuk kemudahan plotting
       const guideHeaders = [["KODE_DUDI (ID)", "NAMA_MITRA_INDUSTRI", "PEMBIMBING_LAPANGAN_INDUSTRI"]];
       state.dudi.forEach(d => {
         guideHeaders.push([d.id, d.nama, d.supervisor]);
@@ -2121,7 +2173,6 @@
                 nilai: null
               };
 
-              // Cegah NISN ganda di sistem lokal
               const idxExist = state.siswa.findIndex(s => s.nisn === nisn);
               if (idxExist !== -1) {
                 state.siswa[idxExist] = sNew;
@@ -2166,7 +2217,6 @@
     window.addEventListener('load', async () => {
       await autoSetupDatabase();
 
-      // Lindungi registrasi Service Worker agar tidak memicu Crash di Browser mode iFrame Pratinjau
       const isIframe = window.self !== window.top;
       const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
@@ -2181,8 +2231,8 @@
           const blobURL = URL.createObjectURL(blob);
           
           navigator.serviceWorker.register(blobURL)
-            .then(() => console.log('PWA Service Worker terdaftar dengan aman di host murni.'))
-            .catch(err => console.log('Registrasi SW dilewati (Domain Terproteksi Keamanan/Sandbox).'));
+            .then(() => console.log('PWA Service Worker terdaftar dengan aman.'))
+            .catch(err => console.log('Registrasi SW dilewati (Domain Terproteksi Keamanan).'));
         } catch (err) {
           console.warn('Layanan Service Worker tidak didukung pada sistem pratinjau ini.');
         }
