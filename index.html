@@ -922,7 +922,8 @@
         loadAllLocalData();
       } else {
         document.getElementById('preview-banner').classList.add('hidden');
-        fetchGASData();
+        // Tidak memanggil fetchGASData di awal untuk menjaga keamanan & efisiensi, 
+        // data akan di-load secara dinamis setelah proses autentikasi berhasil
       }
     });
 
@@ -944,7 +945,7 @@
     }
 
     // INTERAKSI BACKEND (GAS)
-    function fetchGASData() {
+    function fetchGASData(callback) {
       showLoader("Menghubungkan ke server database...");
       const url = `${GAS_URL}?action=getAllData`;
       
@@ -957,14 +958,17 @@
             appState.dudi = response.data.dudi;
             appState.jurnal = response.data.jurnal;
             appState.nilai = response.data.nilai;
+            if (callback) callback();
           } else {
             alert("Gagal mengambil data dari Google Sheets. Menggunakan fallback lokal.");
             loadAllLocalData();
+            if (callback) callback();
           }
         })
         .catch(err => {
           console.error(err);
           loadAllLocalData();
+          if (callback) callback();
         })
         .finally(() => hideLoader());
     }
@@ -989,8 +993,9 @@
       .then(res => res.json())
       .then(data => {
         if (data.status === 'success') {
-          if (callback) callback(data);
-          fetchGASData(); // Refresh state
+          fetchGASData(() => {
+            if (callback) callback(data);
+          });
         } else {
           alert("Gagal menyimpan ke server: " + data.message);
         }
@@ -1011,35 +1016,64 @@
 
       showLoader("Memverifikasi kredensial...");
 
-      // Delay visual agar proses terasa nyata
-      setTimeout(() => {
-        let authUser = null;
-
-        if (IS_PREVIEW) {
-          // Rule login Preview
-          if (user === 'admin' && pass === 'edudigital') {
+      if (IS_PREVIEW) {
+        // Logika login Preview Mode (Dummy)
+        setTimeout(() => {
+          let authUser = null;
+          // Mendukung password default "edudigital" atau password spesifik "admin2026"
+          if (user === 'admin' && (pass === 'edudigital' || pass === 'admin2026')) {
             authUser = { username: 'admin', nama_lengkap: 'Admin Hubin SMK', role: 'Admin', detail_id: '123' };
           } else if (user === 'peserta' && pass === 'edudigital') {
             authUser = { username: 'peserta', nama_lengkap: 'Ahmad Riyadi', role: 'Siswa', detail_id: '1001' };
           } else if (user === 'guru' && pass === 'edudigital') {
             authUser = { username: 'guru', nama_lengkap: 'Bpk. H. Rian Nugraha, M.T.', role: 'Guru', detail_id: '19800512' };
           }
-        } else {
-          // Cari user di database lokal/sheets
-          // Catatan: Jika GAS di-deploy, panggil verifikasi login GAS
-          // Untuk memudahkan, kita samakan atau cari kecocokan di user list
-          // (Logika verifikasi Sheets diproses di Code.gs)
-        }
 
-        if (authUser) {
-          appState.currentUser = authUser;
-          loginError.classList.add('hidden');
-          setupAppShell();
-        } else {
+          if (authUser) {
+            appState.currentUser = authUser;
+            loginError.classList.add('hidden');
+            setupAppShell();
+          } else {
+            document.getElementById('login-error-msg').innerText = "Username atau password salah (Mode Preview)!";
+            loginError.classList.remove('hidden');
+          }
+          hideLoader();
+        }, 800);
+      } else {
+        // Logika login Live Mode (Terintegrasi Google Sheets)
+        const url = `${GAS_URL}?action=login`;
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            username: user,
+            password: pass
+          })
+        })
+        .then(res => res.json())
+        .then(response => {
+          if (response.status === 'success') {
+            appState.currentUser = response.user;
+            loginError.classList.add('hidden');
+            
+            // Tarik seluruh data master dari GAS, setelah berhasil lalu tampilkan panel utama
+            fetchGASData(() => {
+              setupAppShell();
+            });
+          } else {
+            document.getElementById('login-error-msg').innerText = response.message || "Username atau password salah!";
+            loginError.classList.remove('hidden');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('login-error-msg').innerText = "Gagal terhubung dengan server database Apps Script!";
           loginError.classList.remove('hidden');
-        }
-        hideLoader();
-      }, 800);
+        })
+        .finally(() => hideLoader());
+      }
     }
 
     function handleLogout() {
@@ -1602,6 +1636,7 @@
       });
     }
 
+    // MEMVERIFIKASI JURNAL
     function approveJurnal(idJurnal) {
       const idx = appState.jurnal.findIndex(x => x.id_jurnal === idJurnal);
       if (idx !== -1) {
@@ -1748,6 +1783,12 @@
       } else {
         document.getElementById('absen-today-masuk').innerText = '-';
         document.getElementById('absen-today-pulang').innerText = '-';
+        
+        // Restore styling default if new day
+        document.getElementById('btn-absen-masuk').disabled = false;
+        document.getElementById('btn-absen-masuk').className = 'bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 px-4 rounded-2xl transition-all shadow-md shadow-brand-100 flex flex-col items-center gap-2';
+        document.getElementById('btn-absen-pulang').disabled = false;
+        document.getElementById('btn-absen-pulang').className = 'bg-slate-600 hover:bg-slate-700 text-white font-semibold py-4 px-4 rounded-2xl transition-all shadow-md shadow-slate-100 flex flex-col items-center gap-2';
       }
     }
 
