@@ -148,12 +148,12 @@
 
       <!-- Menu Daftar Link Sidebar -->
       <nav class="flex-1 p-4 space-y-1" id="nav-sidebar">
-        <!-- Menu akan disisipkan secara dinamis via JavaScript sesuai hak akses/role -->
+        <!-- Menu disisipkan dinamis via JavaScript -->
       </nav>
 
       <!-- Logout Tombol -->
       <div class="p-4 border-t border-slate-800">
-        <button onclick="handleLogout()" class="w-full flex items-center gap-3 px-4 py-2 text-sm text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition-all">
+        <button onclick="handleLogout()" class="w-full flex items-center gap-3 px-4 py-2 text-sm text-rose-400 hover:text-rose-300 hover:bg-rose-50/10 rounded-xl transition-all">
           <i class="fa-solid fa-power-off text-base"></i>
           <span>Keluar Aplikasi</span>
         </button>
@@ -162,13 +162,13 @@
 
     <!-- FLOATING BOTTOM NAVIGATION (Hanya Tampil di HP/Mobile - md kebawah) -->
     <nav class="md:hidden fixed bottom-4 left-4 right-4 bg-slate-900/95 backdrop-blur-md text-white rounded-2xl py-2 px-3 shadow-2xl z-40 flex justify-around border border-white/10" id="nav-bottombar">
-      <!-- Menu navigasi seluler akan disisipkan dinamis -->
+      <!-- Menu navigasi seluler disisipkan dinamis -->
     </nav>
 
     <!-- KONTEN UTAMA WORKSPACE -->
     <main class="flex-1 flex flex-col min-h-screen md:min-h-0 md:h-screen overflow-y-auto pb-24 md:pb-0 bg-slate-50">
       
-      <!-- Topbar Header (Seluler & Desktop header mini) -->
+      <!-- Topbar Header -->
       <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30">
         <div class="flex items-center gap-2 md:gap-0">
           <div class="md:hidden w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-base mr-1">M</div>
@@ -253,8 +253,8 @@
 
             <!-- Jam Real-time -->
             <div class="bg-slate-50 rounded-xl p-4 text-center">
-              <div class="text-2xl font-bold tracking-widest text-slate-800" id="live-time">14:41:12</div>
-              <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1" id="live-date">Rabu, 15 Juli 2026</div>
+              <div class="text-2xl font-bold tracking-widest text-slate-800" id="live-time">00:00:00</div>
+              <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1" id="live-date">Memuat Tanggal...</div>
             </div>
 
             <form id="form-presensi" onsubmit="submitAbsen(event)" class="space-y-4">
@@ -276,11 +276,11 @@
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Jam Masuk</label>
-                  <input type="time" id="absen-masuk" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                  <input type="time" id="absen-masuk" value="08:00" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
                 </div>
                 <div>
                   <label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Jam Pulang</label>
-                  <input type="time" id="absen-pulang" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                  <input type="time" id="absen-pulang" value="17:00" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-1 focus:ring-blue-500 focus:outline-none">
                 </div>
               </div>
 
@@ -310,7 +310,7 @@
 
           <!-- Jurnal Grid -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="siswa-jurnal-container">
-            <!-- Jurnal item akan dirender lewat JS -->
+            <!-- Diisi melalui Javascript -->
           </div>
         </div>
 
@@ -331,7 +331,7 @@
 
             <!-- Detail Nilai -->
             <div class="p-6 space-y-6" id="siswa-nilai-container">
-              <!-- Render via JS -->
+              <!-- Diisi melalui Javascript -->
             </div>
           </div>
         </div>
@@ -391,8 +391,8 @@
                     <th class="pb-3 text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody id="admin-recent-jurnal-table" class="text-xs">
-                  <!-- Rendered dynamically -->
+                <tbody id="admin-recent-jurnal-table" class="text-xs text-slate-600">
+                  <!-- Diisi melalui Javascript -->
                 </tbody>
               </table>
             </div>
@@ -425,8 +425,41 @@
                     <th class="py-3 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody id="admin-siswa-table" class="text-xs">
-                  <!-- Render via JS -->
+                <tbody id="admin-siswa-table" class="text-xs text-slate-600">
+                  <!-- Diisi melalui Javascript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: ADMIN DUDI (CRUD) -->
+        <div id="view-admin-dudi" class="view-section hidden space-y-6">
+          <div class="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+            <h2 class="text-sm font-bold text-slate-800">Manajemen Data DUDI & Mitra Industri</h2>
+            <div class="flex gap-2">
+              <button onclick="openFormDudiModal('add')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-building-circle-plus"></i>
+                <span>Tambah Mitra DUDI</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabel DUDI -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                    <th class="py-3 px-4">Nama Perusahaan</th>
+                    <th class="py-3 px-4">Alamat Perusahaan</th>
+                    <th class="py-3 px-4">Pembimbing Industri</th>
+                    <th class="py-3 px-4">Kontak / HP</th>
+                    <th class="py-3 px-4 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-dudi-table" class="text-xs text-slate-600">
+                  <!-- Diisi melalui Javascript -->
                 </tbody>
               </table>
             </div>
@@ -441,7 +474,7 @@
 
           <!-- Jurnal Grid Admin -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="admin-jurnal-container">
-            <!-- Jurnal item render via JS -->
+            <!-- Diisi melalui Javascript -->
           </div>
         </div>
 
@@ -467,8 +500,8 @@
                     <th class="py-3 px-4 text-right">Tindakan</th>
                   </tr>
                 </thead>
-                <tbody id="admin-rekap-table" class="text-xs">
-                  <!-- Rendered dynamically -->
+                <tbody id="admin-rekap-table" class="text-xs text-slate-600">
+                  <!-- Diisi melalui Javascript -->
                 </tbody>
               </table>
             </div>
@@ -480,23 +513,21 @@
   </div>
 
   <!-- MODALS CONTAINER -->
-  <!-- MODAL: DATA SISWA CRUD (MANDATORY FIX APPLIED HERE) -->
+  <!-- MODAL: DATA SISWA CRUD -->
   <div id="modal-siswa" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden animate-fade-in">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden">
       <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
         <h3 class="text-sm font-bold" id="modal-siswa-title">Ubah Data Siswa</h3>
         <button onclick="closeModal('modal-siswa')" class="text-slate-400 hover:text-white transition-colors">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-      <!-- FORM INPUT DATA -->
       <form id="form-siswa-crud" onsubmit="submitSiswaForm(event)" class="p-6 space-y-4">
-        <!-- CRITICAL VALUE STORAGE FOR OPERATION MODE -->
         <input type="hidden" id="crud-id-type" value="add">
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">NISN Siswa (Kunci Utama)</label>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">NISN Siswa (ID Login)</label>
             <input type="text" id="crud-nisn" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="Masukkan 9 Digit NISN">
           </div>
           <div>
@@ -550,6 +581,52 @@
     </div>
   </div>
 
+  <!-- MODAL: DATA DUDI CRUD -->
+  <div id="modal-dudi" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
+        <h3 class="text-sm font-bold" id="modal-dudi-title">Tambah Mitra DUDI</h3>
+        <button onclick="closeModal('modal-dudi')" class="text-slate-400 hover:text-white transition-colors">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <form id="form-dudi-crud" onsubmit="submitDudiForm(event)" class="p-6 space-y-4">
+        <input type="hidden" id="crud-dudi-id-type" value="add">
+        <input type="hidden" id="crud-dudi-target-id" value="">
+
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Nama Perusahaan / Instansi</label>
+          <input type="text" id="crud-dudi-nama" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="Contoh: PT. Sumber Jaya Mandiri">
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Alamat Lengkap Kantor</label>
+          <textarea id="crud-dudi-alamat" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none" rows="3" placeholder="Jl. Raya Utama No. 123..."></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Pembimbing Lapangan Industri</label>
+            <input type="text" id="crud-dudi-pembimbing" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="Nama Supervisor Lapangan">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Kontak / No. Telepon HP</label>
+            <input type="text" id="crud-dudi-kontak" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="0812xxxxxxxx">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeModal('modal-dudi')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
+            Batalkan
+          </button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
+            Simpan Data DUDI
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL: JURNAL HARIAN BARU SISWA -->
   <div id="modal-jurnal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -572,7 +649,7 @@
 
         <div>
           <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Tautan Dokumentasi Foto / File (Opsional)</label>
-          <input type="url" id="jurnal-foto" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="https://drive.google.com/link-foto-anda">
+          <input type="url" id="jurnal-foto" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="https://placehold.co/600x400/3b82f6/ffffff?text=Dokumentasi+Anda">
         </div>
 
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
@@ -630,38 +707,34 @@
   <div id="modal-nilai" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
       <div class="bg-slate-900 px-6 py-4 flex items-center justify-between text-white">
-        <h3 class="text-sm font-bold">Evaluasi & Input Nilai PKL</h3>
+        <h3 class="text-sm font-bold">Input Evaluasi Nilai PKL</h3>
         <button onclick="closeModal('modal-nilai')" class="text-slate-400 hover:text-white transition-colors">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
       <form id="form-nilai" onsubmit="submitPenilaian(event)" class="p-6 space-y-4">
-        <input type="hidden" id="nilai-nisn">
-        
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
-          <span class="text-[10px] text-slate-400 font-bold block">EVALUASI SISWA</span>
-          <h4 class="font-bold text-slate-700 mt-0.5" id="nilai-siswa-nama">-</h4>
+        <input type="hidden" id="nilai-nisn" value="">
+        <div>
+          <span class="text-[10px] text-slate-400 font-bold uppercase block">Nama Siswa</span>
+          <h4 class="text-sm font-bold text-slate-800" id="nilai-siswa-nama">-</h4>
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Nilai Kompetensi Teknis</label>
-            <input type="number" id="nilai-teknis" min="0" max="100" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="0 - 100">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Nilai Teknis (0-100)</label>
+            <input type="number" min="0" max="100" id="nilai-teknis" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none">
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Nilai Non-Teknis (Sikap)</label>
-            <input type="number" id="nilai-non-teknis" min="0" max="100" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none" placeholder="0 - 100">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Nilai Non-Teknis (0-100)</label>
+            <input type="number" min="0" max="100" id="nilai-non-teknis" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none">
           </div>
         </div>
-
         <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Catatan Kinerja / Rekomendasi Industri</label>
-          <textarea id="nilai-catatan" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none" rows="3" placeholder="Sebutkan kompetensi menonjol atau saran perbaikan..."></textarea>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Catatan Evaluasi / Pembimbing</label>
+          <textarea id="nilai-catatan" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none" rows="3" placeholder="Sikap sangat baik, kreatif dalam menyelesaikan pekerjaan..."></textarea>
         </div>
-
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
           <button type="button" onclick="closeModal('modal-nilai')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
-            Batalkan
+            Batal
           </button>
           <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
             Simpan Nilai
@@ -676,7 +749,7 @@
   <script type="module">
     // FIREBASE SDK MODULES IMPORTS
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, getDocs, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- SAKLAR UTAMA DEPLOYMENT ---
@@ -689,12 +762,11 @@
   storageBucket: "epkl-bb5f5.firebasestorage.app",
   messagingSenderId: "337002584671",
   appId: "1:337002584671:web:f04d49118afa0bfa0dd9ea"
-
     };
 
     // Firebase state placeholders
     let app, db, auth;
-    let currentUserData = null; // Menyimpan info user aktif login (Siswa atau Admin)
+    let currentUserData = null; 
     let selectedJurnalIdForVerifikasi = null;
 
     // --- INSTALASI PWA JALUR 1 FILE ---
@@ -816,20 +888,16 @@
         if (snapshot.empty) {
           showToast('Menginisialisasi', 'Menyuntikkan data demo awal ke Cloud Firestore...', 'info');
           
-          // Suntik Dudi
           for (const d of SEED_DATA_DUDI) {
             await setDoc(doc(db, "dudi", d.id), d);
           }
-          // Suntik Siswa
           for (const s of SEED_DATA_SISWA) {
             await setDoc(doc(db, "siswa", s.nisn), s);
           }
-          // Suntik Jurnal
           for (const j of SEED_DATA_JURNAL) {
             const { id, ...cleanJurnal } = j;
             await setDoc(doc(db, "jurnal", id), cleanJurnal);
           }
-          // Suntik Absensi
           for (const a of SEED_DATA_ABSENSI) {
             const { id, ...cleanAbsen } = a;
             await setDoc(doc(db, "absensi", id), cleanAbsen);
@@ -932,7 +1000,6 @@
             showToast('Akses Ditolak', 'NISN atau kata sandi tidak sesuai.', 'error');
           }
         } else {
-          // Firebase database read manual untuk validasi data login
           try {
             const studentDoc = await getDoc(doc(db, "siswa", nisn));
             if (studentDoc.exists() && studentDoc.data().password === password) {
@@ -946,7 +1013,6 @@
           }
         }
       } else {
-        // Mode login Guru / Admin (Firebase Auth)
         const email = document.getElementById('login-email').value.trim();
         if (IS_PREVIEW) {
           if (email === 'admin@smk.sch.id' && password === 'admin123') {
@@ -975,7 +1041,6 @@
       buildNavigation();
       initializeRealtimeSync();
 
-      // Secara default alihkan ke dashboard role masing-masing
       changeView(currentUserData.role === 'siswa' ? 'siswa-dashboard' : 'admin-dashboard');
     };
 
@@ -1011,6 +1076,7 @@
         menuItems = [
           { id: 'admin-dashboard', icon: 'fa-chart-pie', label: 'Dasbor' },
           { id: 'admin-siswa', icon: 'fa-users-gear', label: 'Siswa' },
+          { id: 'admin-dudi', icon: 'fa-building', label: 'DUDI' },
           { id: 'admin-jurnal', icon: 'fa-clipboard-check', label: 'Verifikasi' },
           { id: 'admin-rekap', icon: 'fa-file-invoice', label: 'Nilai & Rekap' }
         ];
@@ -1019,7 +1085,6 @@
         document.getElementById('user-role-desktop').textContent = 'Hubin & Guru Monitor';
       }
 
-      // 1. Render untuk Sidebar (Desktop)
       sidebar.innerHTML = menuItems.map(item => `
         <button onclick="changeView('${item.id}')" id="sb-${item.id}" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold hover:bg-slate-800 transition-all">
           <i class="fa-solid ${item.icon} text-lg"></i>
@@ -1027,7 +1092,6 @@
         </button>
       `).join('');
 
-      // 2. Render untuk Bottom Navigation (Mobile)
       bottombar.innerHTML = menuItems.map(item => `
         <button onclick="changeView('${item.id}')" id="bb-${item.id}" class="flex flex-col items-center gap-1 py-1 text-[10px] font-semibold text-slate-400 focus:outline-none flex-1">
           <i class="fa-solid ${item.icon} text-base"></i>
@@ -1038,14 +1102,11 @@
 
     // --- NAVIGATOR SWITCH VIEW ENGINE ---
     window.changeView = (viewId) => {
-      // Sembunyikan semua section
       document.querySelectorAll('.view-section').forEach(view => view.classList.add('hidden'));
       
-      // Munculkan target view
       const targetView = document.getElementById(`view-${viewId}`);
       if (targetView) targetView.classList.remove('hidden');
 
-      // Update Header Text & Tab Active Indicator
       const headerTitle = document.getElementById('header-title');
       const headerSubtitle = document.getElementById('header-subtitle');
       
@@ -1056,6 +1117,7 @@
         'siswa-nilai': { title: 'Transkrip Nilai PKL', sub: 'Status evaluasi akhir dari pembimbing' },
         'admin-dashboard': { title: 'Pusat Kontrol Hubin', sub: 'Statistik real-time monitoring PKL sekolah' },
         'admin-siswa': { title: 'Kelola Siswa & Plotting', sub: 'Daftar penempatan kerja praktek industri' },
+        'admin-dudi': { title: 'Kelola Perusahaan Mitra (DUDI)', sub: 'Daftar dunia usaha dan industri tempat penempatan PKL' },
         'admin-jurnal': { title: 'Panel Validasi Laporan', sub: 'Verifikasi jurnalisme industri yang dikirim siswa' },
         'admin-rekap': { title: 'E-Rekapitulasi Akhir', sub: 'Grafik rekap presensi dan pengisian skor akhir' }
       };
@@ -1065,7 +1127,6 @@
         headerSubtitle.textContent = viewsMetaData[viewId].sub;
       }
 
-      // Reset style tombol menu di sidebar & bottombar
       document.querySelectorAll('#nav-sidebar button').forEach(b => b.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold hover:bg-slate-800 transition-all text-slate-400");
       document.querySelectorAll('#nav-bottombar button').forEach(b => b.className = "flex flex-col items-center gap-1 py-1 text-[10px] font-semibold text-slate-400 focus:outline-none flex-1");
 
@@ -1106,7 +1167,6 @@
 
     const cachedSStudents = (students) => {
       cachedStudents = students;
-      // Jika pengguna adalah siswa, sinkronkan data profil terbarunya dari DB
       if (currentUserData && currentUserData.role === 'siswa') {
         const liveProfile = students.find(s => s.nisn === currentUserData.uid);
         if (liveProfile) {
@@ -1125,6 +1185,7 @@
       } else {
         renderAdminDashboard();
         renderAdminSiswa();
+        renderAdminDudi();
         renderAdminJurnal();
         renderAdminRekap();
       }
@@ -1135,17 +1196,14 @@
       const dudi = cachedDudi.find(d => d.id === currentUserData.dudiId);
       document.getElementById('ds-dudi-name').textContent = dudi ? dudi.namaPerusahaan : 'Belum Ditempatkan';
 
-      // Persentase Kehadiran
       const myAbsen = cachedAbsensi.filter(a => a.nisn === currentUserData.uid);
       const totalHadir = myAbsen.filter(a => a.status === 'Hadir').length;
       const rate = myAbsen.length > 0 ? Math.round((totalHadir / myAbsen.length) * 100) : 0;
       document.getElementById('ds-attendance-rate').textContent = `${rate}% (Absensi ${myAbsen.length} Hari)`;
 
-      // Jumlah Jurnal
       const myJurnals = cachedJurnals.filter(j => j.nisn === currentUserData.uid);
       document.getElementById('ds-jurnal-count').textContent = `${myJurnals.length} Laporan Kegiatan`;
 
-      // Status Absensi Hari Ini
       const todayString = new Date().toISOString().split('T')[0];
       const todayAbsen = myAbsen.find(a => a.tanggal === todayString);
       const statusText = document.getElementById('ds-absen-status-text');
@@ -1376,7 +1434,6 @@
       const todayHadir = cachedAbsensi.filter(a => a.tanggal === today && a.status === 'Hadir').length;
       document.getElementById('ad-hadir-today').textContent = todayHadir;
 
-      // Render daftar jurnal terbaru yang butuh verifikasi
       const recentTable = document.getElementById('admin-recent-jurnal-table');
       const latestJurnals = cachedJurnals.filter(j => j.status === 'Pending').slice(0, 5);
 
@@ -1405,11 +1462,131 @@
       }).join('');
     };
 
-    // POPULATE OPTIONS DUDI DI CRUD FORM SISWA
     const populateDudiOptions = (dudis) => {
       const select = document.getElementById('crud-dudi-id');
       if (!select) return;
       select.innerHTML = dudis.map(d => `<option value="${d.id}">${d.namaPerusahaan}</option>`).join('');
+    };
+
+    window.openFormSiswaModal = (mode = 'add', nisn = '') => {
+      const modal = document.getElementById('modal-siswa');
+      const title = document.getElementById('modal-siswa-title');
+      const form = document.getElementById('form-siswa-crud');
+      
+      form.reset();
+      
+      document.getElementById('crud-id-type').value = mode;
+
+      if (mode === 'add') {
+        title.textContent = "Tambah Siswa Baru";
+        document.getElementById('crud-nisn').removeAttribute('disabled');
+        document.getElementById('crud-nisn').value = '';
+        document.getElementById('crud-password').value = '';
+        document.getElementById('crud-nama').value = '';
+        document.getElementById('crud-kelas').value = '';
+        document.getElementById('crud-guru').value = '';
+      } else {
+        title.textContent = "Ubah Data Siswa";
+        document.getElementById('crud-nisn').setAttribute('disabled', 'disabled');
+        
+        const s = cachedStudents.find(item => item.nisn === nisn);
+        if (s) {
+          document.getElementById('crud-nisn').value = s.nisn;
+          document.getElementById('crud-password').value = s.password || '';
+          document.getElementById('crud-nama').value = s.nama;
+          document.getElementById('crud-kelas').value = s.kelas;
+          document.getElementById('crud-status-pkl').value = s.statusPkl || 'Aktif';
+          document.getElementById('crud-dudi-id').value = s.dudiId || '';
+          document.getElementById('crud-guru').value = s.guruPembimbing || '';
+        }
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    };
+
+    window.submitSiswaForm = async (e) => {
+      e.preventDefault();
+      const mode = document.getElementById('crud-id-type').value;
+      const nisn = document.getElementById('crud-nisn').value.trim();
+      const password = document.getElementById('crud-password').value;
+      const nama = document.getElementById('crud-nama').value;
+      const kelas = document.getElementById('crud-kelas').value;
+      const statusPkl = document.getElementById('crud-status-pkl').value;
+      const dudiId = document.getElementById('crud-dudi-id').value;
+      const guru = document.getElementById('crud-guru').value;
+
+      const studentData = {
+        nisn: nisn,
+        password: password,
+        nama: nama,
+        kelas: kelas,
+        statusPkl: statusPkl,
+        dudiId: dudiId,
+        guruPembimbing: guru,
+      };
+
+      showToast('Menyimpan', 'Mengirim data siswa...', 'info');
+
+      if (IS_PREVIEW) {
+        let list = virtualDatabase.siswa;
+        const existingIdx = list.findIndex(s => s.nisn === nisn);
+        
+        if (mode === 'add') {
+          if (existingIdx > -1) {
+            showToast('Gagal', 'Siswa dengan NISN tersebut sudah terdaftar!', 'error');
+            return;
+          }
+          studentData.nilaiAkhir = { teknis: 0, nonTeknis: 0, catatan: "" };
+          list.push(studentData);
+        } else {
+          const oldScore = list[existingIdx]?.nilaiAkhir || { teknis: 0, nonTeknis: 0, catatan: "" };
+          studentData.nilaiAkhir = oldScore;
+          list[existingIdx] = studentData;
+        }
+        
+        virtualDatabase.siswa = list;
+        showToast('Berhasil', 'Data siswa berhasil disimpan luring.', 'success');
+        cachedSStudents(list);
+        closeModal('modal-siswa');
+      } else {
+        try {
+          if (mode === 'add') {
+            studentData.nilaiAkhir = { teknis: 0, nonTeknis: 0, catatan: "" };
+          } else {
+            const docSnap = await getDoc(doc(db, "siswa", nisn));
+            if (docSnap.exists()) {
+              studentData.nilaiAkhir = docSnap.data().nilaiAkhir || { teknis: 0, nonTeknis: 0, catatan: "" };
+            }
+          }
+          await setDoc(doc(db, "siswa", nisn), studentData);
+          showToast('Sukses', 'Data siswa berhasil disimpan ke cloud.', 'success');
+          closeModal('modal-siswa');
+        } catch (err) {
+          showToast('Kesalahan', 'Gagal memproses ke Firestore.', 'error');
+        }
+      }
+    };
+
+    window.deleteSiswa = async (nisn) => {
+      const confirmDelete = confirm("Apakah Anda yakin ingin menghapus siswa ini secara permanen?");
+      if (!confirmDelete) return;
+
+      showToast('Memproses', 'Menghapus data siswa...', 'warning');
+
+      if (IS_PREVIEW) {
+        const list = virtualDatabase.siswa.filter(s => s.nisn !== nisn);
+        virtualDatabase.siswa = list;
+        showToast('Selesai', 'Siswa berhasil dihapus luring.', 'success');
+        cachedSStudents(list);
+      } else {
+        try {
+          await deleteDoc(doc(db, "siswa", nisn));
+          showToast('Dihapus', 'Data siswa berhasil dihapus dari cloud.', 'success');
+        } catch (err) {
+          showToast('Gagal', 'Gagal menghapus siswa dari database.', 'error');
+        }
+      }
     };
 
     const renderAdminSiswa = () => {
@@ -1449,136 +1626,162 @@
       }).join('');
     };
 
-    // --- MANDATORY BUG FIX APPLIED AT FIRST LINE OF ACTION ---
-    window.openFormSiswaModal = (mode = 'add', nisn = '') => {
-      const modal = document.getElementById('modal-siswa');
-      const title = document.getElementById('modal-siswa-title');
-      const form = document.getElementById('form-siswa-crud');
+    const renderAdminDudi = () => {
+      const table = document.getElementById('admin-dudi-table');
+      if (!table) return;
+      if (cachedDudi.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400">Tidak ada data mitra DUDI terdaftar.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = cachedDudi.map(d => {
+        return `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-all">
+            <td class="py-3 px-4 font-bold text-slate-800">${d.namaPerusahaan}</td>
+            <td class="py-3 px-4 text-slate-500 max-w-xs truncate" title="${d.alamat}">${d.alamat}</td>
+            <td class="py-3 px-4 font-medium text-slate-600">${d.pembimbingIndustri}</td>
+            <td class="py-3 px-4 text-slate-500">${d.kontak}</td>
+            <td class="py-3 px-4 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button onclick="openFormDudiModal('edit', '${d.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Ubah Data"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button onclick="deleteDudi('${d.id}')" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Hapus DUDI"><i class="fa-solid fa-trash-can"></i></button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    };
+
+    window.openFormDudiModal = (mode = 'add', dudiId = '') => {
+      const modal = document.getElementById('modal-dudi');
+      const title = document.getElementById('modal-dudi-title');
+      const form = document.getElementById('form-dudi-crud');
       
-      // FIX UTAMA: Panggil form.reset() DI BARIS TERATAS SEBELUM MENGISI ELEMEN KONTROL
       form.reset();
       
-      document.getElementById('crud-id-type').value = mode;
+      document.getElementById('crud-dudi-id-type').value = mode;
 
       if (mode === 'add') {
-        title.textContent = "Tambah Siswa Baru";
-        document.getElementById('crud-nisn').disabled = false;
+        title.textContent = "Tambah Mitra DUDI Baru";
+        document.getElementById('crud-dudi-target-id').value = '';
       } else {
-        title.textContent = "Ubah Data Siswa";
-        document.getElementById('crud-nisn').disabled = true;
+        title.textContent = "Ubah Data Mitra DUDI";
+        document.getElementById('crud-dudi-target-id').value = dudiId;
 
-        const found = cachedStudents.find(s => s.nisn === nisn);
+        const found = cachedDudi.find(d => d.id === dudiId);
         if (found) {
-          document.getElementById('crud-nisn').value = found.nisn;
-          document.getElementById('crud-password').value = found.password;
-          document.getElementById('crud-nama').value = found.nama;
-          document.getElementById('crud-kelas').value = found.kelas;
-          document.getElementById('crud-status-pkl').value = found.statusPkl;
-          document.getElementById('crud-dudi-id').value = found.dudiId;
-          document.getElementById('crud-guru').value = found.guruPembimbing;
+          document.getElementById('crud-dudi-nama').value = found.namaPerusahaan;
+          document.getElementById('crud-dudi-alamat').value = found.alamat;
+          document.getElementById('crud-dudi-pembimbing').value = found.pembimbingIndustri;
+          document.getElementById('crud-dudi-kontak').value = found.kontak;
         }
       }
       modal.classList.remove('hidden');
       modal.classList.add('flex');
     };
 
-    window.submitSiswaForm = async (e) => {
+    window.submitDudiForm = async (e) => {
       e.preventDefault();
-      const mode = document.getElementById('crud-id-type').value;
-      const nisn = document.getElementById('crud-nisn').value.trim();
-      const password = document.getElementById('crud-password').value;
-      const nama = document.getElementById('crud-nama').value;
-      const kelas = document.getElementById('crud-kelas').value;
-      const statusPkl = document.getElementById('crud-status-pkl').value;
-      const dudiId = document.getElementById('crud-dudi-id').value;
-      const guru = document.getElementById('crud-guru').value;
+      const mode = document.getElementById('crud-dudi-id-type').value;
+      const dudiId = mode === 'add' ? 'dudi_' + Date.now() : document.getElementById('crud-dudi-target-id').value;
+      const nama = document.getElementById('crud-dudi-nama').value;
+      const alamat = document.getElementById('crud-dudi-alamat').value;
+      const pembimbing = document.getElementById('crud-dudi-pembimbing').value;
+      const kontak = document.getElementById('crud-dudi-kontak').value;
 
       const payload = {
-        nisn: nisn,
-        password: password,
-        nama: nama,
-        kelas: kelas,
-        statusPkl: statusPkl,
-        dudiId: dudiId,
-        guruPembimbing: guru,
-        nilaiAkhir: mode === 'add' ? { teknis: 0, nonTeknis: 0, catatan: "" } : (cachedStudents.find(s => s.nisn === nisn)?.nilaiAkhir || { teknis: 0, nonTeknis: 0, catatan: "" })
+        id: dudiId,
+        namaPerusahaan: nama,
+        alamat: alamat,
+        pembimbingIndustri: pembimbing,
+        kontak: kontak
       };
 
-      showToast('Menyimpan', 'Mengirim perubahan ke basis data...', 'info');
+      showToast('Menyimpan', 'Mengirim data DUDI...', 'info');
 
       if (IS_PREVIEW) {
-        let list = virtualDatabase.siswa;
+        let list = virtualDatabase.dudi;
         if (mode === 'add') {
-          // Validasi duplikat
-          if (list.some(s => s.nisn === nisn)) {
-            showToast('Gagal', 'NISN sudah terdaftar.', 'error');
-            return;
-          }
           list.push(payload);
         } else {
-          list = list.map(s => s.nisn === nisn ? payload : s);
+          list = list.map(d => d.id === dudiId ? payload : d);
         }
-        virtualDatabase.siswa = list;
-        showToast('Berhasil', 'Data siswa disimpan luring.', 'success');
+        virtualDatabase.dudi = list;
+        showToast('Berhasil', 'Data DUDI disimpan luring.', 'success');
+        
+        cachedDudi = list;
+        populateDudiOptions(list);
         triggerUIRerender();
-        closeModal('modal-siswa');
+        closeModal('modal-dudi');
       } else {
         try {
-          await setDoc(doc(db, "siswa", nisn), payload);
-          showToast('Sukses', 'Data siswa berhasil disimpan permanen.', 'success');
-          closeModal('modal-siswa');
+          await setDoc(doc(db, "dudi", dudiId), payload);
+          showToast('Sukses', 'Data DUDI berhasil disimpan permanen.', 'success');
+          closeModal('modal-dudi');
         } catch (err) {
-          showToast('Kesalahan Cloud', 'Tidak dapat memperbarui data.', 'error');
+          showToast('Kesalahan Cloud', 'Tidak dapat memperbarui data DUDI.', 'error');
         }
       }
     };
 
-    window.deleteSiswa = async (nisn) => {
-      const confirmDelete = confirm("Apakah Anda yakin ingin menghapus siswa ini secara permanen?");
+    window.deleteDudi = async (dudiId) => {
+      const confirmDelete = confirm("Apakah Anda yakin ingin menghapus mitra DUDI ini secara permanen?");
       if (!confirmDelete) return;
 
-      showToast('Memproses', 'Menghapus berkas siswa...', 'warning');
+      showToast('Memproses', 'Menghapus berkas DUDI...', 'warning');
 
       if (IS_PREVIEW) {
-        virtualDatabase.siswa = virtualDatabase.siswa.filter(s => s.nisn !== nisn);
-        showToast('Selesai', 'Siswa berhasil dihapus dari emulator luring.', 'success');
+        virtualDatabase.dudi = virtualDatabase.dudi.filter(d => d.id !== dudiId);
+        showToast('Selesai', 'Mitra DUDI berhasil dihapus luring.', 'success');
+        
+        cachedDudi = virtualDatabase.dudi;
+        populateDudiOptions(cachedDudi);
         triggerUIRerender();
       } else {
         try {
-          await deleteDoc(doc(db, "siswa", nisn));
-          showToast('Dihapus', 'Data siswa dihapus dari Cloud Database.', 'success');
+          await deleteDoc(doc(db, "dudi", dudiId));
+          showToast('Dihapus', 'Data DUDI berhasil dihapus dari Cloud Database.', 'success');
         } catch (err) {
           showToast('Gagal', 'Gagal memproses penghapusan.', 'error');
         }
       }
     };
 
-    // --- PANEL VERIFIKASI JURNAL ---
     const renderAdminJurnal = () => {
       const container = document.getElementById('admin-jurnal-container');
-      const pendingJurnals = cachedJurnals.filter(j => j.status === 'Pending').sort((a,b) => b.tanggal.localeCompare(a.tanggal));
+      if (!container) return;
 
-      if (pendingJurnals.length === 0) {
+      if (cachedJurnals.length === 0) {
         container.innerHTML = `
           <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-slate-200/60">
-            <i class="fa-solid fa-square-check text-green-500 text-3xl mb-2"></i>
-            <p class="text-xs text-slate-500 font-semibold">Semua pengajuan jurnal telah terverifikasi!</p>
+            <i class="fa-solid fa-folder-open text-slate-300 text-3xl mb-2"></i>
+            <p class="text-xs text-slate-400">Belum ada laporan jurnal dari siswa.</p>
           </div>
         `;
         return;
       }
 
-      container.innerHTML = pendingJurnals.map(j => {
+      container.innerHTML = cachedJurnals.map(j => {
         const siswa = cachedStudents.find(s => s.nisn === j.nisn) || { nama: 'Siswa Non-Aktif' };
+        const badgeColors = {
+          Pending: 'bg-amber-50 text-amber-600 border border-amber-200',
+          Disetujui: 'bg-green-50 text-green-600 border border-green-200',
+          Ditolak: 'bg-rose-50 text-rose-600 border border-rose-200'
+        };
+
         return `
-          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-            <div class="space-y-3">
-              <div class="flex items-start justify-between">
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative space-y-3 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
                 <div>
-                  <h4 class="text-xs font-bold text-slate-800">${siswa.nama}</h4>
+                  <h4 class="font-bold text-slate-800 text-xs">${siswa.nama}</h4>
                   <span class="text-[10px] text-slate-400 block mt-0.5"><i class="fa-solid fa-clock"></i> Diajukan pada ${j.tanggal}</span>
                 </div>
-                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-50 text-amber-600 border border-amber-200">Pending</span>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold ${badgeColors[j.status] || 'bg-slate-50 text-slate-400'}">${j.status}</span>
               </div>
               <p class="text-xs text-slate-600 leading-relaxed italic">"${j.kegiatan}"</p>
             </div>
@@ -1590,7 +1793,9 @@
                 </a>
               ` : '<span class="text-[10px] text-slate-400">Tanpa Lampiran</span>'}
 
-              <button onclick="openVerifikasiModal('${j.id}')" class="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all">Verifikasi</button>
+              ${j.status === 'Pending' ? `
+                <button onclick="openVerifikasiModal('${j.id}')" class="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all">Verifikasi</button>
+              ` : `<span class="text-[10px] text-slate-400 font-semibold">Selesai Ditinjau</span>`}
             </div>
           </div>
         `;
@@ -1665,7 +1870,6 @@
       }
 
       table.innerHTML = cachedStudents.map(s => {
-        // Hitung komulasi absen harian
         const myAbsen = cachedAbsensi.filter(a => a.nisn === s.nisn);
         const hadir = myAbsen.filter(a => a.status === 'Hadir').length;
         const izinSakit = myAbsen.filter(a => a.status === 'Izin').length;
@@ -1743,7 +1947,6 @@
       }
     };
 
-    // --- PENYELARAS DESAIN TAMPILAN WINDOWS MODAL ---
     window.closeModal = (id) => {
       const modal = document.getElementById(id);
       modal.classList.add('hidden');
@@ -1768,15 +1971,12 @@
       updateTime();
 
       if (IS_PREVIEW) {
-        // Mode Simulator Luring (Blogger preview development)
         initVirtualDatabase();
         document.getElementById('badge-network-mode').className = "text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1";
         document.getElementById('badge-network-mode').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Offline Preview (Simulator)`;
         
-        // Pemicu inisialisasi awal UI
         triggerUIRerender();
       } else {
-        // Mode Firebase Production Live
         try {
           app = initializeApp(firebaseConfig);
           db = getFirestore(app);
@@ -1785,16 +1985,13 @@
           document.getElementById('badge-network-mode').className = "text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 flex items-center gap-1";
           document.getElementById('badge-network-mode').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Firebase Connected`;
 
-          // Autentikasi pengawasan perubahan status Firebase
           onAuthStateChanged(auth, (user) => {
             if (user) {
-              // Jika login terdeteksi dari Firebase Auth, anggap sebagai Admin
               currentUserData = { role: 'admin', uid: user.uid, nama: user.email.split('@')[0].toUpperCase(), email: user.email };
               loginSuccess();
             }
           });
 
-          // Jalankan Seeding Otomatis Database
           await autoSetupDatabase();
 
         } catch (err) {
