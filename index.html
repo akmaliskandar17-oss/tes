@@ -158,6 +158,51 @@ th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
 .s-Alpa{color:#b3541e}
 .s-kosong{color:#c9c4b6}
 .nis{color:var(--muted);font-size:11px;font-weight:400}
+.hp-only{display:none}
+.hp-inline{display:none}
+
+/* --- penyesuaian layar sempit --- */
+@media(max-width:720px){
+  /* Kolom terkunci semula 46+210+168 = 424px, melebihi lebar layar HP,
+     sehingga kolom tanggal tidak kebagian ruang sama sekali. Diperkecil
+     jadi 30+112+112 = 254px agar tersisa ruang untuk menggulir tanggal. */
+  table.matriks{font-size:12px}
+  table.matriks th,table.matriks td{padding:7px 6px}
+  .k1{width:30px;min-width:30px;max-width:30px;
+      padding-left:3px !important;padding-right:3px !important}
+  .k2{left:30px;min-width:112px;max-width:112px;
+      overflow:hidden;text-overflow:ellipsis}
+  .kanan{width:28px;min-width:28px;max-width:28px}
+  .a3{right:28px}
+  .a2{right:56px}
+  .a1{right:84px}
+  th.kanan-grup{width:112px}
+  table.matriks th.tg{font-size:10px}
+
+  /* mode ringkas: sembunyikan kolom tanggal, tampilkan nama penuh + akumulasi */
+  .hp-only{display:block}
+  .hp-inline{display:inline}
+  .mode-bar{margin-bottom:10px}
+  table.ringkas th.tg,table.ringkas td.tg{display:none}
+  table.ringkas th.grup:first-of-type{display:none}
+  table.ringkas .k2{min-width:0;max-width:none;width:auto}
+  table.ringkas .kiri,table.ringkas .kanan,table.ringkas th.kanan-grup{
+    position:static;box-shadow:none}
+  table.ringkas .kanan{width:auto;min-width:30px;max-width:none}
+
+  /* rekap harian: cegah nama pengisi membungkus jadi beberapa baris */
+  #tblAbsen table{font-size:12px}
+  #tblAbsen th,#tblAbsen td{padding:7px 6px;white-space:nowrap}
+  #tblAbsen td:last-child,#tblAbsen th:last-child{
+    max-width:110px;overflow:hidden;text-overflow:ellipsis}
+
+  /* daftar siswa: kolom Nama dan Aksi dipersempit agar sisanya bisa digulir */
+  table.tbl-siswa td,table.tbl-siswa th{padding:8px 7px;font-size:12px}
+  .s-nama{min-width:110px;max-width:130px;overflow:hidden;text-overflow:ellipsis}
+  .almt{max-width:150px;min-width:110px}
+  .s-aksi .mini{padding:3px 6px;font-size:11px}
+  .s-aksi .mini + .mini{margin-left:3px}
+}
 tr.jml td{border-top:2px solid var(--line);background:var(--accent-soft)}
 
 /* --- tabel siswa: kolom Nama terkunci kiri, Aksi terkunci kanan --- */
@@ -648,7 +693,7 @@ async function muatSiswa(){
         </tr></thead>
         <tbody>
           ${SISWA.map(s=>`<tr>
-            <td class="kiri s-nama">${s.nama}</td>
+            <td class="kiri s-nama" title="${s.nama}">${s.nama}</td>
             <td>${s.nis}</td>
             <td>${s.jk?.[0]||'-'}</td>
             <td>${kelasAktif()}</td>
@@ -940,18 +985,18 @@ window.gambarHarian = () => {
       : `<p class="empty">Belum ada absensi tercatat.</p>`;
 
   const tot = st => list.reduce((n,a) => n + c(a,st), 0);
-  $("tblAbsen").innerHTML = `<table>
+  $("tblAbsen").innerHTML = `<div class="gulir"><table>
     <tr><th>Tanggal</th><th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th><th>Diisi oleh</th></tr>
     ${list.map(a => `<tr>
       <td>${a.tanggal.split("-").reverse().join("/")}</td>
       <td class="s-Hadir">${c(a,"Hadir")}</td><td class="s-Sakit">${c(a,"Sakit")}</td>
       <td class="s-Izin">${c(a,"Izin")}</td><td class="s-Alpa">${c(a,"Alpa")}</td>
-      <td>${a.olehNama || '-'}</td></tr>`).join("")}
+      <td title="${a.olehNama || '-'}">${a.olehNama || '-'}</td></tr>`).join("")}
     <tr class="jml"><td><b>Jumlah</b></td>
       <td class="s-Hadir"><b>${tot("Hadir")}</b></td><td class="s-Sakit"><b>${tot("Sakit")}</b></td>
       <td class="s-Izin"><b>${tot("Izin")}</b></td><td class="s-Alpa"><b>${tot("Alpa")}</b></td>
       <td></td></tr>
-  </table>
+  </table></div>
   <p class="hint" style="margin-top:12px">${list.length} hari absensi pada periode ini.</p>`;
 };
 
@@ -1465,7 +1510,7 @@ window.gambarRinci = () => {
   const th = tgl.map(t => `<th class="tg">${t.split("-").reverse().join("/")}</th>`).join("");
   const isi = baris.map((b,i) => `<tr>
       <td class="kiri k1">${i+1}</td>
-      <td class="kiri k2"><b>${b.siswa.nama}</b></td>
+      <td class="kiri k2" title="${b.siswa.nama}"><b>${b.siswa.nama}</b></td>
       ${b.sel.map(v => `<td class="tg s-${v||'kosong'}">${HURUF[v] || "–"}</td>`).join("")}
       <td class="kanan a1 s-Hadir">${b.H}</td>
       <td class="kanan a2 s-Sakit">${b.S}</td>
@@ -1474,8 +1519,11 @@ window.gambarRinci = () => {
     </tr>`).join("");
 
   $("tblRinci").innerHTML = `
+    <div class="hp-only mode-bar">
+      <button class="mini" id="btnModeRingkas" onclick="toggleRingkas()">Sembunyikan kolom tanggal</button>
+    </div>
     <div class="gulir">
-      <table class="matriks">
+      <table class="matriks" id="tabelRinci">
         <thead>
           <tr>
             <th class="kiri k1" rowspan="2">No</th>
@@ -1496,7 +1544,16 @@ window.gambarRinci = () => {
     </div>
     <p class="hint" style="margin-top:12px">
       ${baris.length} siswa, ${tgl.length} hari pertemuan. Tanda – berarti belum ada data absensi pada hari itu.
+      <span class="hp-inline">Geser tabel ke samping untuk melihat seluruh tanggal.</span>
     </p>`;
+};
+
+// di layar HP, kolom tanggal bisa disembunyikan agar akumulasi langsung terbaca
+window.toggleRingkas = () => {
+  const t = $("tabelRinci");
+  if (!t) return;
+  const ringkas = t.classList.toggle("ringkas");
+  $("btnModeRingkas").textContent = ringkas ? "Tampilkan kolom tanggal" : "Sembunyikan kolom tanggal";
 };
 
 function judulPeriode(){
