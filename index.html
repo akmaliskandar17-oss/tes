@@ -158,6 +158,7 @@ th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
 .s-Alpa{color:#b3541e}
 .s-kosong{color:#c9c4b6}
 .nis{color:var(--muted);font-size:11px;font-weight:400}
+tr.jml td{border-top:2px solid var(--line);background:var(--accent-soft)}
 @media(max-width:640px){
   .filter-bar > div{min-width:100%}
   .filter-aksi{min-width:100% !important}
@@ -284,6 +285,31 @@ th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
       </div>
 
       <div id="tab-ringkas">
+        <div class="filter-bar">
+          <div>
+            <label>Periode</label>
+            <select id="hPeriode" onchange="ubahPeriodeHarian()">
+              <option value="bulan">Per Bulan</option>
+              <option value="rentang">Rentang Tanggal</option>
+            </select>
+          </div>
+          <div id="wrapHBulan">
+            <label>Bulan</label>
+            <input id="hBulan" type="month" onchange="gambarHarian()">
+          </div>
+          <div id="wrapHDari" class="hidden">
+            <label>Dari tanggal</label>
+            <input id="hDari" type="date" onchange="gambarHarian()">
+          </div>
+          <div id="wrapHSampai" class="hidden">
+            <label>Sampai tanggal</label>
+            <input id="hSampai" type="date" onchange="gambarHarian()">
+          </div>
+          <div class="filter-aksi">
+            <button class="btn cetak" onclick="cetakHarian()">Cetak Laporan</button>
+            <button class="btn ghost xls" onclick="unduhHarianExcel()">Excel</button>
+          </div>
+        </div>
         <div id="tblAbsen"></div>
       </div>
 
@@ -362,6 +388,7 @@ th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
       <h2>Daftarkan pengguna baru</h2>
       <div class="row">
         <div><label>Nama</label><input id="uNama"></div>
+        <div><label>NIP</label><input id="uNip" placeholder="Contoh: 198407112011011011"></div>
         <div><label>Email</label><input id="uEmail" type="email"></div>
         <div><label>Kata sandi</label><input id="uPass" type="password"></div>
         <div><label>Peran</label><select id="uRole">
@@ -375,6 +402,44 @@ th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
     <div class="card">
       <h2>Daftar pengguna</h2>
       <div id="tblUser"></div>
+    </div>
+  </section>
+
+  <!-- PENGATURAN (admin saja) -->
+  <section class="page" id="p-pengaturan">
+    <div class="card">
+      <h2>Identitas kelas &amp; sekolah</h2>
+      <p class="hint">Dipakai pada kop dan tanda tangan laporan cetak, serta pada file Excel yang diunduh.</p>
+      <div class="row">
+        <div><label>Nama kelas</label><input id="pKelas" placeholder="Contoh: XI NKN 2"></div>
+        <div><label>Kota / kabupaten</label><input id="pKota" placeholder="Contoh: Kep. Selayar"></div>
+        <div><label>Nama sekolah</label><input id="pSekolah" placeholder="Contoh: SMKN 1 Selayar"></div>
+        <div><label>Tahun pelajaran</label><input id="pTahun" placeholder="Contoh: 2026/2027"></div>
+      </div>
+      <button class="btn" onclick="simpanPengaturan()">Simpan pengaturan</button>
+      <div id="setMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Penanda tangan laporan</h2>
+      <p class="hint">Secara bawaan memakai nama dan NIP akun yang sedang masuk. Isi di bawah ini hanya bila ingin berbeda.</p>
+      <div class="row">
+        <div><label>Nama wali kelas</label><input id="pWaliNama" placeholder="Kosongkan untuk memakai nama akun"></div>
+        <div><label>NIP wali kelas</label><input id="pWaliNip" placeholder="Kosongkan untuk memakai NIP akun"></div>
+      </div>
+      <button class="btn" onclick="simpanPengaturan()">Simpan pengaturan</button>
+      <div id="setMsg2"></div>
+    </div>
+
+    <div class="card">
+      <h2>Akun saya</h2>
+      <p class="hint">Perbarui NIP akun yang sedang masuk. Akun lama yang dibuat sebelum ada isian NIP bisa dilengkapi di sini.</p>
+      <div class="row">
+        <div><label>Nama</label><input id="pAkunNama"></div>
+        <div><label>NIP</label><input id="pAkunNip"></div>
+      </div>
+      <button class="btn" onclick="simpanAkun()">Simpan akun saya</button>
+      <div id="akunMsg"></div>
     </div>
   </section>
 </main>
@@ -411,10 +476,10 @@ let SISWA = [];         // cache daftar siswa
 
 /* -------- HAK AKSES PER PERAN -------- */
 const MENU = {
-  admin : ["beranda","siswa","absensi","nilai","catatan","pengguna"],
+  admin : ["beranda","siswa","absensi","nilai","catatan","pengguna","pengaturan"],
   kepsek: ["beranda","siswa","absensi","nilai","catatan"]
 };
-const LABEL = {beranda:"Beranda",siswa:"Siswa",absensi:"Absensi",nilai:"Nilai",catatan:"Catatan",pengguna:"Pengguna"};
+const LABEL = {beranda:"Beranda",siswa:"Siswa",absensi:"Absensi",nilai:"Nilai",catatan:"Catatan",pengguna:"Pengguna",pengaturan:"Pengaturan"};
 const bisaEdit = () => ME && ME.role === "admin";
 const namaRole = r => ({admin:"Admin / Wali Kelas",kepsek:"Kepala Sekolah"}[r] || r);
 
@@ -492,7 +557,8 @@ async function muatSemua(){
   await muatAbsen();
   await muatNilai();
   await muatCatatan();
-  if (ME.role === "admin") await muatUser();
+  if (ME.role === "admin") { await muatUser(); await muatPengaturan(); }
+  else await muatPengaturan();
   await hitungStatistik();
 }
 
@@ -754,21 +820,128 @@ window.simpanAbsen = async () => {
 
 async function muatAbsen(){
   const snap = await getDocs(collection(db,"absensi"));
-  const list = snap.docs.map(d => d.data()).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
-  ABSEN_CACHE = list;
-  $("tblAbsen").innerHTML = list.length ? `<table>
-    <tr><th>Tanggal</th><th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th><th>Diisi oleh</th></tr>
-    ${list.map(a=>{
-      const c = st => a.data.filter(x=>x.status===st).length;
-      return `<tr><td>${a.tanggal}</td><td>${c("Hadir")}</td><td>${c("Sakit")}</td>
-              <td>${c("Izin")}</td><td>${c("Alpa")}</td><td>${a.olehNama||'-'}</td></tr>`;
-    }).join("")}</table>` : `<p class="empty">Belum ada absensi tercatat.</p>`;
+  ABSEN_CACHE = snap.docs.map(d => d.data()).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
 
   // bulan default = bulan dengan data terbaru
-  if (list.length && $("fBulan") && !$("fBulan").value)
-    $("fBulan").value = list[0].tanggal.slice(0,7);
-  if (!$("tab-rinci").classList.contains("hidden")) gambarRinci();
+  if (ABSEN_CACHE.length){
+    const bl = ABSEN_CACHE[0].tanggal.slice(0,7);
+    if ($("fBulan") && !$("fBulan").value) $("fBulan").value = bl;
+    if ($("hBulan") && !$("hBulan").value) $("hBulan").value = bl;
+  }
+  gambarHarian();
+  if ($("tab-rinci") && !$("tab-rinci").classList.contains("hidden")) gambarRinci();
 }
+
+window.ubahPeriodeHarian = () => {
+  const bulan = $("hPeriode").value === "bulan";
+  $("wrapHBulan").classList.toggle("hidden", !bulan);
+  $("wrapHDari").classList.toggle("hidden", bulan);
+  $("wrapHSampai").classList.toggle("hidden", bulan);
+  gambarHarian();
+};
+
+// dokumen absensi yang lolos filter tab harian, terbaru di atas
+function dataHarian(){
+  return ABSEN_CACHE.filter(a => {
+    if ($("hPeriode").value === "bulan"){
+      const b = $("hBulan").value;
+      return !b || a.tanggal.startsWith(b);
+    }
+    const d1 = $("hDari").value, d2 = $("hSampai").value;
+    return (!d1 || a.tanggal >= d1) && (!d2 || a.tanggal <= d2);
+  });
+}
+
+window.gambarHarian = () => {
+  const list = dataHarian();
+  const c = (a,st) => (a.data || []).filter(x => x.status === st).length;
+
+  if (!list.length)
+    return $("tblAbsen").innerHTML = ABSEN_CACHE.length
+      ? `<p class="empty">Tidak ada absensi pada periode ini.</p>`
+      : `<p class="empty">Belum ada absensi tercatat.</p>`;
+
+  const tot = st => list.reduce((n,a) => n + c(a,st), 0);
+  $("tblAbsen").innerHTML = `<table>
+    <tr><th>Tanggal</th><th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th><th>Diisi oleh</th></tr>
+    ${list.map(a => `<tr>
+      <td>${a.tanggal.split("-").reverse().join("/")}</td>
+      <td class="s-Hadir">${c(a,"Hadir")}</td><td class="s-Sakit">${c(a,"Sakit")}</td>
+      <td class="s-Izin">${c(a,"Izin")}</td><td class="s-Alpa">${c(a,"Alpa")}</td>
+      <td>${a.olehNama || '-'}</td></tr>`).join("")}
+    <tr class="jml"><td><b>Jumlah</b></td>
+      <td class="s-Hadir"><b>${tot("Hadir")}</b></td><td class="s-Sakit"><b>${tot("Sakit")}</b></td>
+      <td class="s-Izin"><b>${tot("Izin")}</b></td><td class="s-Alpa"><b>${tot("Alpa")}</b></td>
+      <td></td></tr>
+  </table>
+  <p class="hint" style="margin-top:12px">${list.length} hari absensi pada periode ini.</p>`;
+};
+
+function judulPeriodeHarian(){
+  if ($("hPeriode").value === "bulan"){
+    const b = $("hBulan").value;
+    if (!b) return "Semua periode";
+    const [y,m] = b.split("-");
+    const NB = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+    return `${NB[+m-1]} ${y}`;
+  }
+  const d = v => v ? v.split("-").reverse().join("/") : "";
+  const a = $("hDari").value, b = $("hSampai").value;
+  return (a || b) ? `${d(a) || "awal"} sampai ${d(b) || "akhir"}` : "Semua periode";
+}
+
+window.cetakHarian = () => {
+  const list = dataHarian();
+  if (!list.length) return pesan("absenMsg","Tidak ada data untuk dicetak pada periode ini.",false);
+
+  const c = (a,st) => (a.data || []).filter(x => x.status === st).length;
+  const tot = st => list.reduce((n,a) => n + c(a,st), 0);
+  const id = identitas();
+  const w = window.open("", "_blank");
+  if (!w) return pesan("absenMsg","Jendela cetak diblokir browser. Izinkan pop-up untuk situs ini.",false);
+
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+    <title>Rekap Harian ${judulPeriodeHarian()}</title>
+    <style>${GAYA_CETAK} table{font-size:11px} th{font-size:10px}</style></head><body>
+    ${id.sekolah ? `<h1>${id.sekolah.toUpperCase()}</h1>` : ""}
+    <h1>REKAP KEHADIRAN HARIAN</h1>
+    <p class="sub">Kelas: ${id.kelas} &nbsp;|&nbsp; Periode: ${judulPeriodeHarian()}${id.tahun ? ` &nbsp;|&nbsp; Tahun Pelajaran: ${id.tahun}` : ""}</p>
+    <table>
+      <tr><th>No</th><th>Tanggal</th><th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th><th>Diisi oleh</th></tr>
+      ${list.map((a,i) => `<tr><td>${i+1}</td><td>${a.tanggal.split("-").reverse().join("/")}</td>
+        <td>${c(a,"Hadir")}</td><td>${c(a,"Sakit")}</td><td>${c(a,"Izin")}</td><td>${c(a,"Alpa")}</td>
+        <td class="nm">${a.olehNama || "-"}</td></tr>`).join("")}
+      <tr><td colspan="2"><b>Jumlah</b></td><td><b>${tot("Hadir")}</b></td><td><b>${tot("Sakit")}</b></td>
+        <td><b>${tot("Izin")}</b></td><td><b>${tot("Alpa")}</b></td><td></td></tr>
+    </table>
+    ${blokTandaTangan()}
+    </body></html>`);
+  w.document.close();
+  w.onload = () => { w.focus(); w.print(); };
+};
+
+window.unduhHarianExcel = () => {
+  const list = dataHarian();
+  if (!list.length) return pesan("absenMsg","Tidak ada data untuk diunduh pada periode ini.",false);
+
+  const c = (a,st) => (a.data || []).filter(x => x.status === st).length;
+  const tot = st => list.reduce((n,a) => n + c(a,st), 0);
+  const id = identitas();
+  const aoa = [
+    ["Rekap Kehadiran Harian"],
+    ["Kelas: " + id.kelas, "Periode: " + judulPeriodeHarian()],
+    [],
+    ["No","Tanggal","Hadir","Sakit","Izin","Alpa","Diisi oleh"],
+    ...list.map((a,i) => [i+1, a.tanggal.split("-").reverse().join("/"),
+      c(a,"Hadir"), c(a,"Sakit"), c(a,"Izin"), c(a,"Alpa"), a.olehNama || "-"]),
+    ["","Jumlah", tot("Hadir"), tot("Sakit"), tot("Izin"), tot("Alpa"), ""]
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws["!cols"] = [{wch:5},{wch:13},{wch:8},{wch:8},{wch:8},{wch:8},{wch:22}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rekap Harian");
+  XLSX.writeFile(wb, `Rekap-Harian-${judulPeriodeHarian().replace(/[\/ ]/g,"-")}.xlsx`);
+};
 
 /* ---- UNGGAH REKAP KEHADIRAN ---- */
 const KODE = {H:"Hadir", S:"Sakit", I:"Izin", A:"Alpa"};
@@ -1048,6 +1221,102 @@ window.simpanRekap = async () => {
   await muatAbsen(); await hitungStatistik();
 };
 
+/* ================= PENGATURAN ================= */
+let SETTING = {kelas:"", kota:"", sekolah:"", tahun:"", waliNama:"", waliNip:""};
+
+async function muatPengaturan(){
+  try{
+    const snap = await getDoc(doc(db,"pengaturan","umum"));
+    if (snap.exists()) SETTING = {...SETTING, ...snap.data()};
+  }catch(e){}
+  if ($("pKelas")){
+    $("pKelas").value    = SETTING.kelas    || "";
+    $("pKota").value     = SETTING.kota     || "";
+    $("pSekolah").value  = SETTING.sekolah  || "";
+    $("pTahun").value    = SETTING.tahun    || "";
+    $("pWaliNama").value = SETTING.waliNama || "";
+    $("pWaliNip").value  = SETTING.waliNip  || "";
+    $("pAkunNama").value = ME.nama || "";
+    $("pAkunNip").value  = ME.nip  || "";
+  }
+}
+
+window.simpanPengaturan = async () => {
+  SETTING = {
+    kelas:    $("pKelas").value.trim(),
+    kota:     $("pKota").value.trim(),
+    sekolah:  $("pSekolah").value.trim(),
+    tahun:    $("pTahun").value.trim(),
+    waliNama: $("pWaliNama").value.trim(),
+    waliNip:  $("pWaliNip").value.trim()
+  };
+  try{
+    await setDoc(doc(db,"pengaturan","umum"), SETTING);
+    pesan("setMsg","Pengaturan tersimpan.");
+  }catch(e){
+    pesan("setMsg","Gagal menyimpan: "+e.message, false);
+  }
+};
+
+window.simpanAkun = async () => {
+  const nama = $("pAkunNama").value.trim(), nip = $("pAkunNip").value.trim();
+  if (!nama) return pesan("akunMsg","Nama tidak boleh kosong.",false);
+  try{
+    await setDoc(doc(db,"pengguna",ME.uid), {nama, nip}, {merge:true});
+    ME.nama = nama; ME.nip = nip;
+    $("who").textContent = `${ME.nama} — ${namaRole(ME.role)}`;
+    pesan("akunMsg","Data akun tersimpan.");
+    await muatUser();
+  }catch(e){
+    pesan("akunMsg","Gagal menyimpan: "+e.message, false);
+  }
+};
+
+// identitas untuk kop dan tanda tangan laporan
+function identitas(){
+  return {
+    kelas:   SETTING.kelas || "-",
+    kota:    SETTING.kota  || "",
+    sekolah: SETTING.sekolah || "",
+    tahun:   SETTING.tahun || "",
+    nama:    SETTING.waliNama || ME.nama || "",
+    nip:     SETTING.waliNip  || ME.nip  || ""
+  };
+}
+
+// "22 Juli 2026"
+function tanggalIndonesia(d = new Date()){
+  const NB = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  return `${d.getDate()} ${NB[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// blok tanda tangan bersama untuk semua laporan cetak
+function blokTandaTangan(){
+  const id = identitas();
+  return `<div class="ttd"><div>
+      ${id.kota ? `<div>${id.kota}, ${tanggalIndonesia()}</div>` : `<div>${tanggalIndonesia()}</div>`}
+      <div style="margin-top:10px">Wali Kelas ${id.kelas}</div>
+      <div class="nm-ttd">${id.nama}</div>
+      ${id.nip ? `<div class="nip-ttd">NIP. ${id.nip}</div>` : ""}
+    </div></div>`;
+}
+
+// gaya cetak dipakai bersama oleh kedua laporan
+const GAYA_CETAK = `
+  *{box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;margin:16mm 12mm;color:#111}
+  h1{font-size:16px;margin:0 0 2px;text-align:center}
+  .sub{text-align:center;font-size:12px;margin:0 0 3px}
+  table{width:100%;border-collapse:collapse;font-size:10px;margin-top:14px}
+  th,td{border:1px solid #999;padding:3px 4px;text-align:center}
+  th{background:#eee;font-size:9px}
+  td.nm{text-align:left;white-space:nowrap}
+  .ttd{margin-top:30px;display:flex;justify-content:flex-end;font-size:12px}
+  .ttd > div{width:270px;text-align:left}
+  .nm-ttd{margin-top:64px;font-weight:bold;text-decoration:underline}
+  .nip-ttd{margin-top:2px}
+  @page{margin:12mm}`;
+
 /* ================= REKAP PER SISWA ================= */
 let ABSEN_CACHE = [];   // seluruh dokumen absensi, diisi oleh muatAbsen()
 
@@ -1112,7 +1381,7 @@ window.gambarRinci = () => {
   const th = tgl.map(t => `<th class="tg">${t.split("-").reverse().join("/")}</th>`).join("");
   const isi = baris.map((b,i) => `<tr>
       <td class="kiri k1">${i+1}</td>
-      <td class="kiri k2"><b>${b.siswa.nama}</b> <span class="nis">(${b.siswa.nis})</span></td>
+      <td class="kiri k2"><b>${b.siswa.nama}</b></td>
       ${b.sel.map(v => `<td class="tg s-${v||'kosong'}">${HURUF[v] || "–"}</td>`).join("")}
       <td class="kanan a1 s-Hadir">${b.H}</td>
       <td class="kanan a2 s-Sakit">${b.S}</td>
@@ -1126,7 +1395,7 @@ window.gambarRinci = () => {
         <thead>
           <tr>
             <th class="kiri k1" rowspan="2">No</th>
-            <th class="kiri k2" rowspan="2">Nama Lengkap Siswa</th>
+            <th class="kiri k2" rowspan="2">Nama Siswa</th>
             <th class="grup" colspan="${tgl.length}">Tanggal Pertemuan</th>
             <th class="grup kanan-grup" colspan="4">Akumulasi</th>
           </tr>
@@ -1163,27 +1432,16 @@ window.cetakRekap = () => {
   const {tgl, baris} = dataRinci();
   if (!tgl.length) return pesan("absenMsg","Tidak ada data untuk dicetak pada periode ini.",false);
 
-  const kelas = [...new Set(baris.map(b => b.siswa.kelas).filter(Boolean))].join(", ") || "-";
+  const id = identitas();
   const w = window.open("", "_blank");
   if (!w) return pesan("absenMsg","Jendela cetak diblokir browser. Izinkan pop-up untuk situs ini.",false);
 
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
-    <title>Rekap Kehadiran ${judulPeriode()}</title><style>
-      *{box-sizing:border-box}
-      body{font-family:Arial,Helvetica,sans-serif;margin:18mm 12mm;color:#111}
-      h1{font-size:16px;margin:0 0 2px;text-align:center}
-      .sub{text-align:center;font-size:12px;margin:0 0 3px}
-      table{width:100%;border-collapse:collapse;font-size:10px;margin-top:14px}
-      th,td{border:1px solid #999;padding:3px 4px;text-align:center}
-      th{background:#eee;font-size:9px}
-      td.nm{text-align:left;white-space:nowrap}
-      .ttd{margin-top:34px;display:flex;justify-content:flex-end;font-size:11px;text-align:center}
-      .ttd div{width:190px}
-      .ttd .garis{margin-top:52px;border-top:1px solid #333;padding-top:3px}
-      @page{size:landscape;margin:12mm}
-    </style></head><body>
+    <title>Rekap Kehadiran ${judulPeriode()}</title>
+    <style>${GAYA_CETAK} @page{size:landscape;margin:12mm}</style></head><body>
+    ${id.sekolah ? `<h1>${id.sekolah.toUpperCase()}</h1>` : ""}
     <h1>REKAP KEHADIRAN SISWA</h1>
-    <p class="sub">Kelas: ${kelas} &nbsp;|&nbsp; Periode: ${judulPeriode()}</p>
+    <p class="sub">Kelas: ${id.kelas} &nbsp;|&nbsp; Periode: ${judulPeriode()}${id.tahun ? ` &nbsp;|&nbsp; Tahun Pelajaran: ${id.tahun}` : ""}</p>
     <table>
       <tr><th rowspan="2">No</th><th rowspan="2">Nama Siswa</th><th rowspan="2">NIS</th>
         <th colspan="${tgl.length}">Tanggal Pertemuan</th><th colspan="4">Akumulasi</th></tr>
@@ -1193,7 +1451,7 @@ window.cetakRekap = () => {
         ${b.sel.map(v => `<td>${HURUF[v] || "-"}</td>`).join("")}
         <td>${b.H}</td><td>${b.S}</td><td>${b.I}</td><td>${b.A}</td></tr>`).join("")}
     </table>
-    <div class="ttd"><div>Wali Kelas<div class="garis">${ME.nama}</div></div></div>
+    ${blokTandaTangan()}
     </body></html>`);
   w.document.close();
   w.onload = () => { w.focus(); w.print(); };
@@ -1276,7 +1534,7 @@ async function muatCatatan(){
 /* ---- PENGGUNA (admin) ---- */
 window.buatPengguna = async () => {
   const nama=$("uNama").value.trim(), email=$("uEmail").value.trim(),
-        pass=$("uPass").value, role=$("uRole").value;
+        pass=$("uPass").value, role=$("uRole").value, nip=$("uNip").value.trim();
   if (!nama || !email || pass.length < 6)
     return pesan("userMsg","Lengkapi nama, email, dan kata sandi minimal 6 karakter.",false);
   try{
@@ -1284,9 +1542,9 @@ window.buatPengguna = async () => {
     const app2  = initializeApp(firebaseConfig, "pendaftar");
     const auth2 = initializeAuth(app2, {persistence: browserLocalPersistence});
     const cred  = await createUserWithEmailAndPassword(auth2, email, pass);
-    await setDoc(doc(db,"pengguna",cred.user.uid), {nama, email, role});
+    await setDoc(doc(db,"pengguna",cred.user.uid), {nama, email, role, nip});
     await signOut(auth2);
-    $("uNama").value = $("uEmail").value = $("uPass").value = "";
+    $("uNama").value = $("uEmail").value = $("uPass").value = $("uNip").value = "";
     pesan("userMsg",`Akun ${nama} dibuat sebagai ${namaRole(role)}.`);
     await muatUser();
   }catch(e){
@@ -1297,9 +1555,9 @@ window.buatPengguna = async () => {
 async function muatUser(){
   const snap = await getDocs(collection(db,"pengguna"));
   $("tblUser").innerHTML = `<table>
-    <tr><th>Nama</th><th>Email</th><th>Peran</th></tr>
+    <tr><th>Nama</th><th>NIP</th><th>Email</th><th>Peran</th></tr>
     ${snap.docs.map(d=>{const u=d.data();
-      return `<tr><td>${u.nama}</td><td>${u.email}</td><td><span class="pill">${namaRole(u.role)}</span></td></tr>`;
+      return `<tr><td>${u.nama}</td><td>${u.nip||'-'}</td><td>${u.email}</td><td><span class="pill">${namaRole(u.role)}</span></td></tr>`;
     }).join("")}</table>`;
 }
 
