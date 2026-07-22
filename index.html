@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Administrasi Wali Kelas</title>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{
   --ink:#1b2a2f;
@@ -61,6 +62,107 @@ td{padding:9px 8px;border-bottom:1px solid var(--line)}
 .stat b{font-family:Bitter,serif;font-size:28px;display:block}
 .stat span{font-size:12px;color:var(--muted)}
 .empty{color:var(--muted);font-size:13px;padding:14px 0}
+.hint{color:var(--muted);font-size:13px;margin:0 0 14px}
+.upload-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filebtn{position:relative;overflow:hidden;display:inline-block;background:var(--accent);color:#fff;
+  padding:10px 18px;border-radius:3px;font-size:15px;font-weight:600;cursor:pointer;margin:0;
+  text-transform:none;letter-spacing:normal}
+.filebtn input{position:absolute;left:0;top:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.scroll{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:3px;margin-top:14px}
+.scroll table{font-size:13px}
+.scroll th{position:sticky;top:0;background:var(--card)}
+tr.tolak{background:#faece4}
+tr.tolak td{color:var(--warn)}
+.alasan{font-size:11px;font-weight:600}
+
+/* --- absensi radio --- */
+.absen-aksi{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:14px 0 4px}
+.absen-aksi .mini{color:var(--ink)}
+table.absen td{padding:0}
+table.absen th.pusat,table.absen td.pusat{text-align:center;width:70px}
+table.absen td.nm{padding:9px 8px;font-size:14px}
+th.k-Hadir{color:#2f7d32}
+th.k-Sakit{color:#b8860b}
+th.k-Izin{color:#2f6d5f}
+th.k-Alpa{color:#b3541e}
+.rad{display:flex;align-items:center;justify-content:center;padding:11px 0;cursor:pointer;margin:0}
+.rad input{position:absolute;opacity:0;width:0;height:0}
+.rad .dot{width:19px;height:19px;border:2px solid #b9b3a3;border-radius:50%;
+  display:block;transition:border-color .12s,box-shadow .12s;background:#fff}
+.rad:hover .dot{border-color:var(--accent)}
+.rad input:checked + .dot{border-color:var(--accent);
+  box-shadow:inset 0 0 0 3px #fff, inset 0 0 0 8px var(--accent)}
+.rad input:focus-visible + .dot{outline:2px solid var(--ink);outline-offset:2px}
+.rad input[value="Sakit"]:checked + .dot{border-color:#b8860b;box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 8px #b8860b}
+.rad input[value="Alpa"]:checked  + .dot{border-color:#b3541e;box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 8px #b3541e}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* --- rentang tanggal template --- */
+.kotak-rentang{background:var(--accent-soft);border:1px solid #cfe0d8;border-radius:4px;padding:16px;margin-top:14px}
+.rentang{display:grid;grid-template-columns:1fr 1fr auto;gap:0 14px;align-items:end}
+.rentang label{margin-top:0}
+.rentang .cek{padding-bottom:9px}
+.cbox{display:flex;align-items:center;gap:7px;cursor:pointer;margin:0;
+  font-size:13px;font-weight:500;color:var(--ink);text-transform:none;letter-spacing:normal}
+.cbox input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none}
+@media(max-width:640px){.rentang{grid-template-columns:1fr}.rentang .cek{padding:12px 0 0}}
+
+/* --- tab rekap --- */
+.tab-bar{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:-4px 0 16px}
+.tab{background:none;border:none;border-bottom:3px solid transparent;padding:10px 16px;
+  font:inherit;font-size:14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--accent);border-color:var(--accent);font-weight:600}
+
+/* --- bar filter --- */
+.filter-bar{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px}
+.filter-bar > div{min-width:150px}
+.filter-bar label{margin-top:0}
+.filter-aksi{display:flex;gap:8px;min-width:auto !important}
+.filter-aksi .btn{margin-top:0;white-space:nowrap}
+.btn.cetak{background:#1f7a4d}
+.btn.xls{background:#eef2f5;color:#1f5f8b;border:1px solid #cdd9e2}
+
+/* --- matriks kehadiran: gulir mendatar, kolom tepi terkunci --- */
+.gulir{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--card)}
+table.matriks{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}
+table.matriks th,table.matriks td{padding:8px 10px;text-align:center;white-space:nowrap;
+  border-bottom:1px solid var(--line);background:var(--card)}
+table.matriks thead th{font-size:11px;color:var(--muted);text-transform:none;letter-spacing:0;
+  border-bottom:2px solid var(--line)}
+table.matriks th.grup{font-size:12px;font-weight:600;color:var(--ink);border-bottom:1px solid var(--line)}
+table.matriks th.tg{font-weight:500}
+table.matriks tbody tr:hover td{background:#fbfaf6}
+
+/* kolom terkunci kiri: No (k1) lalu Nama (k2) */
+.kiri{position:sticky;z-index:2}
+th.kiri{z-index:4}
+.k1{left:0;width:46px;min-width:46px;max-width:46px;padding-left:6px !important;padding-right:6px !important}
+.k2{left:46px;text-align:left !important;min-width:210px;
+  box-shadow:1px 0 0 var(--line), 6px 0 8px -6px rgba(0,0,0,.13)}
+
+/* kolom terkunci kanan: H S I A, masing-masing 42px */
+.kanan{position:sticky;z-index:2;width:42px;min-width:42px;max-width:42px;
+  padding-left:0 !important;padding-right:0 !important;font-weight:600}
+th.kanan{z-index:4}
+.a4{right:0}
+.a3{right:42px}
+.a2{right:84px}
+.a1{right:126px;box-shadow:-1px 0 0 var(--line), -6px 0 8px -6px rgba(0,0,0,.13)}
+th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
+  box-shadow:-1px 0 0 var(--line), -6px 0 8px -6px rgba(0,0,0,.13)}
+
+/* warna status */
+.s-Hadir{color:#2f7d32}
+.s-Sakit{color:#b8860b}
+.s-Izin{color:#2f6d5f}
+.s-Alpa{color:#b3541e}
+.s-kosong{color:#c9c4b6}
+.nis{color:var(--muted);font-size:11px;font-weight:400}
+@media(max-width:640px){
+  .filter-bar > div{min-width:100%}
+  .filter-aksi{min-width:100% !important}
+  .filter-aksi .btn{flex:1}
+}
 @media(max-width:600px){.row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -100,6 +202,21 @@ td{padding:9px 8px;border-bottom:1px solid var(--line)}
 
   <!-- SISWA -->
   <section class="page" id="p-siswa">
+    <div class="card" id="formUpload">
+      <h2>Unggah banyak siswa sekaligus</h2>
+      <p class="hint">Isi template Excel, lalu unggah di sini. Baris yang NIS-nya sudah terdaftar akan dilewati.</p>
+      <div class="upload-row">
+        <button class="btn ghost" style="margin:0" onclick="unduhTemplate()">Unduh template Excel</button>
+        <label class="filebtn">
+          Pilih file Excel
+          <input type="file" id="fileExcel" accept=".xlsx,.xls,.csv" onchange="bacaExcel(this)">
+        </label>
+        <span id="namaFile" class="hint"></span>
+      </div>
+      <div id="pratinjau"></div>
+      <div id="uploadMsg"></div>
+    </div>
+
     <div class="card" id="formSiswa">
       <h2>Tambah siswa</h2>
       <div class="row">
@@ -121,16 +238,87 @@ td{padding:9px 8px;border-bottom:1px solid var(--line)}
 
   <!-- ABSENSI -->
   <section class="page" id="p-absensi">
+    <div class="card" id="formAbsenUpload">
+      <h2>Unggah rekap kehadiran dari Excel</h2>
+      <p class="hint">Bisa satu hari atau sebulan penuh sekaligus. Sistem membaca setiap kolom tanggal sebagai satu hari absensi.</p>
+
+      <div class="kotak-rentang">
+        <div class="rentang">
+          <div><label>Dari tanggal</label><input id="tglDari" type="date" onchange="hitungRentang()"></div>
+          <div><label>Sampai tanggal</label><input id="tglSampai" type="date" onchange="hitungRentang()"></div>
+          <div class="cek">
+            <label class="cbox">
+              <input type="checkbox" id="lewatiAkhirPekan" checked onchange="hitungRentang()">
+              <span>Lewati Sabtu &amp; Minggu</span>
+            </label>
+          </div>
+        </div>
+        <p id="infoRentang" class="hint" style="margin:10px 0 0"></p>
+        <button class="btn ghost" style="margin-top:12px" onclick="unduhTemplateAbsen()">Unduh template rekap</button>
+      </div>
+
+      <div class="upload-row" style="margin-top:16px">
+        <label class="filebtn">
+          Pilih file rekap
+          <input type="file" id="fileAbsen" accept=".xlsx,.xls,.csv" onchange="bacaRekap(this)">
+        </label>
+        <span id="namaFileAbsen" class="hint"></span>
+      </div>
+      <div id="pratinjauAbsen"></div>
+      <div id="rekapMsg"></div>
+    </div>
+
     <div class="card" id="formAbsen">
       <h2>Isi absensi harian</h2>
-      <label>Tanggal</label><input id="aTgl" type="date">
+      <label>Tanggal</label><input id="aTgl" type="date" onchange="muatAbsenTanggal()">
+      <p id="absenInfo" class="hint" style="margin:8px 0 0"></p>
       <div id="absenList" class="empty">Pilih tanggal, lalu tandai kehadiran.</div>
       <button class="btn" onclick="simpanAbsen()">Simpan absensi</button>
       <div id="absenMsg"></div>
     </div>
     <div class="card">
       <h2>Rekap kehadiran</h2>
-      <div id="tblAbsen"></div>
+      <div class="tab-bar">
+        <button class="tab on" onclick="gantiTab('ringkas',this)">Rekap harian</button>
+        <button class="tab" onclick="gantiTab('rinci',this)">Rekap per siswa</button>
+      </div>
+
+      <div id="tab-ringkas">
+        <div id="tblAbsen"></div>
+      </div>
+
+      <div id="tab-rinci" class="hidden">
+        <div class="filter-bar">
+          <div>
+            <label>Siswa</label>
+            <select id="fSiswa" onchange="gambarRinci()"><option value="">Semua siswa</option></select>
+          </div>
+          <div>
+            <label>Periode</label>
+            <select id="fPeriode" onchange="ubahPeriode()">
+              <option value="bulan">Per Bulan</option>
+              <option value="rentang">Rentang Tanggal</option>
+            </select>
+          </div>
+          <div id="wrapBulan">
+            <label>Bulan</label>
+            <input id="fBulan" type="month" onchange="gambarRinci()">
+          </div>
+          <div id="wrapDari" class="hidden">
+            <label>Dari tanggal</label>
+            <input id="fDari" type="date" onchange="gambarRinci()">
+          </div>
+          <div id="wrapSampai" class="hidden">
+            <label>Sampai tanggal</label>
+            <input id="fSampai" type="date" onchange="gambarRinci()">
+          </div>
+          <div class="filter-aksi">
+            <button class="btn cetak" onclick="cetakRekap()">Cetak Laporan</button>
+            <button class="btn ghost xls" onclick="unduhRekapExcel()">Excel</button>
+          </div>
+        </div>
+        <div id="tblRinci"></div>
+      </div>
     </div>
   </section>
 
@@ -177,9 +365,8 @@ td{padding:9px 8px;border-bottom:1px solid var(--line)}
         <div><label>Email</label><input id="uEmail" type="email"></div>
         <div><label>Kata sandi</label><input id="uPass" type="password"></div>
         <div><label>Peran</label><select id="uRole">
-          <option value="guru">Guru</option>
-          <option value="kepsek">Kepala sekolah</option>
           <option value="admin">Admin / wali kelas</option>
+          <option value="kepsek">Kepala sekolah</option>
         </select></div>
       </div>
       <button class="btn" onclick="buatPengguna()">Buat akun</button>
@@ -225,12 +412,11 @@ let SISWA = [];         // cache daftar siswa
 /* -------- HAK AKSES PER PERAN -------- */
 const MENU = {
   admin : ["beranda","siswa","absensi","nilai","catatan","pengguna"],
-  guru  : ["beranda","siswa","absensi","nilai","catatan"],
   kepsek: ["beranda","siswa","absensi","nilai","catatan"]
 };
 const LABEL = {beranda:"Beranda",siswa:"Siswa",absensi:"Absensi",nilai:"Nilai",catatan:"Catatan",pengguna:"Pengguna"};
-const bisaEdit = () => ME && (ME.role === "admin" || ME.role === "guru");
-const namaRole = r => ({admin:"Admin / Wali Kelas",guru:"Guru",kepsek:"Kepala Sekolah"}[r] || r);
+const bisaEdit = () => ME && ME.role === "admin";
+const namaRole = r => ({admin:"Admin / Wali Kelas",kepsek:"Kepala Sekolah"}[r] || r);
 
 /* -------- UTIL -------- */
 const $ = id => document.getElementById(id);
@@ -282,7 +468,7 @@ function bangunNav(){
   });
   // kepala sekolah hanya membaca: sembunyikan semua form input
   if (!bisaEdit()) {
-    ["formSiswa","formAbsen","formNilai","formCatatan"].forEach(f => $(f).classList.add("hidden"));
+    ["formUpload","formSiswa","formAbsenUpload","formAbsen","formNilai","formCatatan"].forEach(f => $(f).classList.add("hidden"));
   }
 }
 function buka(key, btn){
@@ -295,6 +481,14 @@ function buka(key, btn){
 /* ============ MUAT DATA ============ */
 async function muatSemua(){
   await muatSiswa();
+  // isi rentang default: awal sampai akhir bulan berjalan
+  if ($("tglDari") && !$("tglDari").value){
+    const k = new Date(), y = k.getFullYear(), b = k.getMonth();
+    const fmt = t => `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;
+    $("tglDari").value   = fmt(new Date(y, b, 1));
+    $("tglSampai").value = fmt(new Date(y, b+1, 0));
+    hitungRentang();
+  }
   await muatAbsen();
   await muatNilai();
   await muatCatatan();
@@ -333,12 +527,31 @@ async function muatSiswa(){
   const opsi = SISWA.map(s => `<option value="${s.id}">${s.nama}</option>`).join("");
   $("nSiswa").innerHTML = opsi;
   $("cSiswa").innerHTML = opsi;
+  if ($("fSiswa")){
+    const pilih = $("fSiswa").value;
+    $("fSiswa").innerHTML = `<option value="">Semua siswa</option>` + opsi;
+    if (pilih && SISWA.some(s => s.id === pilih)) $("fSiswa").value = pilih;
+  }
 
-  $("absenList").innerHTML = SISWA.length ? `<table>
-    <tr><th>Nama</th><th>Status</th></tr>
-    ${SISWA.map(s=>`<tr><td>${s.nama}</td><td>
-      <select id="ab-${s.id}"><option>Hadir</option><option>Sakit</option><option>Izin</option><option>Alpa</option></select>
-    </td></tr>`).join("")}</table>` : `<p class="empty">Tambahkan siswa terlebih dahulu.</p>`;
+  $("absenList").innerHTML = SISWA.length ? `
+    <div class="absen-aksi">
+      <span class="hint" style="margin:0">Tandai semua:</span>
+      ${["Hadir","Sakit","Izin","Alpa"].map(st =>
+        `<button type="button" class="mini" onclick="tandaiSemua('${st}')">${st}</button>`).join("")}
+    </div>
+    <div class="scroll"><table class="absen">
+      <tr><th>Nama</th>${["Hadir","Sakit","Izin","Alpa"].map(st =>
+        `<th class="pusat k-${st}">${st}</th>`).join("")}</tr>
+      ${SISWA.map(s => `<tr>
+        <td class="nm">${s.nama}</td>
+        ${["Hadir","Sakit","Izin","Alpa"].map(st => `<td class="pusat">
+          <label class="rad">
+            <input type="radio" name="ab-${s.id}" value="${st}" ${st==="Hadir"?"checked":""}>
+            <span class="dot"></span>
+            <span class="sr">${st}</span>
+          </label></td>`).join("")}
+      </tr>`).join("")}
+    </table></div>` : `<p class="empty">Tambahkan siswa terlebih dahulu.</p>`;
 }
 
 window.hapusSiswa = async id => {
@@ -347,11 +560,193 @@ window.hapusSiswa = async id => {
   await muatSiswa(); await hitungStatistik();
 };
 
+/* ---- UNGGAH MASSAL DARI EXCEL ---- */
+const KOLOM = ["NIS","Nama Lengkap","Jenis Kelamin","Kelas","Nama Wali","Nomor HP Wali"];
+let ANTRE = [];   // baris valid yang siap disimpan
+
+window.unduhTemplate = () => {
+  const wb = XLSX.utils.book_new();
+
+  const data = [
+    KOLOM,
+    ["1001","Ahmad Fauzi","Laki-laki","5A","Siti Aminah","081234567890"]
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws["!cols"] = [{wch:14},{wch:30},{wch:16},{wch:10},{wch:28},{wch:18}];
+  // paksa seluruh kolom jadi teks supaya nol di depan nomor HP tidak hilang
+  for (let r = 1; r <= 500; r++)
+    for (let c = 0; c < 6; c++) {
+      const ref = XLSX.utils.encode_cell({r, c});
+      if (!ws[ref]) ws[ref] = {t:"s", v:""};
+      ws[ref].t = "s"; ws[ref].z = "@";
+    }
+  ws["!ref"] = "A1:F501";
+  XLSX.utils.book_append_sheet(wb, ws, "Data Siswa");
+
+  const petunjuk = [
+    ["Petunjuk Pengisian"],[""],
+    ["1.","Isi sheet 'Data Siswa', satu siswa per baris."],
+    ["2.","Hapus baris contoh abu-abu, atau biarkan - sistem melewatinya otomatis."],
+    ["3.","Simpan file, lalu unggah lewat tombol 'Pilih file Excel'."],
+    [""],
+    ["NIS","Wajib. Harus unik, tidak boleh sama dengan siswa lain."],
+    ["Nama Lengkap","Wajib."],
+    ["Jenis Kelamin","Laki-laki atau Perempuan. Kosong = Laki-laki."],
+    ["Kelas","Contoh: 5A. Boleh kosong."],
+    ["Nama Wali","Boleh kosong."],
+    ["Nomor HP Wali","Boleh kosong."],
+    [""],
+    ["Jangan ubah","Nama kolom di baris 1 dan nama sheet 'Data Siswa'."],
+    ["Batas","Maksimal 500 siswa per file."]
+  ];
+  const wp = XLSX.utils.aoa_to_sheet(petunjuk);
+  wp["!cols"] = [{wch:18},{wch:70}];
+  XLSX.utils.book_append_sheet(wb, wp, "Petunjuk");
+
+  XLSX.writeFile(wb, "Template-Data-Siswa.xlsx");
+};
+
+window.bacaExcel = input => {
+  const file = input.files[0];
+  if (!file) return;
+  $("namaFile").textContent = file.name;
+  ANTRE = [];
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    let baris;
+    try{
+      const wb = XLSX.read(e.target.result, {type:"array"});
+      // cari sheet "Data Siswa"; kalau tidak ada, pakai sheet pertama
+      const nama = wb.SheetNames.find(n => n.toLowerCase().includes("data siswa")) || wb.SheetNames[0];
+      baris = XLSX.utils.sheet_to_json(wb.Sheets[nama], {defval:"", raw:false});
+    }catch(err){
+      return pesan("uploadMsg","File tidak bisa dibaca. Pastikan formatnya .xlsx atau .csv.",false);
+    }
+
+    if (!baris.length)
+      return pesan("uploadMsg","File kosong. Isi data mulai baris 2.",false);
+
+    if (!(KOLOM[0] in baris[0]) || !(KOLOM[1] in baris[0]))
+      return pesan("uploadMsg","Kolom NIS dan Nama Lengkap tidak ditemukan. Gunakan template yang disediakan tanpa mengubah nama kolom.",false);
+
+    const nisTerdaftar = new Set(SISWA.map(s => String(s.nis)));
+    const nisDiFile    = new Set();
+    const hasil = [];
+
+    baris.forEach((b, i) => {
+      const nis  = String(b[KOLOM[0]] ?? "").trim();
+      const nama = String(b[KOLOM[1]] ?? "").trim();
+
+      if (!nis && !nama) return;                        // baris kosong, lewati diam-diam
+      if (nis === "1001" && nama === "Ahmad Fauzi") return;  // baris contoh template
+
+      let tolak = null;
+      if (!nis || !nama)              tolak = "NIS atau nama kosong";
+      else if (nisTerdaftar.has(nis)) tolak = "NIS sudah terdaftar";
+      else if (nisDiFile.has(nis))    tolak = "NIS ganda di file ini";
+
+      let jk = String(b[KOLOM[2]] ?? "").trim();
+      if (!/^(laki-laki|perempuan)$/i.test(jk)) jk = "Laki-laki";
+      else jk = /^l/i.test(jk) ? "Laki-laki" : "Perempuan";
+
+      const row = {
+        baris: i + 2, nis, nama, jk,
+        kelas: String(b[KOLOM[3]] ?? "").trim(),
+        wali:  String(b[KOLOM[4]] ?? "").trim(),
+        hp:    String(b[KOLOM[5]] ?? "").trim(),
+        tolak
+      };
+      if (!tolak) nisDiFile.add(nis);
+      hasil.push(row);
+    });
+
+    ANTRE = hasil.filter(r => !r.tolak);
+    tampilPratinjau(hasil);
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+function tampilPratinjau(hasil){
+  const ditolak = hasil.filter(r => r.tolak).length;
+  if (!hasil.length){
+    $("pratinjau").innerHTML = `<p class="empty">Tidak ada baris data yang terbaca di file ini.</p>`;
+    return;
+  }
+  $("pratinjau").innerHTML = `
+    <div class="scroll"><table>
+      <tr><th>Baris</th><th>NIS</th><th>Nama</th><th>L/P</th><th>Kelas</th><th>Wali</th><th>HP</th><th>Status</th></tr>
+      ${hasil.map(r=>`<tr class="${r.tolak?'tolak':''}">
+        <td>${r.baris}</td><td>${r.nis||'-'}</td><td>${r.nama||'-'}</td><td>${r.jk[0]}</td>
+        <td>${r.kelas||'-'}</td><td>${r.wali||'-'}</td><td>${r.hp||'-'}</td>
+        <td class="alasan">${r.tolak || 'Siap disimpan'}</td></tr>`).join("")}
+    </table></div>
+    <p class="hint" style="margin-top:12px">
+      ${ANTRE.length} baris siap disimpan${ditolak ? `, ${ditolak} baris dilewati (ditandai merah)` : ""}.
+    </p>
+    ${ANTRE.length ? `<button class="btn" style="margin-top:0" onclick="simpanMassal()">Simpan ${ANTRE.length} siswa</button>` : ""}`;
+}
+
+window.simpanMassal = async () => {
+  if (!ANTRE.length) return;
+  if (!confirm(`Simpan ${ANTRE.length} siswa ke database?`)) return;
+
+  const tombol = document.querySelector("#pratinjau .btn");
+  if (tombol){ tombol.disabled = true; tombol.textContent = "Menyimpan..."; }
+
+  let sukses = 0, gagal = 0;
+  for (const r of ANTRE){
+    try{
+      await addDoc(collection(db,"siswa"), {
+        nis:r.nis, nama:r.nama, jk:r.jk, kelas:r.kelas,
+        wali:r.wali, hp:r.hp, dibuat:serverTimestamp()
+      });
+      sukses++;
+    }catch(e){ gagal++; }
+    if (tombol) tombol.textContent = `Menyimpan ${sukses + gagal} dari ${ANTRE.length}...`;
+  }
+
+  ANTRE = [];
+  $("pratinjau").innerHTML = "";
+  $("fileExcel").value = "";
+  $("namaFile").textContent = "";
+  pesan("uploadMsg",
+    `${sukses} siswa tersimpan.` + (gagal ? ` ${gagal} gagal disimpan, coba unggah ulang baris tersebut.` : ""),
+    gagal === 0);
+  await muatSiswa(); await hitungStatistik();
+};
+
 /* ---- ABSENSI ---- */
+window.tandaiSemua = st => {
+  SISWA.forEach(s => {
+    const r = document.querySelector(`input[name="ab-${s.id}"][value="${st}"]`);
+    if (r) r.checked = true;
+  });
+};
+
+// saat tanggal dipilih, muat absensi yang sudah tersimpan agar bisa dikoreksi
+window.muatAbsenTanggal = async () => {
+  const tgl = $("aTgl").value;
+  if (!tgl || !SISWA.length) return;
+  tandaiSemua("Hadir");
+  try{
+    const snap = await getDoc(doc(db,"absensi",tgl));
+    if (!snap.exists()) return $("absenInfo").textContent = "";
+    (snap.data().data || []).forEach(x => {
+      const r = document.querySelector(`input[name="ab-${x.siswaId}"][value="${x.status}"]`);
+      if (r) r.checked = true;
+    });
+    $("absenInfo").textContent = "Absensi tanggal ini sudah pernah disimpan. Menyimpan lagi akan menimpanya.";
+  }catch(e){}
+};
+
 window.simpanAbsen = async () => {
   const tgl = $("aTgl").value;
   if (!tgl) return pesan("absenMsg","Pilih tanggal terlebih dahulu.",false);
-  const data = SISWA.map(s => ({siswaId:s.id, nama:s.nama, status:$("ab-"+s.id).value}));
+  const data = SISWA.map(s => {
+    const p = document.querySelector(`input[name="ab-${s.id}"]:checked`);
+    return {siswaId:s.id, nama:s.nama, status: p ? p.value : "Hadir"};
+  });
   await setDoc(doc(db,"absensi",tgl), {tanggal:tgl, data, olehNama:ME.nama, oleh:ME.uid});
   pesan("absenMsg","Absensi tanggal "+tgl+" tersimpan.");
   await muatAbsen(); await hitungStatistik();
@@ -360,6 +755,7 @@ window.simpanAbsen = async () => {
 async function muatAbsen(){
   const snap = await getDocs(collection(db,"absensi"));
   const list = snap.docs.map(d => d.data()).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
+  ABSEN_CACHE = list;
   $("tblAbsen").innerHTML = list.length ? `<table>
     <tr><th>Tanggal</th><th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th><th>Diisi oleh</th></tr>
     ${list.map(a=>{
@@ -367,7 +763,466 @@ async function muatAbsen(){
       return `<tr><td>${a.tanggal}</td><td>${c("Hadir")}</td><td>${c("Sakit")}</td>
               <td>${c("Izin")}</td><td>${c("Alpa")}</td><td>${a.olehNama||'-'}</td></tr>`;
     }).join("")}</table>` : `<p class="empty">Belum ada absensi tercatat.</p>`;
+
+  // bulan default = bulan dengan data terbaru
+  if (list.length && $("fBulan") && !$("fBulan").value)
+    $("fBulan").value = list[0].tanggal.slice(0,7);
+  if (!$("tab-rinci").classList.contains("hidden")) gambarRinci();
 }
+
+/* ---- UNGGAH REKAP KEHADIRAN ---- */
+const KODE = {H:"Hadir", S:"Sakit", I:"Izin", A:"Alpa"};
+let REKAP = null;   // {tanggal: [{siswaId, nama, status}], ...}
+
+// ubah "22/07/2026" atau "2026-07-22" jadi "2026-07-22"
+function keISO(teks){
+  const t = String(teks).trim();
+  let m = t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);      // dd/mm/yyyy
+  if (m) return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
+  m = t.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);          // yyyy-mm-dd
+  if (m) return `${m[1]}-${m[2].padStart(2,"0")}-${m[3].padStart(2,"0")}`;
+  return null;
+}
+
+const NAMA_HARI = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+
+// susun daftar tanggal dari rentang yang dipilih; null bila tidak valid
+function daftarTanggal(diam){
+  const d1 = $("tglDari").value, d2 = $("tglSampai").value;
+  const lapor = (t) => { if (!diam) pesan("rekapMsg", t, false); return null; };
+
+  if (!d1 || !d2) return lapor("Pilih tanggal Dari dan Sampai terlebih dahulu.");
+
+  // pakai komponen tanggal, bukan new Date(string), agar tidak bergeser zona waktu
+  const [y1,m1,h1] = d1.split("-").map(Number);
+  const [y2,m2,h2] = d2.split("-").map(Number);
+  const mulai = new Date(y1, m1-1, h1), akhir = new Date(y2, m2-1, h2);
+
+  if (akhir < mulai) return lapor("Tanggal Sampai lebih awal daripada tanggal Dari.");
+
+  const selisih = Math.round((akhir - mulai) / 86400000) + 1;
+  if (selisih > 180) return lapor("Rentang terlalu panjang (maksimal 180 hari). Persempit rentangnya.");
+
+  const lewati = $("lewatiAkhirPekan").checked;
+  const tanggal = [], dilewati = [];
+  for (let t = new Date(mulai); t <= akhir; t.setDate(t.getDate()+1)){
+    const hari = t.getDay();
+    const label = `${String(t.getDate()).padStart(2,"0")}/${String(t.getMonth()+1).padStart(2,"0")}/${t.getFullYear()}`;
+    if (lewati && (hari === 0 || hari === 6)) dilewati.push(label);
+    else tanggal.push(label);
+  }
+
+  if (!tanggal.length)
+    return lapor("Seluruh tanggal dalam rentang ini jatuh di akhir pekan. Hilangkan centang 'Lewati Sabtu & Minggu' atau ubah rentangnya.");
+
+  const periode = (y1 === y2 && m1 === m2)
+    ? `${y1}-${String(m1).padStart(2,"0")}`
+    : `${d1}_sd_${d2}`;
+
+  return { tanggal, dilewati, periode, mulai, akhir };
+}
+
+// tampilkan ringkasan rentang di bawah input
+window.hitungRentang = () => {
+  const info = $("infoRentang");
+  const d = daftarTanggal(true);
+  if (!d){
+    const d1 = $("tglDari").value, d2 = $("tglSampai").value;
+    info.textContent = (d1 && d2) ? "Rentang belum valid — periksa urutan tanggalnya." : "";
+    return;
+  }
+  const awal = NAMA_HARI[d.mulai.getDay()], ujung = NAMA_HARI[d.akhir.getDay()];
+  info.innerHTML = `<b>${d.tanggal.length} kolom tanggal</b> akan dibuat`
+    + ` (${awal} ${d.tanggal[0]} sampai ${ujung} ${d.tanggal[d.tanggal.length-1]})`
+    + (d.dilewati.length ? `, ${d.dilewati.length} hari akhir pekan dilewati.` : ".");
+};
+
+window.unduhTemplateAbsen = () => {
+  if (!SISWA.length) return pesan("rekapMsg","Tambahkan siswa terlebih dahulu sebelum mengunduh template rekap.",false);
+
+  // daftar tanggal diambil dari rentang yang dipilih pengguna
+  const daftar = daftarTanggal();
+  if (!daftar) return;
+  const { tanggal, periode } = daftar;
+
+  const wb = XLSX.utils.book_new();
+  const aoa = [
+    ["Rekap Kehadiran Siswa"],
+    ["Kelas: " + (SISWA[0].kelas || "-"), "Periode: " + periode],
+    [],
+    ["No","NIS","Nama Siswa", ...tanggal],
+    ...SISWA.map((s,i) => [i+1, s.nis, s.nama, ...tanggal.map(()=> "")])
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws["!cols"] = [{wch:5},{wch:14},{wch:28}, ...tanggal.map(()=>({wch:12}))];
+  for (let r = 4; r < 4 + SISWA.length; r++){
+    const ref = XLSX.utils.encode_cell({r, c:1});
+    if (ws[ref]){ ws[ref].t = "s"; ws[ref].z = "@"; }
+  }
+  XLSX.utils.book_append_sheet(wb, ws, "Kehadiran");
+
+  const p = XLSX.utils.aoa_to_sheet([
+    ["Petunjuk Pengisian Rekap Kehadiran"],[],
+    ["Kode","H = Hadir, S = Sakit, I = Izin, A = Alpa"],
+    ["Kosong","Sel yang dikosongkan dianggap Hadir."],
+    [],
+    ["Kolom tanggal",`Berisi ${tanggal.length} hari: ${tanggal[0]} sampai ${tanggal[tanggal.length-1]}.`],
+    ["","Hapus kolom hari libur nasional atau tanggal yang belum berjalan."],
+    ["","Satu kolom = satu hari. Bisa diisi sekaligus lalu diunggah sekali."],
+    [""],
+    ["Menambah hari","Kalau perlu tanggal di luar daftar, tambahkan kolom di sebelah kanan"],
+    ["","dan tulis tanggalnya di baris 4 dengan format dd/mm/yyyy."],
+    [],
+    ["Jangan ubah","Nama sheet 'Kehadiran', dan kolom NIS serta Nama Siswa."],
+    ["NIS","Dipakai untuk mencocokkan siswa. Harus sama persis dengan yang di aplikasi."],
+    [],
+    ["Perhatian","Mengunggah tanggal yang sudah pernah disimpan akan MENIMPA data lama"],
+    ["","untuk tanggal tersebut."]
+  ]);
+  p["!cols"] = [{wch:16},{wch:72}];
+  XLSX.utils.book_append_sheet(wb, p, "Petunjuk");
+  XLSX.writeFile(wb, `Template-Rekap-Kehadiran-${periode}.xlsx`);
+};
+
+window.bacaRekap = input => {
+  const file = input.files[0];
+  if (!file) return;
+  $("namaFileAbsen").textContent = file.name;
+  REKAP = null;
+
+  if (!SISWA.length){
+    $("pratinjauAbsen").innerHTML = "";
+    return pesan("rekapMsg","Daftar siswa masih kosong. Unggah data siswa terlebih dahulu di menu Siswa.",false);
+  }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    let baris;
+    try{
+      const wb = XLSX.read(e.target.result, {type:"array"});
+      const nama = wb.SheetNames.find(n => /kehadiran|absen/i.test(n)) || wb.SheetNames[0];
+      const sheet = wb.Sheets[nama];
+
+      // !ref kadang tidak ikut diperbarui saat pengguna menambah kolom di Excel,
+      // sehingga kolom tanggal terakhir tidak terbaca. Hitung ulang dari sel yang
+      // benar-benar ada supaya seluruh kolom ikut terambil.
+      let maxR = 0, maxC = 0;
+      Object.keys(sheet).forEach(k => {
+        if (k[0] === "!") return;
+        const p = XLSX.utils.decode_cell(k);
+        if (p.r > maxR) maxR = p.r;
+        if (p.c > maxC) maxC = p.c;
+      });
+      if (maxR || maxC)
+        sheet["!ref"] = XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:maxR, c:maxC}});
+
+      baris = XLSX.utils.sheet_to_json(sheet, {header:1, defval:"", raw:false, blankrows:true});
+      // samakan panjang tiap baris supaya kolom kanan tidak terpotong
+      const lebar = Math.max(...baris.map(r => r.length), maxC + 1);
+      baris = baris.map(r => { const a = r.slice(); while (a.length < lebar) a.push(""); return a; });
+    }catch(err){
+      return pesan("rekapMsg","File tidak bisa dibaca. Pastikan formatnya .xlsx atau .csv.",false);
+    }
+
+    // cari baris header: baris yang memuat sel "NIS" atau "Nama"
+    const iH = baris.findIndex(r => r.some(c => /^(nis|nama siswa|nama)$/i.test(String(c).trim())));
+    if (iH === -1)
+      return pesan("rekapMsg","Baris header tidak ditemukan. File harus punya kolom NIS dan Nama Siswa.",false);
+
+    const header = baris[iH].map(c => String(c).trim());
+    const kNis   = header.findIndex(c => /^nis$/i.test(c));
+    const kNama  = header.findIndex(c => /^nama/i.test(c));
+    if (kNis === -1 && kNama === -1)
+      return pesan("rekapMsg","Kolom NIS maupun Nama Siswa tidak ditemukan di file.",false);
+
+    // kolom tanggal = header yang bisa diurai jadi tanggal (H/S/I/A di kanan diabaikan)
+    const kolTgl = [];
+    header.forEach((h,i) => {
+      const iso = keISO(h);
+      if (iso) kolTgl.push({kolom:i, iso, label:h});
+    });
+    if (!kolTgl.length)
+      return pesan("rekapMsg","Tidak ada kolom tanggal yang terbaca. Tulis tanggal di baris header dengan format dd/mm/yyyy.",false);
+
+    // tanggal yang sama muncul di dua kolom akan membuat absensi tercatat dobel
+    const kembar = kolTgl.map(k=>k.iso).filter((v,i,a) => a.indexOf(v) !== i);
+    if (kembar.length){
+      const label = [...new Set(kembar)].map(iso => iso.split("-").reverse().join("/"));
+      $("pratinjauAbsen").innerHTML = "";
+      return pesan("rekapMsg",
+        `Tanggal berikut muncul lebih dari satu kolom: ${label.join(", ")}. Hapus kolom yang kembar, lalu unggah ulang.`, false);
+    }
+
+    // indeks siswa berdasar NIS, cadangan berdasar nama
+    const byNis  = new Map(SISWA.map(s => [String(s.nis).trim(), s]));
+    const byNama = new Map(SISWA.map(s => [s.nama.trim().toLowerCase(), s]));
+
+    const hasil = {};
+    kolTgl.forEach(k => hasil[k.iso] = []);
+    const takDikenal = [];
+    let kodeAneh = 0;
+
+    for (let r = iH + 1; r < baris.length; r++){
+      const row = baris[r] || [];
+      const nis  = kNis  > -1 ? String(row[kNis]  ?? "").trim() : "";
+      const nama = kNama > -1 ? String(row[kNama] ?? "").trim() : "";
+      if (!nis && !nama) continue;
+
+      const siswa = byNis.get(nis) || byNama.get(nama.toLowerCase());
+      if (!siswa){ takDikenal.push(nama || nis); continue; }
+
+      kolTgl.forEach(k => {
+        let kode = String(row[k.kolom] ?? "").trim().toUpperCase();
+        if (!kode) kode = "H";                 // sel kosong dianggap hadir
+        if (!KODE[kode]){ kodeAneh++; kode = "H"; }
+        hasil[k.iso].push({siswaId:siswa.id, nama:siswa.nama, status:KODE[kode]});
+      });
+    }
+
+    const terbaca = Object.values(hasil)[0]?.length || 0;
+    if (!terbaca){
+      $("pratinjauAbsen").innerHTML = "";
+      return pesan("rekapMsg","Tidak ada siswa di file yang cocok dengan data di aplikasi. Periksa kembali NIS-nya.",false);
+    }
+
+    REKAP = hasil;
+    tampilPratinjauRekap(kolTgl, hasil, terbaca, takDikenal, kodeAneh);
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+function tampilPratinjauRekap(kolTgl, hasil, terbaca, takDikenal, kodeAneh){
+  const hitung = (iso, st) => hasil[iso].filter(x => x.status === st).length;
+  const catatan = [];
+  const hariIni = new Date(); hariIni.setHours(0,0,0,0);
+  const depan = kolTgl.filter(k => {
+    const [y,m,d] = k.iso.split("-").map(Number);
+    return new Date(y, m-1, d) > hariIni;
+  });
+  if (depan.length)
+    catatan.push(`<b>${depan.length} tanggal masih di masa depan</b> (${depan.slice(0,3).map(k=>k.label).join(", ")}${depan.length>3?", dan lainnya":""}). Sel kosong dihitung Hadir — hapus kolom itu kalau belum berjalan.`);
+  if (takDikenal.length)
+    catatan.push(`${takDikenal.length} siswa di file tidak ada di aplikasi dan dilewati: ${takDikenal.slice(0,5).join(", ")}${takDikenal.length>5?", dan lainnya":""}.`);
+  if (kodeAneh)
+    catatan.push(`${kodeAneh} sel berisi kode di luar H/S/I/A dan dianggap Hadir.`);
+
+  $("pratinjauAbsen").innerHTML = `
+    <div class="scroll"><table>
+      <tr><th>Tanggal</th><th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th></tr>
+      ${kolTgl.map(k => `<tr>
+        <td>${k.label}</td>
+        <td>${hitung(k.iso,"Hadir")}</td><td>${hitung(k.iso,"Sakit")}</td>
+        <td>${hitung(k.iso,"Izin")}</td><td>${hitung(k.iso,"Alpa")}</td>
+      </tr>`).join("")}
+    </table></div>
+    <p class="hint" style="margin-top:12px">
+      ${kolTgl.length} hari terbaca untuk ${terbaca} siswa.
+      ${catatan.length ? "<br>" + catatan.join("<br>") : ""}
+      <br><b>Tanggal yang sudah pernah disimpan akan ditimpa.</b>
+    </p>
+    <button class="btn" style="margin-top:0" onclick="simpanRekap()">Simpan ${kolTgl.length} hari absensi</button>`;
+}
+
+window.simpanRekap = async () => {
+  if (!REKAP) return;
+  const tgl = Object.keys(REKAP);
+  if (!confirm(`Simpan absensi untuk ${tgl.length} tanggal? Data pada tanggal yang sama akan ditimpa.`)) return;
+
+  const tombol = document.querySelector("#pratinjauAbsen .btn");
+  if (tombol){ tombol.disabled = true; }
+
+  let sukses = 0, gagal = 0;
+  for (const t of tgl){
+    try{
+      await setDoc(doc(db,"absensi",t), {tanggal:t, data:REKAP[t], olehNama:ME.nama, oleh:ME.uid});
+      sukses++;
+    }catch(e){ gagal++; }
+    if (tombol) tombol.textContent = `Menyimpan ${sukses + gagal} dari ${tgl.length}...`;
+  }
+
+  REKAP = null;
+  $("pratinjauAbsen").innerHTML = "";
+  $("fileAbsen").value = "";
+  $("namaFileAbsen").textContent = "";
+  pesan("rekapMsg", `${sukses} hari absensi tersimpan.` + (gagal ? ` ${gagal} gagal.` : ""), gagal === 0);
+  await muatAbsen(); await hitungStatistik();
+};
+
+/* ================= REKAP PER SISWA ================= */
+let ABSEN_CACHE = [];   // seluruh dokumen absensi, diisi oleh muatAbsen()
+
+window.gantiTab = (nama, btn) => {
+  document.querySelectorAll(".tab").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  $("tab-ringkas").classList.toggle("hidden", nama !== "ringkas");
+  $("tab-rinci").classList.toggle("hidden", nama !== "rinci");
+  if (nama === "rinci") gambarRinci();
+};
+
+window.ubahPeriode = () => {
+  const bulan = $("fPeriode").value === "bulan";
+  $("wrapBulan").classList.toggle("hidden", !bulan);
+  $("wrapDari").classList.toggle("hidden", bulan);
+  $("wrapSampai").classList.toggle("hidden", bulan);
+  gambarRinci();
+};
+
+// tanggal yang lolos filter periode, urut menaik
+function tanggalTerpilih(){
+  const semua = ABSEN_CACHE.map(a => a.tanggal).sort();
+  if ($("fPeriode").value === "bulan"){
+    const b = $("fBulan").value;                 // format yyyy-mm
+    return b ? semua.filter(t => t.startsWith(b)) : semua;
+  }
+  const d1 = $("fDari").value, d2 = $("fSampai").value;
+  return semua.filter(t => (!d1 || t >= d1) && (!d2 || t <= d2));
+}
+
+function dataRinci(){
+  const tgl = tanggalTerpilih();
+  const pilih = $("fSiswa").value;
+  const daftar = pilih ? SISWA.filter(s => s.id === pilih) : SISWA;
+
+  // peta: tanggal -> siswaId -> status
+  const peta = {};
+  ABSEN_CACHE.forEach(a => {
+    if (!tgl.includes(a.tanggal)) return;
+    peta[a.tanggal] = {};
+    (a.data || []).forEach(x => peta[a.tanggal][x.siswaId] = x.status);
+  });
+
+  const baris = daftar.map(s => {
+    const sel = tgl.map(t => peta[t]?.[s.id] || "");
+    const n = k => sel.filter(v => v === k).length;
+    return {siswa:s, sel, H:n("Hadir"), S:n("Sakit"), I:n("Izin"), A:n("Alpa")};
+  });
+  return {tgl, baris};
+}
+
+const HURUF = {Hadir:"H", Sakit:"S", Izin:"I", Alpa:"A"};
+
+window.gambarRinci = () => {
+  if (!SISWA.length)
+    return $("tblRinci").innerHTML = `<p class="empty">Belum ada siswa terdaftar.</p>`;
+
+  const {tgl, baris} = dataRinci();
+  if (!tgl.length)
+    return $("tblRinci").innerHTML = `<p class="empty">Tidak ada data absensi pada periode ini.</p>`;
+
+  const th = tgl.map(t => `<th class="tg">${t.split("-").reverse().join("/")}</th>`).join("");
+  const isi = baris.map((b,i) => `<tr>
+      <td class="kiri k1">${i+1}</td>
+      <td class="kiri k2"><b>${b.siswa.nama}</b> <span class="nis">(${b.siswa.nis})</span></td>
+      ${b.sel.map(v => `<td class="tg s-${v||'kosong'}">${HURUF[v] || "–"}</td>`).join("")}
+      <td class="kanan a1 s-Hadir">${b.H}</td>
+      <td class="kanan a2 s-Sakit">${b.S}</td>
+      <td class="kanan a3 s-Izin">${b.I}</td>
+      <td class="kanan a4 s-Alpa">${b.A}</td>
+    </tr>`).join("");
+
+  $("tblRinci").innerHTML = `
+    <div class="gulir">
+      <table class="matriks">
+        <thead>
+          <tr>
+            <th class="kiri k1" rowspan="2">No</th>
+            <th class="kiri k2" rowspan="2">Nama Lengkap Siswa</th>
+            <th class="grup" colspan="${tgl.length}">Tanggal Pertemuan</th>
+            <th class="grup kanan-grup" colspan="4">Akumulasi</th>
+          </tr>
+          <tr>
+            ${th}
+            <th class="kanan a1 s-Hadir">H</th>
+            <th class="kanan a2 s-Sakit">S</th>
+            <th class="kanan a3 s-Izin">I</th>
+            <th class="kanan a4 s-Alpa">A</th>
+          </tr>
+        </thead>
+        <tbody>${isi}</tbody>
+      </table>
+    </div>
+    <p class="hint" style="margin-top:12px">
+      ${baris.length} siswa, ${tgl.length} hari pertemuan. Tanda – berarti belum ada data absensi pada hari itu.
+    </p>`;
+};
+
+function judulPeriode(){
+  if ($("fPeriode").value === "bulan"){
+    const b = $("fBulan").value;
+    if (!b) return "Semua periode";
+    const [y,m] = b.split("-");
+    const NB = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+    return `${NB[+m-1]} ${y}`;
+  }
+  const d = v => v ? v.split("-").reverse().join("/") : "";
+  const a = $("fDari").value, b = $("fSampai").value;
+  return (a || b) ? `${d(a) || "awal"} sampai ${d(b) || "akhir"}` : "Semua periode";
+}
+
+window.cetakRekap = () => {
+  const {tgl, baris} = dataRinci();
+  if (!tgl.length) return pesan("absenMsg","Tidak ada data untuk dicetak pada periode ini.",false);
+
+  const kelas = [...new Set(baris.map(b => b.siswa.kelas).filter(Boolean))].join(", ") || "-";
+  const w = window.open("", "_blank");
+  if (!w) return pesan("absenMsg","Jendela cetak diblokir browser. Izinkan pop-up untuk situs ini.",false);
+
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+    <title>Rekap Kehadiran ${judulPeriode()}</title><style>
+      *{box-sizing:border-box}
+      body{font-family:Arial,Helvetica,sans-serif;margin:18mm 12mm;color:#111}
+      h1{font-size:16px;margin:0 0 2px;text-align:center}
+      .sub{text-align:center;font-size:12px;margin:0 0 3px}
+      table{width:100%;border-collapse:collapse;font-size:10px;margin-top:14px}
+      th,td{border:1px solid #999;padding:3px 4px;text-align:center}
+      th{background:#eee;font-size:9px}
+      td.nm{text-align:left;white-space:nowrap}
+      .ttd{margin-top:34px;display:flex;justify-content:flex-end;font-size:11px;text-align:center}
+      .ttd div{width:190px}
+      .ttd .garis{margin-top:52px;border-top:1px solid #333;padding-top:3px}
+      @page{size:landscape;margin:12mm}
+    </style></head><body>
+    <h1>REKAP KEHADIRAN SISWA</h1>
+    <p class="sub">Kelas: ${kelas} &nbsp;|&nbsp; Periode: ${judulPeriode()}</p>
+    <table>
+      <tr><th rowspan="2">No</th><th rowspan="2">Nama Siswa</th><th rowspan="2">NIS</th>
+        <th colspan="${tgl.length}">Tanggal Pertemuan</th><th colspan="4">Akumulasi</th></tr>
+      <tr>${tgl.map(t => `<th>${t.slice(8)}/${t.slice(5,7)}</th>`).join("")}
+        <th>H</th><th>S</th><th>I</th><th>A</th></tr>
+      ${baris.map((b,i) => `<tr><td>${i+1}</td><td class="nm">${b.siswa.nama}</td><td>${b.siswa.nis}</td>
+        ${b.sel.map(v => `<td>${HURUF[v] || "-"}</td>`).join("")}
+        <td>${b.H}</td><td>${b.S}</td><td>${b.I}</td><td>${b.A}</td></tr>`).join("")}
+    </table>
+    <div class="ttd"><div>Wali Kelas<div class="garis">${ME.nama}</div></div></div>
+    </body></html>`);
+  w.document.close();
+  w.onload = () => { w.focus(); w.print(); };
+};
+
+window.unduhRekapExcel = () => {
+  const {tgl, baris} = dataRinci();
+  if (!tgl.length) return pesan("absenMsg","Tidak ada data untuk diunduh pada periode ini.",false);
+
+  const kelas = [...new Set(baris.map(b => b.siswa.kelas).filter(Boolean))].join(", ") || "-";
+  const label = tgl.map(t => t.split("-").reverse().join("/"));
+  const aoa = [
+    ["Rekap Kehadiran Siswa"],
+    ["Kelas: " + kelas, "Periode: " + judulPeriode()],
+    [],
+    ["No","NIS","Nama Siswa", ...label, "H","S","I","A"],
+    ...baris.map((b,i) => [i+1, b.siswa.nis, b.siswa.nama,
+      ...b.sel.map(v => HURUF[v] || ""), b.H, b.S, b.I, b.A])
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws["!cols"] = [{wch:5},{wch:14},{wch:28}, ...label.map(()=>({wch:11})), ...[0,0,0,0].map(()=>({wch:5}))];
+  for (let r = 4; r < 4 + baris.length; r++){
+    const ref = XLSX.utils.encode_cell({r, c:1});
+    if (ws[ref]){ ws[ref].t = "s"; ws[ref].z = "@"; }
+  }
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rekap");
+  XLSX.writeFile(wb, `Rekap-Kehadiran-${judulPeriode().replace(/[\/ ]/g,"-")}.xlsx`);
+};
 
 /* ---- NILAI ---- */
 window.simpanNilai = async () => {
