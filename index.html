@@ -175,6 +175,12 @@ th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
 .pill.j-mutasi{background:#e6e9df;color:#4c5a3a}
 table.tbl-catatan td,table.tbl-catatan th{text-align:left;padding:9px 12px;vertical-align:top}
 table.tbl-catatan th{font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+/* Kolom Rincian dan Uraian mewarisi nowrap dari .matriks, sehingga max-width
+   diabaikan dan isinya melar menindih kolom sebelah. Paksa membungkus. */
+table.tbl-catatan td.almt{white-space:normal !important;word-break:break-word;
+  width:230px;min-width:200px;max-width:230px}
+table.tbl-catatan th.almt{width:230px}
+table.tbl-catatan td:not(.almt),table.tbl-catatan th:not(.almt){white-space:nowrap}
 
 /* --- penyesuaian layar sempit --- */
 @media(max-width:720px){
@@ -198,12 +204,17 @@ table.tbl-catatan th{font-size:11px;text-transform:uppercase;letter-spacing:.04e
   .hp-only{display:block}
   .hp-inline{display:inline}
   .mode-bar{margin-bottom:10px}
+  /* mode ringkas: sembunyikan kolom tanggal beserta header grupnya, juga
+     kolom No, agar nama siswa dan akumulasi terbaca penuh tanpa menggeser */
   table.ringkas th.tg,table.ringkas td.tg{display:none}
-  table.ringkas th.grup:first-of-type{display:none}
-  table.ringkas .k2{min-width:0;max-width:none;width:auto}
+  table.ringkas th.grup-tgl{display:none}
+  table.ringkas .k1{display:none}
+  table.ringkas .k2{left:auto;min-width:0;max-width:none;width:auto;
+    padding-left:10px !important}
   table.ringkas .kiri,table.ringkas .kanan,table.ringkas th.kanan-grup{
     position:static;box-shadow:none}
-  table.ringkas .kanan{width:auto;min-width:30px;max-width:none}
+  table.ringkas .kanan{width:auto;min-width:34px;max-width:none;
+    padding-left:4px !important;padding-right:4px !important}
 
   /* rekap harian: cegah nama pengisi membungkus jadi beberapa baris */
   #tblAbsen table{font-size:12px}
@@ -220,7 +231,15 @@ table.tbl-catatan th{font-size:11px;text-transform:uppercase;letter-spacing:.04e
 
   /* riwayat catatan: kolom teks dipersempit agar tetap bisa digulir */
   table.tbl-catatan td,table.tbl-catatan th{padding:8px 7px;font-size:12px}
-  table.tbl-catatan .almt{max-width:170px;min-width:120px}
+  table.tbl-catatan td.almt,table.tbl-catatan th.almt{
+    width:150px;min-width:130px;max-width:150px}
+  table.tbl-catatan .s-nama{min-width:100px;max-width:120px}
+
+  /* mode ringkas catatan: sembunyikan Rincian, Uraian, dan Oleh */
+  table.ringkas-catatan td.almt,table.ringkas-catatan th.almt,
+  table.ringkas-catatan td.kol-oleh,table.ringkas-catatan th.kol-oleh{display:none}
+  table.ringkas-catatan .kiri,table.ringkas-catatan .kanan{position:static;box-shadow:none}
+  table.ringkas-catatan .s-nama{min-width:0;max-width:none;width:auto}
 }
 tr.jml td{border-top:2px solid var(--line);background:var(--accent-soft)}
 
@@ -526,6 +545,10 @@ table.tbl-siswa th{font-size:11px;text-transform:uppercase;letter-spacing:.04em}
         <div>
           <label>Siswa</label>
           <select id="fSiswaCatatan" onchange="muatCatatan()"><option value="">Semua siswa</option></select>
+        </div>
+        <div class="filter-aksi">
+          <button class="btn cetak" onclick="cetakCatatan()">Cetak Laporan</button>
+          <button class="btn ghost xls" onclick="unduhCatatanExcel()">Excel</button>
         </div>
       </div>
       <div id="tblCatatan"></div>
@@ -1638,7 +1661,7 @@ window.gambarRinci = () => {
           <tr>
             <th class="kiri k1" rowspan="2">No</th>
             <th class="kiri k2" rowspan="2">Nama Siswa</th>
-            <th class="grup" colspan="${tgl.length}">Tanggal Pertemuan</th>
+            <th class="grup grup-tgl" colspan="${tgl.length}">Tanggal Pertemuan</th>
             <th class="grup kanan-grup" colspan="4">Akumulasi</th>
           </tr>
           <tr>
@@ -1904,11 +1927,14 @@ window.muatCatatan = async () => {
 
   const aksi = bisaEdit();
   $("tblCatatan").innerHTML = list.length ? `
+    <div class="hp-only mode-bar">
+      <button class="mini" id="btnRingkasCatatan" onclick="toggleRingkasCatatan()">Sembunyikan rincian</button>
+    </div>
     <div class="gulir">
-      <table class="matriks tbl-catatan">
+      <table class="matriks tbl-catatan" id="tabelCatatan">
         <thead><tr>
           <th class="kiri s-nama">Nama</th>
-          <th>Tanggal</th><th>Jenis</th><th>Rincian</th><th>Uraian</th><th>Oleh</th>
+          <th>Tanggal</th><th>Jenis</th><th class="almt">Rincian</th><th class="almt">Uraian</th><th class="kol-oleh">Oleh</th>
           ${aksi ? '<th class="kanan s-aksi">Aksi</th>' : ''}
         </tr></thead>
         <tbody>
@@ -1918,7 +1944,7 @@ window.muatCatatan = async () => {
             <td><span class="pill j-${c.jenis||'jurnal'}">${INFO_JENIS[c.jenis||'jurnal'].label}</span></td>
             <td class="almt">${ringkasRincian(c)}</td>
             <td class="almt">${c.isi || '-'}</td>
-            <td>${c.olehNama || '-'}</td>
+            <td class="kol-oleh">${c.olehNama || '-'}</td>
             ${aksi ? `<td class="kanan s-aksi">
               <button class="mini ubah" onclick="editCatatan('${c.id}')">Edit</button>
               <button class="mini" onclick="hapusCatatan('${c.id}')">Hapus</button>
@@ -1927,8 +1953,108 @@ window.muatCatatan = async () => {
         </tbody>
       </table>
     </div>
-    <p class="hint" style="margin-top:12px">${list.length} catatan${(fJ||fS) ? " sesuai filter" : ""}.</p>`
+    <p class="hint" style="margin-top:12px">${list.length} catatan${(fJ||fS) ? " sesuai filter" : ""}.
+      <span class="hp-inline">Geser tabel ke samping untuk melihat kolom lainnya.</span></p>`
     : `<p class="empty">${CATATAN.length ? "Tidak ada catatan sesuai filter." : "Belum ada catatan."}</p>`;
+};
+
+// catatan yang lolos filter, dikelompokkan per siswa
+function catatanTersaring(){
+  const fJ = $("fJenisCatatan") ? $("fJenisCatatan").value : "";
+  const fS = $("fSiswaCatatan") ? $("fSiswaCatatan").value : "";
+  const list = CATATAN.filter(c =>
+    (!fJ || (c.jenis || "jurnal") === fJ) && (!fS || c.siswaId === fS));
+
+  // urutkan siswa sesuai daftar, catatannya dari yang terlama
+  const grup = [];
+  SISWA.forEach(s => {
+    const milik = list.filter(c => c.siswaId === s.id)
+                      .sort((a,b) => (a.tgl||"").localeCompare(b.tgl||""));
+    if (milik.length) grup.push({siswa:s, catatan:milik});
+  });
+  // catatan milik siswa yang sudah dihapus dari daftar
+  const yatim = list.filter(c => !SISWA.some(s => s.id === c.siswaId));
+  if (yatim.length) grup.push({siswa:{nama:"(siswa tidak terdaftar)", nis:"-"}, catatan:yatim});
+
+  return {grup, total:list.length, fJ};
+}
+
+window.cetakCatatan = () => {
+  const {grup, total, fJ} = catatanTersaring();
+  if (!total) return pesan("catatanMsg","Tidak ada catatan untuk dicetak sesuai filter.",false);
+
+  const id = identitas();
+  const judul = fJ ? INFO_JENIS[fJ].label.toUpperCase() : "CATATAN SISWA";
+  const w = window.open("", "_blank");
+  if (!w) return pesan("catatanMsg","Jendela cetak diblokir browser. Izinkan pop-up untuk situs ini.",false);
+
+  const isiSiswa = grup.map(g => `
+    <div class="blok">
+      <div class="kepala">
+        <b>${g.siswa.nama}</b>${g.siswa.nis && g.siswa.nis !== "-" ? ` &nbsp;·&nbsp; NIS ${g.siswa.nis}` : ""}
+        <span class="jml">${g.catatan.length} catatan</span>
+      </div>
+      <table>
+        <tr><th style="width:78px">Tanggal</th><th style="width:90px">Jenis</th>
+            <th style="width:30%">Rincian</th><th>Uraian</th></tr>
+        ${g.catatan.map(c => `<tr>
+          <td>${c.tanggal || "-"}</td>
+          <td>${INFO_JENIS[c.jenis||"jurnal"].label}</td>
+          <td>${ringkasRincian(c) || "-"}</td>
+          <td>${c.isi || "-"}</td></tr>`).join("")}
+      </table>
+    </div>`).join("");
+
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+    <title>Laporan ${judul}</title>
+    <style>${GAYA_CETAK}
+      td{text-align:left;vertical-align:top}
+      th{text-align:left}
+      .blok{margin-top:16px;page-break-inside:avoid}
+      .kepala{font-size:12px;padding:5px 6px;background:#f0f0f0;border:1px solid #999;border-bottom:none}
+      .kepala .jml{float:right;font-size:10px;color:#555}
+      .blok table{margin-top:0}
+    </style></head><body>
+    ${id.sekolah ? `<h1>${id.sekolah.toUpperCase()}</h1>` : ""}
+    <h1>LAPORAN ${judul}</h1>
+    <p class="sub">Kelas: ${id.kelas}${id.tahun ? ` &nbsp;|&nbsp; Tahun Pelajaran: ${id.tahun}` : ""}
+      &nbsp;|&nbsp; ${grup.length} siswa, ${total} catatan</p>
+    ${isiSiswa}
+    ${blokTandaTangan()}
+    </body></html>`);
+  w.document.close();
+  w.onload = () => { w.focus(); w.print(); };
+};
+
+window.unduhCatatanExcel = () => {
+  const {grup, total, fJ} = catatanTersaring();
+  if (!total) return pesan("catatanMsg","Tidak ada catatan untuk diunduh sesuai filter.",false);
+
+  const id = identitas();
+  const aoa = [
+    ["Laporan " + (fJ ? INFO_JENIS[fJ].label : "Catatan Siswa")],
+    ["Kelas: " + id.kelas, `${grup.length} siswa, ${total} catatan`],
+    [],
+    ["No","Nama Siswa","NIS","Tanggal","Jenis","Rincian","Uraian","Dicatat oleh"]
+  ];
+  let n = 0;
+  grup.forEach(g => g.catatan.forEach(c => {
+    aoa.push([++n, g.siswa.nama, g.siswa.nis || "-", c.tanggal || "-",
+      INFO_JENIS[c.jenis||"jurnal"].label, ringkasRincian(c) || "-", c.isi || "-", c.olehNama || "-"]);
+  }));
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws["!cols"] = [{wch:5},{wch:24},{wch:13},{wch:12},{wch:15},{wch:40},{wch:40},{wch:20}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Catatan");
+  XLSX.writeFile(wb, `Laporan-Catatan-${(fJ||"semua")}.xlsx`);
+};
+
+window.toggleRingkasCatatan = () => {
+  const t = $("tabelCatatan");
+  if (!t) return;
+  const ringkas = t.classList.toggle("ringkas-catatan");
+  $("btnRingkasCatatan").textContent = ringkas ? "Tampilkan rincian" : "Sembunyikan rincian";
 };
 
 /* ---- PENGGUNA (admin) ---- */
