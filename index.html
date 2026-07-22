@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jurnal Wali Kelas</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14231c;
+  --paper:#f2efe4;
+  --rule:#c9c2ab;
+  --moss:#3f6b4f;
+  --clay:#8a4b2a;
+  --gold:#c9a227;
+  --soft:#fbfaf5;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.55}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:800;margin:0;letter-spacing:-.01em}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--moss)}
+button{font:inherit;cursor:pointer;border:none}
+input,select,textarea{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--soft);color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--moss);outline-offset:1px}
+textarea{min-height:110px;resize:vertical}
+label{display:block;margin:14px 0 5px;font-size:13px;font-weight:600}
+.btn{background:var(--moss);color:#fff;padding:11px 18px;border-radius:8px;font-weight:600}
+.btn:hover{background:#2f5340}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:var(--moss);border:1px solid var(--rule)}
+.btn.danger{background:transparent;color:var(--clay);border:1px solid var(--rule);padding:6px 12px;font-size:13px}
+.hide{display:none !important}
+
+#login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.card{width:100%;max-width:400px;background:var(--soft);border:1px solid var(--rule);border-radius:14px;padding:32px}
+.mark{width:46px;height:46px;border-radius:12px;background:var(--moss);color:var(--gold);display:grid;place-items:center;font-family:Fraunces,serif;font-size:24px;font-weight:800;margin-bottom:18px}
+.err{margin-top:14px;padding:10px 12px;border-radius:8px;background:#fbeae4;color:var(--clay);font-size:13px}
+.ok{margin-top:14px;padding:10px 12px;border-radius:8px;background:#dcecdf;color:var(--moss);font-size:13px}
+.note{margin-top:20px;padding-top:16px;border-top:1px solid var(--rule);font-size:13px;color:#6b6a5d}
+
+header{background:var(--soft);border-bottom:1px solid var(--rule);padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header .who{margin-left:auto;text-align:right;font-size:13px}
+main{max-width:900px;margin:0 auto;padding:24px 20px 60px}
+.tabs{display:flex;gap:6px;margin-bottom:22px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.tab{background:none;padding:10px 14px;font-weight:600;color:#6b6a5d;border-bottom:2px solid transparent}
+.tab.on{color:var(--moss);border-bottom-color:var(--moss)}
+.entry{background:var(--soft);border:1px solid var(--rule);border-left:3px solid var(--moss);border-radius:10px;padding:16px;margin-bottom:12px}
+.entry .top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}
+.entry p{margin:8px 0 0;white-space:pre-wrap}
+.tag{font-size:11px;padding:3px 9px;border-radius:99px;background:#e6e2d2;font-weight:600}
+.tag.hadir{background:#dcecdf;color:var(--moss)}
+.tag.izin{background:#f6ecd2;color:#7a5c10}
+.tag.alpa{background:#fbe2d8;color:var(--clay)}
+.empty{text-align:center;padding:50px 20px;color:#7d7c6f}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.row>*{flex:1;min-width:150px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.stat{flex:1;min-width:110px;background:var(--soft);border:1px solid var(--rule);border-radius:10px;padding:14px}
+.stat b{display:block;font-family:Fraunces,serif;font-size:28px}
+.panel{background:var(--soft);border:1px solid var(--rule);border-radius:12px;padding:22px;margin-bottom:22px}
+.person{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule)}
+.person:last-child{border-bottom:none}
+.person .grow{flex:1;min-width:0}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="card">
+    <div class="mark">J</div>
+    <h1 style="font-size:26px">Jurnal Wali Kelas</h1>
+    <p class="mono" style="margin:6px 0 0">Masuk ke akun Anda</p>
+
+    <label>Nomor induk siswa atau email</label>
+    <input id="email" placeholder="12345 atau nama@sekolah.id" autocomplete="username">
+    <label>Kata sandi</label>
+    <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password">
+
+    <button id="btnMasuk" class="btn" style="width:100%;margin-top:22px">Masuk</button>
+    <div id="loginErr" class="err hide"></div>
+
+    <p class="note">Siswa masuk dengan nomor induk. Guru dan kepala sekolah masuk dengan email. Akun dibuatkan oleh wali kelas.</p>
+  </div>
+</div>
+
+<div id="app" class="hide">
+  <header>
+    <div class="mark" style="width:34px;height:34px;font-size:18px;margin:0">J</div>
+    <h2 style="font-size:18px">Jurnal Wali Kelas</h2>
+    <div class="who">
+      <div id="uName" style="font-weight:600"></div>
+      <div id="uRole" class="mono" style="font-size:11px"></div>
+    </div>
+    <button id="btnOut" class="btn ghost">Keluar</button>
+  </header>
+
+  <main>
+    <div class="tabs">
+      <button class="tab on" data-p="list">Jurnal</button>
+      <button class="tab hide" data-p="new" id="tabNew">Tulis Jurnal</button>
+      <button class="tab hide" data-p="akun" id="tabAkun">Kelola Akun</button>
+    </div>
+
+    <section id="pList">
+      <div class="stats" id="stats"></div>
+      <div class="row">
+        <input id="fSearch" placeholder="Cari nama siswa atau catatan…">
+        <select id="fStatus">
+          <option value="">Semua kehadiran</option>
+          <option value="hadir">Hadir</option>
+          <option value="izin">Izin / Sakit</option>
+          <option value="alpa">Alpa</option>
+        </select>
+      </div>
+      <div id="entries"></div>
+    </section>
+
+    <section id="pNew" class="hide">
+      <h3 style="font-size:20px;margin-bottom:4px">Catatan baru</h3>
+      <p class="mono">Isi jurnal harian kelas</p>
+      <div class="row" style="margin-top:16px">
+        <div><label>Tanggal</label><input id="fDate" type="date"></div>
+        <div><label>Kelas</label><input id="fKelas" placeholder="XI IPA 2"></div>
+      </div>
+      <div class="row">
+        <div><label>Nama siswa</label><input id="fSiswa" list="daftarSiswa" placeholder="Nama siswa"><datalist id="daftarSiswa"></datalist></div>
+        <div><label>Kehadiran</label>
+          <select id="fHadir">
+            <option value="hadir">Hadir</option>
+            <option value="izin">Izin / Sakit</option>
+            <option value="alpa">Alpa</option>
+          </select>
+        </div>
+      </div>
+      <label>Catatan</label>
+      <textarea id="fNote" placeholder="Perkembangan, sikap, atau kejadian hari ini…"></textarea>
+      <button id="btnSave" class="btn" style="margin-top:18px">Simpan jurnal</button>
+      <div id="formErr" class="err hide"></div>
+    </section>
+
+    <section id="pAkun" class="hide">
+      <div class="panel">
+        <h3 style="font-size:20px;margin-bottom:4px">Buatkan akun</h3>
+        <p class="mono">Untuk siswa, kepala sekolah, atau guru lain</p>
+        <div class="row" style="margin-top:16px">
+          <div><label>Nama lengkap</label><input id="nName" placeholder="Budi Santoso"></div>
+          <div><label>Peran</label>
+            <select id="nRole">
+              <option value="siswa">Siswa</option>
+              <option value="kepsek">Kepala Sekolah</option>
+              <option value="guru">Guru / Wali Kelas</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label id="labelId">Nomor induk siswa</label>
+            <input id="nEmail" placeholder="12345">
+          </div>
+          <div><label>Kelas</label><input id="nKelas" placeholder="XI IPA 2"></div>
+        </div>
+        <label>Kata sandi awal</label>
+        <input id="nPass" placeholder="Minimal 6 karakter">
+        <button id="btnBuat" class="btn" style="margin-top:18px">Buat akun</button>
+        <div id="akunErr" class="err hide"></div>
+        <div id="akunOk" class="ok hide"></div>
+      </div>
+
+      <div class="panel">
+        <h3 style="font-size:18px;margin-bottom:12px">Akun terdaftar</h3>
+        <div id="daftarAkun"><div class="empty">Memuat…</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, doc, setDoc, getDoc, addDoc, deleteDoc,
+  collection, query, where, orderBy, onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ====== GANTI DENGAN KONFIG FIREBASE ANDA ====== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAGPSzUSrrlwieTd633Gc5K_sU3PMlk_Ho",
+  authDomain: "ewali-413a1.firebaseapp.com",
+  projectId: "ewali-413a1",
+  storageBucket: "ewali-413a1.firebasestorage.app",
+  messagingSenderId: "983180734343",
+  appId: "1:983180734343:web:45ff6306ef0ec5aaa52d22"
+};
+/* =============================================== */
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* Domain internal untuk akun siswa. Siswa hanya mengetik nomor induk,
+   aplikasi menambahkan domain ini di belakangnya sebelum dikirim ke Firebase.
+   Domain ini tidak perlu benar-benar ada. */
+const DOMAIN_NIS = "@siswa.sekolah.id";
+
+const $ = id => document.getElementById(id);
+const ROLE_LABEL = { guru:"Guru / Wali Kelas", kepsek:"Kepala Sekolah", siswa:"Siswa" };
+
+/* Kalau yang diketik bukan email (tidak ada @), anggap itu nomor induk siswa. */
+const keEmail = input => input.includes("@") ? input : input + DOMAIN_NIS;
+/* Kebalikannya: untuk ditampilkan kembali sebagai nomor induk. */
+const keTampilan = email =>
+  email.endsWith(DOMAIN_NIS) ? email.slice(0, -DOMAIN_NIS.length) : email;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let me = null;
+let unsubJurnal = null, unsubAkun = null;
+let cache = [], akunCache = [];
+
+/* ---------- LOGIN ---------- */
+function showErr(msg){ $("loginErr").textContent = msg; $("loginErr").classList.remove("hide"); }
+
+$("btnMasuk").onclick = masuk;
+$("pass").onkeydown = e => { if (e.key === "Enter") masuk(); };
+
+async function masuk(){
+  $("loginErr").classList.add("hide");
+  const isian = $("email").value.trim(), pass = $("pass").value;
+  if (!isian || !pass) return showErr("Nomor induk dan kata sandi harus diisi.");
+  $("btnMasuk").disabled = true;
+  try {
+    await signInWithEmailAndPassword(auth, keEmail(isian), pass);
+  } catch (e) {
+    showErr(terjemahkan(e));
+    $("btnMasuk").disabled = false;
+  }
+}
+
+function terjemahkan(e){
+  const c = e.code || "";
+  if (c.includes("invalid-credential") || c.includes("wrong-password") || c.includes("user-not-found"))
+    return "Nomor induk atau kata sandi salah.";
+  if (c.includes("email-already-in-use")) return "Nomor induk ini sudah dipakai akun lain.";
+  if (c.includes("weak-password")) return "Kata sandi minimal 6 karakter.";
+  if (c.includes("invalid-email")) return "Nomor induk hanya boleh berisi huruf, angka, titik, dan strip.";
+  if (c.includes("too-many-requests")) return "Terlalu banyak percobaan. Tunggu sebentar.";
+  if (c.includes("network")) return "Koneksi gagal. Periksa jaringan Anda.";
+  return e.message || "Terjadi kesalahan. Coba lagi.";
+}
+
+$("btnOut").onclick = () => signOut(auth);
+
+/* ---------- SESI ---------- */
+onAuthStateChanged(auth, async user => {
+  $("btnMasuk").disabled = false;
+  if (unsubJurnal) { unsubJurnal(); unsubJurnal = null; }
+  if (unsubAkun)   { unsubAkun();   unsubAkun = null; }
+
+  if (!user) {
+    me = null;
+    $("app").classList.add("hide");
+    $("login").classList.remove("hide");
+    $("pass").value = "";
+    return;
+  }
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (!snap.exists()) {
+    await signOut(auth);
+    return showErr("Akun ini belum terdaftar di sistem. Hubungi wali kelas Anda.");
+  }
+
+  me = { uid: user.uid, ...snap.data() };
+  $("uName").textContent = me.nama;
+  $("uRole").textContent = ROLE_LABEL[me.role] + " · " + me.kelas;
+
+  const guru = me.role === "guru";
+  $("tabNew").classList.toggle("hide", !guru);
+  $("tabAkun").classList.toggle("hide", !guru);
+
+  $("login").classList.add("hide");
+  $("app").classList.remove("hide");
+  $("fDate").value = new Date().toISOString().slice(0,10);
+  $("fKelas").value = me.kelas || "";
+  buka("list");
+  dengarkanJurnal();
+  if (guru) dengarkanAkun();
+});
+
+/* ---------- TAB ---------- */
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => buka(t.dataset.p));
+function buka(p){
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.p === p));
+  $("pList").classList.toggle("hide", p !== "list");
+  $("pNew").classList.toggle("hide", p !== "new");
+  $("pAkun").classList.toggle("hide", p !== "akun");
+}
+
+/* ---------- JURNAL ---------- */
+function dengarkanJurnal(){
+  const col = collection(db, "jurnal");
+  let q;
+  if (me.role === "kepsek")     q = query(col, orderBy("tanggal", "desc"));
+  else if (me.role === "guru")  q = query(col, where("guruUid", "==", me.uid), orderBy("tanggal", "desc"));
+  else                          q = query(col, where("siswaUid", "==", me.uid), orderBy("tanggal", "desc"));
+
+  unsubJurnal = onSnapshot(q,
+    s => { cache = s.docs.map(d => ({ id: d.id, ...d.data() })); render(); },
+    e => { $("entries").innerHTML = `<div class="empty">Gagal memuat jurnal.<br><small>${esc(e.message)}</small></div>`; }
+  );
+}
+
+$("fSearch").oninput = render;
+$("fStatus").onchange = render;
+
+function render(){
+  const cari = $("fSearch").value.toLowerCase();
+  const st = $("fStatus").value;
+  const data = cache.filter(j =>
+    (!st || j.kehadiran === st) &&
+    (!cari || (j.siswa + " " + j.catatan + " " + j.kelas).toLowerCase().includes(cari))
+  );
+
+  const n = k => cache.filter(j => j.kehadiran === k).length;
+  $("stats").innerHTML = `
+    <div class="stat"><span class="mono">Total</span><b>${cache.length}</b></div>
+    <div class="stat"><span class="mono">Hadir</span><b>${n("hadir")}</b></div>
+    <div class="stat"><span class="mono">Izin</span><b>${n("izin")}</b></div>
+    <div class="stat"><span class="mono">Alpa</span><b>${n("alpa")}</b></div>`;
+
+  if (!data.length) {
+    $("entries").innerHTML = `<div class="empty">${cache.length ? "Tidak ada jurnal yang cocok dengan pencarian." : "Belum ada jurnal."}</div>`;
+    return;
+  }
+
+  $("entries").innerHTML = data.map(j => `
+    <div class="entry">
+      <div class="top">
+        <strong>${esc(j.siswa)}</strong>
+        <span class="tag ${esc(j.kehadiran)}">${esc(j.kehadiran)}</span>
+        <span class="mono">${esc(j.kelas)} · ${esc(j.tanggal)}</span>
+        ${me.role === "guru" ? `<button class="btn danger" style="margin-left:auto" data-del="${j.id}">Hapus</button>` : ""}
+      </div>
+      <p>${esc(j.catatan)}</p>
+      <div class="mono" style="margin-top:10px;font-size:10px">Dicatat oleh ${esc(j.guruNama)}</div>
+    </div>`).join("");
+
+  document.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    if (confirm("Hapus jurnal ini?")) await deleteDoc(doc(db, "jurnal", b.dataset.del));
+  });
+}
+
+/* ---------- SIMPAN JURNAL ---------- */
+$("btnSave").onclick = async () => {
+  $("formErr").classList.add("hide");
+  const namaSiswa = $("fSiswa").value.trim();
+  const catatan = $("fNote").value.trim();
+  const kelas = $("fKelas").value.trim();
+  const tanggal = $("fDate").value;
+
+  if (!namaSiswa || !catatan || !kelas || !tanggal) {
+    $("formErr").textContent = "Lengkapi semua kolom sebelum menyimpan.";
+    return $("formErr").classList.remove("hide");
+  }
+
+  // cocokkan nama dengan akun siswa agar jurnal muncul di halaman siswa
+  const cocok = akunCache.find(a => a.role === "siswa" && a.nama.toLowerCase() === namaSiswa.toLowerCase());
+
+  $("btnSave").disabled = true;
+  try {
+    await addDoc(collection(db, "jurnal"), {
+      siswa: cocok ? cocok.nama : namaSiswa,
+      siswaUid: cocok ? cocok.uid : null,
+      catatan, kelas, tanggal,
+      kehadiran: $("fHadir").value,
+      guruUid: me.uid,
+      guruNama: me.nama,
+      dibuat: serverTimestamp()
+    });
+    $("fSiswa").value = ""; $("fNote").value = ""; $("fHadir").value = "hadir";
+    buka("list");
+  } catch (e) {
+    $("formErr").textContent = "Gagal menyimpan: " + e.message;
+    $("formErr").classList.remove("hide");
+  }
+  $("btnSave").disabled = false;
+};
+
+/* ---------- KELOLA AKUN ---------- */
+function dengarkanAkun(){
+  unsubAkun = onSnapshot(query(collection(db, "users"), orderBy("nama")),
+    s => {
+      akunCache = s.docs.map(d => ({ uid: d.id, ...d.data() }));
+      renderAkun();
+      $("daftarSiswa").innerHTML = akunCache
+        .filter(a => a.role === "siswa")
+        .map(a => `<option value="${esc(a.nama)}">`).join("");
+    },
+    e => { $("daftarAkun").innerHTML = `<div class="empty">Gagal memuat akun.<br><small>${esc(e.message)}</small></div>`; }
+  );
+}
+
+function renderAkun(){
+  if (!akunCache.length) { $("daftarAkun").innerHTML = `<div class="empty">Belum ada akun.</div>`; return; }
+  $("daftarAkun").innerHTML = akunCache.map(a => `
+    <div class="person">
+      <div class="grow">
+        <strong>${esc(a.nama)}</strong>
+        <div class="mono" style="font-size:11px">${esc(ROLE_LABEL[a.role] || a.role)} · ${esc(a.kelas)}</div>
+        <div style="font-size:12px;color:#7d7c6f">${a.role === "siswa" ? "NIS " : ""}${esc(keTampilan(a.email || ""))}</div>
+      </div>
+      ${a.uid === me.uid ? `<span class="mono" style="font-size:11px">Anda</span>`
+        : `<button class="btn danger" data-hapus="${a.uid}">Hapus dari daftar</button>`}
+    </div>`).join("");
+
+  document.querySelectorAll("[data-hapus]").forEach(b => b.onclick = async () => {
+    if (!confirm("Hapus akun ini dari daftar? Orang tersebut tidak akan bisa masuk lagi.\n\nLogin Firebase-nya perlu dihapus manual di Firebase Console.")) return;
+    await deleteDoc(doc(db, "users", b.dataset.hapus));
+  });
+}
+
+/* Ganti label kolom identitas sesuai peran yang dipilih. */
+$("nRole").onchange = () => {
+  const siswa = $("nRole").value === "siswa";
+  $("labelId").textContent = siswa ? "Nomor induk siswa" : "Email";
+  $("nEmail").placeholder = siswa ? "12345" : "budi@sekolah.id";
+  $("nEmail").value = "";
+};
+
+/* Membuat akun tanpa membuat guru ter-logout:
+   gunakan instance Firebase kedua khusus untuk pendaftaran. */
+$("btnBuat").onclick = async () => {
+  $("akunErr").classList.add("hide"); $("akunOk").classList.add("hide");
+  const nama  = $("nName").value.trim();
+  const isian = $("nEmail").value.trim();
+  const kelas = $("nKelas").value.trim();
+  const pass  = $("nPass").value;
+  const role  = $("nRole").value;
+
+  if (!nama || !isian || !kelas || pass.length < 6) {
+    $("akunErr").textContent = "Lengkapi semua kolom. Kata sandi minimal 6 karakter.";
+    return $("akunErr").classList.remove("hide");
+  }
+
+  if (role === "siswa" && isian.includes("@")) {
+    $("akunErr").textContent = "Untuk siswa, isi nomor induk saja tanpa tanda @.";
+    return $("akunErr").classList.remove("hide");
+  }
+  if (role !== "siswa" && !isian.includes("@")) {
+    $("akunErr").textContent = "Untuk guru dan kepala sekolah, isi alamat email lengkap.";
+    return $("akunErr").classList.remove("hide");
+  }
+
+  const email = keEmail(isian);
+
+  $("btnBuat").disabled = true;
+  const app2 = initializeApp(firebaseConfig, "pendaftaran-" + Date.now());
+  const auth2 = getAuth(app2);
+  try {
+    const cred = await createUserWithEmailAndPassword(auth2, email, pass);
+    await setDoc(doc(db, "users", cred.user.uid), {
+      nama, email, kelas, role,
+      nis: role === "siswa" ? isian : null,
+      dibuatOleh: me.uid,
+      dibuat: serverTimestamp()
+    });
+    $("akunOk").textContent = role === "siswa"
+      ? `Akun ${nama} dibuat. Beri tahu siswa: masuk dengan nomor induk ${isian} dan kata sandi yang Anda isi tadi.`
+      : `Akun ${nama} dibuat. Berikan email dan kata sandi ini kepada yang bersangkutan.`;
+    $("akunOk").classList.remove("hide");
+    $("nName").value = ""; $("nEmail").value = ""; $("nPass").value = "";
+  } catch (e) {
+    $("akunErr").textContent = terjemahkan(e);
+    $("akunErr").classList.remove("hide");
+  }
+  await signOut(auth2).catch(()=>{});
+  await deleteApp(app2).catch(()=>{});
+  $("btnBuat").disabled = false;
+};
+</script>
+</body>
+</html>
