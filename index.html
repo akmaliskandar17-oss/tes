@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administrasi Wali Kelas</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1b2a2f;
+  --paper:#f2efe6;
+  --card:#ffffff;
+  --line:#d8d3c4;
+  --accent:#2f6d5f;
+  --accent-soft:#e3efe9;
+  --warn:#b3541e;
+  --muted:#6c7a80;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,sans-serif;font-size:15px}
+h1,h2,h3{font-family:Bitter,serif;margin:0}
+.hidden{display:none !important}
+
+/* LOGIN */
+#login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.loginbox{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:32px;width:100%;max-width:380px}
+.loginbox h1{font-size:24px;line-height:1.2;margin-bottom:4px}
+.loginbox p.sub{color:var(--muted);font-size:13px;margin:0 0 24px}
+
+/* LAYOUT */
+header{background:var(--ink);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:17px}
+.who{font-size:12px;opacity:.75}
+nav{background:var(--card);border-bottom:1px solid var(--line);padding:0 20px;display:flex;gap:4px;overflow-x:auto}
+nav button{background:none;border:none;border-bottom:3px solid transparent;padding:13px 14px;font:inherit;font-size:14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--accent);border-color:var(--accent);font-weight:600}
+main{padding:20px;max-width:1100px;margin:0 auto}
+section.page{display:none}
+section.page.on{display:block}
+
+/* COMPONENTS */
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:20px;margin-bottom:18px}
+.card h2{font-size:16px;margin-bottom:14px}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:3px;font:inherit;background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+button.btn{background:var(--accent);color:#fff;border:none;padding:10px 18px;border-radius:3px;font:inherit;font-weight:600;cursor:pointer;margin-top:14px}
+button.btn.ghost{background:none;color:var(--accent);border:1px solid var(--accent)}
+button.btn.danger{background:var(--warn)}
+button.mini{background:none;border:1px solid var(--line);padding:4px 9px;border-radius:3px;cursor:pointer;font-size:12px;color:var(--warn)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:8px;border-bottom:2px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:var(--accent-soft);color:var(--accent)}
+.msg{padding:10px 12px;border-radius:3px;font-size:13px;margin-top:12px}
+.msg.ok{background:var(--accent-soft);color:var(--accent)}
+.msg.err{background:#f6e2d8;color:var(--warn)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:16px}
+.stat b{font-family:Bitter,serif;font-size:28px;display:block}
+.stat span{font-size:12px;color:var(--muted)}
+.empty{color:var(--muted);font-size:13px;padding:14px 0}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <div class="loginbox">
+    <h1>Administrasi Wali Kelas</h1>
+    <p class="sub">Masuk untuk mengelola data kelas</p>
+    <label>Email</label>
+    <input id="lEmail" type="email" placeholder="nama@sekolah.sch.id">
+    <label>Kata sandi</label>
+    <input id="lPass" type="password" placeholder="••••••••">
+    <button class="btn" style="width:100%" onclick="masuk()">Masuk</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="hidden">
+<header>
+  <h1>Administrasi Wali Kelas</h1>
+  <div>
+    <span class="who" id="who"></span>
+    <button class="mini" style="margin-left:10px;color:#fff;border-color:#fff6" onclick="keluar()">Keluar</button>
+  </div>
+</header>
+
+<nav id="nav"></nav>
+
+<main>
+  <!-- BERANDA -->
+  <section class="page" id="p-beranda">
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <!-- SISWA -->
+  <section class="page" id="p-siswa">
+    <div class="card" id="formSiswa">
+      <h2>Tambah siswa</h2>
+      <div class="row">
+        <div><label>NIS</label><input id="sNis"></div>
+        <div><label>Nama lengkap</label><input id="sNama"></div>
+        <div><label>Jenis kelamin</label><select id="sJk"><option>Laki-laki</option><option>Perempuan</option></select></div>
+        <div><label>Kelas</label><input id="sKelas" placeholder="Contoh: 5A"></div>
+        <div><label>Nama wali</label><input id="sWali"></div>
+        <div><label>Nomor HP wali</label><input id="sHp"></div>
+      </div>
+      <button class="btn" onclick="simpanSiswa()">Simpan siswa</button>
+      <div id="siswaMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Daftar siswa</h2>
+      <div id="tblSiswa"></div>
+    </div>
+  </section>
+
+  <!-- ABSENSI -->
+  <section class="page" id="p-absensi">
+    <div class="card" id="formAbsen">
+      <h2>Isi absensi harian</h2>
+      <label>Tanggal</label><input id="aTgl" type="date">
+      <div id="absenList" class="empty">Pilih tanggal, lalu tandai kehadiran.</div>
+      <button class="btn" onclick="simpanAbsen()">Simpan absensi</button>
+      <div id="absenMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Rekap kehadiran</h2>
+      <div id="tblAbsen"></div>
+    </div>
+  </section>
+
+  <!-- NILAI -->
+  <section class="page" id="p-nilai">
+    <div class="card" id="formNilai">
+      <h2>Input nilai</h2>
+      <div class="row">
+        <div><label>Siswa</label><select id="nSiswa"></select></div>
+        <div><label>Mata pelajaran</label><input id="nMapel"></div>
+        <div><label>Jenis</label><select id="nJenis"><option>Harian</option><option>UTS</option><option>UAS</option></select></div>
+        <div><label>Nilai (0–100)</label><input id="nNilai" type="number" min="0" max="100"></div>
+      </div>
+      <button class="btn" onclick="simpanNilai()">Simpan nilai</button>
+      <div id="nilaiMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Daftar nilai</h2>
+      <div id="tblNilai"></div>
+    </div>
+  </section>
+
+  <!-- CATATAN -->
+  <section class="page" id="p-catatan">
+    <div class="card" id="formCatatan">
+      <h2>Catatan perkembangan siswa</h2>
+      <label>Siswa</label><select id="cSiswa"></select>
+      <label>Catatan</label><textarea id="cIsi" rows="3" placeholder="Contoh: Aktif bertanya, perlu bimbingan pada perkalian."></textarea>
+      <button class="btn" onclick="simpanCatatan()">Simpan catatan</button>
+      <div id="catatanMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Riwayat catatan</h2>
+      <div id="tblCatatan"></div>
+    </div>
+  </section>
+
+  <!-- PENGGUNA (admin saja) -->
+  <section class="page" id="p-pengguna">
+    <div class="card">
+      <h2>Daftarkan pengguna baru</h2>
+      <div class="row">
+        <div><label>Nama</label><input id="uNama"></div>
+        <div><label>Email</label><input id="uEmail" type="email"></div>
+        <div><label>Kata sandi</label><input id="uPass" type="password"></div>
+        <div><label>Peran</label><select id="uRole">
+          <option value="guru">Guru</option>
+          <option value="kepsek">Kepala sekolah</option>
+          <option value="admin">Admin / wali kelas</option>
+        </select></div>
+      </div>
+      <button class="btn" onclick="buatPengguna()">Buat akun</button>
+      <div id="userMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Daftar pengguna</h2>
+      <div id="tblUser"></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         signOut, onAuthStateChanged, initializeAuth, browserLocalPersistence }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc,
+         deleteDoc, query, orderBy, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ============================================================
+   1. GANTI BAGIAN INI dengan konfigurasi Firebase milikmu.
+      Ambil di: console.firebase.google.com > Project settings
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyChizRXJ6W_k1xIk8Vk8etIOei5aa2qVHg",
+  authDomain: "ewali-a58be.firebaseapp.com",
+  projectId: "ewali-a58be",
+  storageBucket: "ewali-a58be.firebasestorage.app",
+  messagingSenderId: "731643521159",
+  appId: "1:731643521159:web:240261f1d17eb94c19b022"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let ME = null;          // { uid, nama, email, role }
+let SISWA = [];         // cache daftar siswa
+
+/* -------- HAK AKSES PER PERAN -------- */
+const MENU = {
+  admin : ["beranda","siswa","absensi","nilai","catatan","pengguna"],
+  guru  : ["beranda","siswa","absensi","nilai","catatan"],
+  kepsek: ["beranda","siswa","absensi","nilai","catatan"]
+};
+const LABEL = {beranda:"Beranda",siswa:"Siswa",absensi:"Absensi",nilai:"Nilai",catatan:"Catatan",pengguna:"Pengguna"};
+const bisaEdit = () => ME && (ME.role === "admin" || ME.role === "guru");
+const namaRole = r => ({admin:"Admin / Wali Kelas",guru:"Guru",kepsek:"Kepala Sekolah"}[r] || r);
+
+/* -------- UTIL -------- */
+const $ = id => document.getElementById(id);
+function pesan(el, teks, ok = true){
+  $(el).innerHTML = `<div class="msg ${ok?'ok':'err'}">${teks}</div>`;
+  setTimeout(()=>{ $(el).innerHTML = ""; }, 4000);
+}
+
+/* ============ AUTH ============ */
+window.masuk = async () => {
+  try {
+    await signInWithEmailAndPassword(auth, $("lEmail").value.trim(), $("lPass").value);
+  } catch(e) {
+    pesan("loginMsg","Email atau kata sandi salah. Coba lagi.",false);
+  }
+};
+window.keluar = () => signOut(auth);
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    ME = null;
+    $("login").classList.remove("hidden");
+    $("app").classList.add("hidden");
+    return;
+  }
+  const snap = await getDoc(doc(db,"pengguna",user.uid));
+  if (!snap.exists()) {
+    pesan("loginMsg","Akun ini belum diberi peran. Hubungi admin.",false);
+    return signOut(auth);
+  }
+  ME = { uid:user.uid, email:user.email, ...snap.data() };
+  $("login").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("who").textContent = `${ME.nama} — ${namaRole(ME.role)}`;
+  bangunNav();
+  await muatSemua();
+});
+
+/* ============ NAVIGASI ============ */
+function bangunNav(){
+  const nav = $("nav");
+  nav.innerHTML = "";
+  MENU[ME.role].forEach((k,i) => {
+    const b = document.createElement("button");
+    b.textContent = LABEL[k];
+    b.onclick = () => buka(k, b);
+    nav.appendChild(b);
+    if (i === 0) buka(k, b);
+  });
+  // kepala sekolah hanya membaca: sembunyikan semua form input
+  if (!bisaEdit()) {
+    ["formSiswa","formAbsen","formNilai","formCatatan"].forEach(f => $(f).classList.add("hidden"));
+  }
+}
+function buka(key, btn){
+  document.querySelectorAll("section.page").forEach(s => s.classList.remove("on"));
+  $("p-"+key).classList.add("on");
+  document.querySelectorAll("#nav button").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+}
+
+/* ============ MUAT DATA ============ */
+async function muatSemua(){
+  await muatSiswa();
+  await muatAbsen();
+  await muatNilai();
+  await muatCatatan();
+  if (ME.role === "admin") await muatUser();
+  await hitungStatistik();
+}
+
+/* ---- SISWA ---- */
+window.simpanSiswa = async () => {
+  const d = {
+    nis:$("sNis").value.trim(), nama:$("sNama").value.trim(),
+    jk:$("sJk").value, kelas:$("sKelas").value.trim(),
+    wali:$("sWali").value.trim(), hp:$("sHp").value.trim(),
+    dibuat: serverTimestamp()
+  };
+  if (!d.nis || !d.nama) return pesan("siswaMsg","NIS dan nama wajib diisi.",false);
+  await addDoc(collection(db,"siswa"), d);
+  ["sNis","sNama","sKelas","sWali","sHp"].forEach(i => $(i).value = "");
+  pesan("siswaMsg","Siswa tersimpan.");
+  await muatSiswa(); await hitungStatistik();
+};
+
+async function muatSiswa(){
+  const snap = await getDocs(collection(db,"siswa"));
+  SISWA = snap.docs.map(d => ({id:d.id, ...d.data()}));
+  SISWA.sort((a,b) => a.nama.localeCompare(b.nama));
+
+  $("tblSiswa").innerHTML = SISWA.length ? `<table>
+    <tr><th>NIS</th><th>Nama</th><th>L/P</th><th>Kelas</th><th>Wali</th><th>HP</th>${bisaEdit()?'<th></th>':''}</tr>
+    ${SISWA.map(s=>`<tr>
+      <td>${s.nis}</td><td>${s.nama}</td><td>${s.jk?.[0]||''}</td>
+      <td>${s.kelas||'-'}</td><td>${s.wali||'-'}</td><td>${s.hp||'-'}</td>
+      ${bisaEdit()?`<td><button class="mini" onclick="hapusSiswa('${s.id}')">Hapus</button></td>`:''}
+    </tr>`).join("")}</table>` : `<p class="empty">Belum ada siswa terdaftar.</p>`;
+
+  const opsi = SISWA.map(s => `<option value="${s.id}">${s.nama}</option>`).join("");
+  $("nSiswa").innerHTML = opsi;
+  $("cSiswa").innerHTML = opsi;
+
+  $("absenList").innerHTML = SISWA.length ? `<table>
+    <tr><th>Nama</th><th>Status</th></tr>
+    ${SISWA.map(s=>`<tr><td>${s.nama}</td><td>
+      <select id="ab-${s.id}"><option>Hadir</option><option>Sakit</option><option>Izin</option><option>Alpa</option></select>
+    </td></tr>`).join("")}</table>` : `<p class="empty">Tambahkan siswa terlebih dahulu.</p>`;
+}
+
+window.hapusSiswa = async id => {
+  if (!confirm("Hapus siswa ini beserta datanya dari daftar?")) return;
+  await deleteDoc(doc(db,"siswa",id));
+  await muatSiswa(); await hitungStatistik();
+};
+
+/* ---- ABSENSI ---- */
+window.simpanAbsen = async () => {
+  const tgl = $("aTgl").value;
+  if (!tgl) return pesan("absenMsg","Pilih tanggal terlebih dahulu.",false);
+  const data = SISWA.map(s => ({siswaId:s.id, nama:s.nama, status:$("ab-"+s.id).value}));
+  await setDoc(doc(db,"absensi",tgl), {tanggal:tgl, data, olehNama:ME.nama, oleh:ME.uid});
+  pesan("absenMsg","Absensi tanggal "+tgl+" tersimpan.");
+  await muatAbsen(); await hitungStatistik();
+};
+
+async function muatAbsen(){
+  const snap = await getDocs(collection(db,"absensi"));
+  const list = snap.docs.map(d => d.data()).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
+  $("tblAbsen").innerHTML = list.length ? `<table>
+    <tr><th>Tanggal</th><th>Hadir</th><th>Sakit</th><th>Izin</th><th>Alpa</th><th>Diisi oleh</th></tr>
+    ${list.map(a=>{
+      const c = st => a.data.filter(x=>x.status===st).length;
+      return `<tr><td>${a.tanggal}</td><td>${c("Hadir")}</td><td>${c("Sakit")}</td>
+              <td>${c("Izin")}</td><td>${c("Alpa")}</td><td>${a.olehNama||'-'}</td></tr>`;
+    }).join("")}</table>` : `<p class="empty">Belum ada absensi tercatat.</p>`;
+}
+
+/* ---- NILAI ---- */
+window.simpanNilai = async () => {
+  const sid = $("nSiswa").value, nilai = Number($("nNilai").value);
+  if (!sid) return pesan("nilaiMsg","Pilih siswa terlebih dahulu.",false);
+  if (!($("nMapel").value.trim())) return pesan("nilaiMsg","Isi mata pelajaran.",false);
+  if (isNaN(nilai) || nilai<0 || nilai>100) return pesan("nilaiMsg","Nilai harus antara 0 dan 100.",false);
+  await addDoc(collection(db,"nilai"), {
+    siswaId:sid, nama:SISWA.find(s=>s.id===sid)?.nama,
+    mapel:$("nMapel").value.trim(), jenis:$("nJenis").value,
+    nilai, olehNama:ME.nama, dibuat:serverTimestamp()
+  });
+  $("nNilai").value = "";
+  pesan("nilaiMsg","Nilai tersimpan.");
+  await muatNilai(); await hitungStatistik();
+};
+
+async function muatNilai(){
+  const snap = await getDocs(collection(db,"nilai"));
+  const list = snap.docs.map(d => d.data());
+  $("tblNilai").innerHTML = list.length ? `<table>
+    <tr><th>Nama</th><th>Mapel</th><th>Jenis</th><th>Nilai</th><th>Diinput oleh</th></tr>
+    ${list.map(n=>`<tr><td>${n.nama}</td><td>${n.mapel}</td>
+      <td><span class="pill">${n.jenis}</span></td><td><b>${n.nilai}</b></td>
+      <td>${n.olehNama||'-'}</td></tr>`).join("")}</table>`
+    : `<p class="empty">Belum ada nilai yang diinput.</p>`;
+}
+
+/* ---- CATATAN ---- */
+window.simpanCatatan = async () => {
+  const sid = $("cSiswa").value, isi = $("cIsi").value.trim();
+  if (!sid || !isi) return pesan("catatanMsg","Pilih siswa dan tulis catatannya.",false);
+  await addDoc(collection(db,"catatan"), {
+    siswaId:sid, nama:SISWA.find(s=>s.id===sid)?.nama,
+    isi, olehNama:ME.nama, tanggal:new Date().toLocaleDateString("id-ID")
+  });
+  $("cIsi").value = "";
+  pesan("catatanMsg","Catatan tersimpan.");
+  await muatCatatan();
+};
+
+async function muatCatatan(){
+  const snap = await getDocs(collection(db,"catatan"));
+  const list = snap.docs.map(d => d.data());
+  $("tblCatatan").innerHTML = list.length ? `<table>
+    <tr><th>Tanggal</th><th>Nama</th><th>Catatan</th><th>Oleh</th></tr>
+    ${list.map(c=>`<tr><td>${c.tanggal}</td><td>${c.nama}</td><td>${c.isi}</td><td>${c.olehNama||'-'}</td></tr>`).join("")}</table>`
+    : `<p class="empty">Belum ada catatan.</p>`;
+}
+
+/* ---- PENGGUNA (admin) ---- */
+window.buatPengguna = async () => {
+  const nama=$("uNama").value.trim(), email=$("uEmail").value.trim(),
+        pass=$("uPass").value, role=$("uRole").value;
+  if (!nama || !email || pass.length < 6)
+    return pesan("userMsg","Lengkapi nama, email, dan kata sandi minimal 6 karakter.",false);
+  try{
+    // memakai instance auth kedua agar sesi admin tidak ikut berpindah
+    const app2  = initializeApp(firebaseConfig, "pendaftar");
+    const auth2 = initializeAuth(app2, {persistence: browserLocalPersistence});
+    const cred  = await createUserWithEmailAndPassword(auth2, email, pass);
+    await setDoc(doc(db,"pengguna",cred.user.uid), {nama, email, role});
+    await signOut(auth2);
+    $("uNama").value = $("uEmail").value = $("uPass").value = "";
+    pesan("userMsg",`Akun ${nama} dibuat sebagai ${namaRole(role)}.`);
+    await muatUser();
+  }catch(e){
+    pesan("userMsg","Gagal membuat akun: "+e.message,false);
+  }
+};
+
+async function muatUser(){
+  const snap = await getDocs(collection(db,"pengguna"));
+  $("tblUser").innerHTML = `<table>
+    <tr><th>Nama</th><th>Email</th><th>Peran</th></tr>
+    ${snap.docs.map(d=>{const u=d.data();
+      return `<tr><td>${u.nama}</td><td>${u.email}</td><td><span class="pill">${namaRole(u.role)}</span></td></tr>`;
+    }).join("")}</table>`;
+}
+
+/* ---- STATISTIK BERANDA ---- */
+async function hitungStatistik(){
+  const nilaiSnap = await getDocs(collection(db,"nilai"));
+  const nilai = nilaiSnap.docs.map(d => d.data().nilai);
+  const rata  = nilai.length ? (nilai.reduce((a,b)=>a+b,0)/nilai.length).toFixed(1) : "—";
+  const absenSnap = await getDocs(collection(db,"absensi"));
+  $("stats").innerHTML = `
+    <div class="stat"><b>${SISWA.length}</b><span>Siswa terdaftar</span></div>
+    <div class="stat"><b>${absenSnap.size}</b><span>Hari absensi tercatat</span></div>
+    <div class="stat"><b>${nilai.length}</b><span>Nilai diinput</span></div>
+    <div class="stat"><b>${rata}</b><span>Rata-rata nilai</span></div>`;
+}
+</script>
+</body>
+</html>
