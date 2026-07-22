@@ -161,6 +161,21 @@ th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
 .hp-only{display:none}
 .hp-inline{display:none}
 
+/* --- tombol lihat/sembunyikan kata sandi --- */
+.pass-wrap{position:relative}
+.pass-wrap input{padding-right:62px}
+.pass-btn{position:absolute;right:5px;top:50%;transform:translateY(-50%);
+  background:none;border:none;padding:5px 8px;cursor:pointer;
+  font:inherit;font-size:12px;font-weight:600;color:var(--accent);border-radius:3px}
+.pass-btn:hover{background:var(--accent-soft)}
+
+/* --- jenis catatan --- */
+.pill.j-jurnal{background:#f6e8dc;color:#8a4b1d}
+.pill.j-konseling{background:#e0ecf6;color:#255a80}
+.pill.j-mutasi{background:#e6e9df;color:#4c5a3a}
+table.tbl-catatan td,table.tbl-catatan th{text-align:left;padding:9px 12px;vertical-align:top}
+table.tbl-catatan th{font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+
 /* --- penyesuaian layar sempit --- */
 @media(max-width:720px){
   /* Kolom terkunci semula 46+210+168 = 424px, melebihi lebar layar HP,
@@ -202,6 +217,10 @@ th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
   .almt{max-width:150px;min-width:110px}
   .s-aksi .mini{padding:3px 6px;font-size:11px}
   .s-aksi .mini + .mini{margin-left:3px}
+
+  /* riwayat catatan: kolom teks dipersempit agar tetap bisa digulir */
+  table.tbl-catatan td,table.tbl-catatan th{padding:8px 7px;font-size:12px}
+  table.tbl-catatan .almt{max-width:170px;min-width:120px}
 }
 tr.jml td{border-top:2px solid var(--line);background:var(--accent-soft)}
 
@@ -233,7 +252,11 @@ table.tbl-siswa th{font-size:11px;text-transform:uppercase;letter-spacing:.04em}
     <label>Email</label>
     <input id="lEmail" type="email" placeholder="nama@sekolah.sch.id">
     <label>Kata sandi</label>
-    <input id="lPass" type="password" placeholder="••••••••">
+    <div class="pass-wrap">
+      <input id="lPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')masuk()">
+      <button type="button" class="pass-btn" id="btnLihatPass" onclick="lihatPass()"
+              aria-label="Tampilkan kata sandi">Lihat</button>
+    </div>
     <button class="btn" style="width:100%" onclick="masuk()">Masuk</button>
     <div id="loginMsg"></div>
   </div>
@@ -427,14 +450,84 @@ table.tbl-siswa th{font-size:11px;text-transform:uppercase;letter-spacing:.04em}
   <!-- CATATAN -->
   <section class="page" id="p-catatan">
     <div class="card" id="formCatatan">
-      <h2>Catatan perkembangan siswa</h2>
-      <label>Siswa</label><select id="cSiswa"></select>
-      <label>Catatan</label><textarea id="cIsi" rows="3" placeholder="Contoh: Aktif bertanya, perlu bimbingan pada perkalian."></textarea>
-      <button class="btn" onclick="simpanCatatan()">Simpan catatan</button>
+      <h2 id="judulFormCatatan">Catatan siswa</h2>
+      <div class="tab-bar">
+        <button class="tab on" onclick="gantiJenis('jurnal',this)">Jurnal Sikap</button>
+        <button class="tab" onclick="gantiJenis('konseling',this)">Konseling</button>
+        <button class="tab" onclick="gantiJenis('mutasi',this)">Mutasi Siswa</button>
+      </div>
+
+      <p class="hint" id="ketJenis"></p>
+
+      <div class="row">
+        <div><label>Siswa</label><select id="cSiswa"></select></div>
+        <div><label>Tanggal kejadian</label><input id="cTanggal" type="date"></div>
+      </div>
+
+      <!-- JURNAL SIKAP -->
+      <div id="isi-jurnal">
+        <div class="row">
+          <div><label>Kategori</label><select id="cKategori">
+            <option>Pelanggaran tata tertib</option>
+            <option>Prestasi</option>
+            <option>Perkembangan sikap</option>
+          </select></div>
+          <div><label>Tindak lanjut</label><input id="cTindak" placeholder="Contoh: Teguran lisan, dicatat di buku kasus"></div>
+        </div>
+      </div>
+
+      <!-- KONSELING -->
+      <div id="isi-konseling" class="hidden">
+        <div class="row">
+          <div><label>Jenis layanan</label><select id="cLayanan">
+            <option>Bimbingan pribadi</option>
+            <option>Mediasi dengan siswa lain</option>
+            <option>Pertemuan dengan orang tua</option>
+            <option>Bimbingan belajar</option>
+          </select></div>
+          <div><label>Pihak yang hadir</label><input id="cHadir" placeholder="Contoh: Siswa, orang tua, guru BK"></div>
+        </div>
+        <label>Hasil / kesepakatan</label>
+        <input id="cHasil" placeholder="Contoh: Siswa bersedia memperbaiki kehadiran">
+      </div>
+
+      <!-- MUTASI -->
+      <div id="isi-mutasi" class="hidden">
+        <div class="row">
+          <div><label>Jenis mutasi</label><select id="cMutasi">
+            <option>Masuk (siswa baru)</option>
+            <option>Keluar (pindah sekolah)</option>
+            <option>Pindah kelas</option>
+          </select></div>
+          <div><label>Sekolah / kelas asal atau tujuan</label><input id="cAsalTujuan" placeholder="Contoh: SMKN 2 Selayar"></div>
+        </div>
+      </div>
+
+      <label id="labelIsi">Uraian kejadian</label>
+      <textarea id="cIsi" rows="3" placeholder="Tuliskan kronologi atau keterangan secukupnya."></textarea>
+
+      <button class="btn" id="btnSimpanCatatan" onclick="simpanCatatan()">Simpan catatan</button>
+      <button class="btn ghost hidden" id="btnBatalCatatan" onclick="batalEditCatatan()">Batal</button>
       <div id="catatanMsg"></div>
     </div>
+
     <div class="card">
       <h2>Riwayat catatan</h2>
+      <div class="filter-bar">
+        <div>
+          <label>Tampilkan jenis</label>
+          <select id="fJenisCatatan" onchange="muatCatatan()">
+            <option value="">Semua jenis</option>
+            <option value="jurnal">Jurnal Sikap</option>
+            <option value="konseling">Konseling</option>
+            <option value="mutasi">Mutasi Siswa</option>
+          </select>
+        </div>
+        <div>
+          <label>Siswa</label>
+          <select id="fSiswaCatatan" onchange="muatCatatan()"><option value="">Semua siswa</option></select>
+        </div>
+      </div>
       <div id="tblCatatan"></div>
     </div>
   </section>
@@ -556,6 +649,15 @@ window.masuk = async () => {
     pesan("loginMsg","Email atau kata sandi salah. Coba lagi.",false);
   }
 };
+window.lihatPass = () => {
+  const i = $("lPass"), b = $("btnLihatPass");
+  const lihat = i.type === "password";
+  i.type = lihat ? "text" : "password";
+  b.textContent = lihat ? "Tutup" : "Lihat";
+  b.setAttribute("aria-label", lihat ? "Sembunyikan kata sandi" : "Tampilkan kata sandi");
+  i.focus();
+};
+
 window.keluar = () => signOut(auth);
 
 onAuthStateChanged(auth, async user => {
@@ -563,6 +665,9 @@ onAuthStateChanged(auth, async user => {
     ME = null;
     $("login").classList.remove("hidden");
     $("app").classList.add("hidden");
+    // jangan tinggalkan kata sandi dalam keadaan terlihat
+    $("lPass").value = "";
+    if ($("lPass").type === "text") lihatPass();
     return;
   }
   const snap = await getDoc(doc(db,"pengguna",user.uid));
@@ -604,6 +709,11 @@ function buka(key, btn){
 /* ============ MUAT DATA ============ */
 async function muatSemua(){
   await muatSiswa();
+  // tampilkan keterangan jenis catatan bawaan
+  if ($("ketJenis")){
+    $("ketJenis").textContent = INFO_JENIS.jurnal.ket;
+    $("labelIsi").textContent = INFO_JENIS.jurnal.isi;
+  }
   // isi rentang default: awal sampai akhir bulan berjalan
   if ($("tglDari") && !$("tglDari").value){
     const k = new Date(), y = k.getFullYear(), b = k.getMonth();
@@ -1650,26 +1760,176 @@ async function muatNilai(){
 }
 
 /* ---- CATATAN ---- */
+let JENIS_AKTIF = "jurnal";
+let EDIT_CATATAN = null;
+
+const INFO_JENIS = {
+  jurnal:    {label:"Jurnal Sikap",  ket:"Dokumentasi pelanggaran tata tertib, catatan prestasi, dan perkembangan sikap siswa.", isi:"Uraian kejadian"},
+  konseling: {label:"Konseling",     ket:"Laporan atau notulensi saat melakukan mediasi atau bimbingan khusus dengan siswa dan orang tua.", isi:"Ringkasan pembicaraan"},
+  mutasi:    {label:"Mutasi Siswa",  ket:"Catatan keluar-masuk siswa di kelas ini.", isi:"Keterangan tambahan"}
+};
+
+window.gantiJenis = (jenis, btn) => {
+  JENIS_AKTIF = jenis;
+  document.querySelectorAll("#formCatatan .tab").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  ["jurnal","konseling","mutasi"].forEach(j =>
+    $("isi-"+j).classList.toggle("hidden", j !== jenis));
+  $("ketJenis").textContent = INFO_JENIS[jenis].ket;
+  $("labelIsi").textContent = INFO_JENIS[jenis].isi;
+};
+
+// kumpulkan isian sesuai jenis yang sedang aktif
+function ambilRincian(jenis){
+  if (jenis === "jurnal")
+    return {kategori:$("cKategori").value, tindak:$("cTindak").value.trim()};
+  if (jenis === "konseling")
+    return {layanan:$("cLayanan").value, hadir:$("cHadir").value.trim(), hasil:$("cHasil").value.trim()};
+  return {mutasi:$("cMutasi").value, asalTujuan:$("cAsalTujuan").value.trim()};
+}
+
+// ringkas rincian jadi satu baris untuk kolom tabel
+function ringkasRincian(c){
+  if (c.jenis === "jurnal")
+    return [c.kategori, c.tindak && `Tindak lanjut: ${c.tindak}`].filter(Boolean).join(" — ");
+  if (c.jenis === "konseling")
+    return [c.layanan, c.hadir && `Hadir: ${c.hadir}`, c.hasil && `Hasil: ${c.hasil}`].filter(Boolean).join(" — ");
+  if (c.jenis === "mutasi")
+    return [c.mutasi, c.asalTujuan].filter(Boolean).join(" — ");
+  return "-";
+}
+
 window.simpanCatatan = async () => {
   const sid = $("cSiswa").value, isi = $("cIsi").value.trim();
-  if (!sid || !isi) return pesan("catatanMsg","Pilih siswa dan tulis catatannya.",false);
-  await addDoc(collection(db,"catatan"), {
+  if (!sid) return pesan("catatanMsg","Pilih siswa terlebih dahulu.",false);
+
+  const r = ambilRincian(JENIS_AKTIF);
+  // mutasi cukup dengan jenis dan tujuan; jenis lain wajib ada uraian
+  if (JENIS_AKTIF !== "mutasi" && !isi)
+    return pesan("catatanMsg","Tulis uraiannya terlebih dahulu.",false);
+
+  const tgl = $("cTanggal").value || new Date().toISOString().slice(0,10);
+  const data = {
     siswaId:sid, nama:SISWA.find(s=>s.id===sid)?.nama,
-    isi, olehNama:ME.nama, tanggal:new Date().toLocaleDateString("id-ID")
-  });
-  $("cIsi").value = "";
-  pesan("catatanMsg","Catatan tersimpan.");
+    jenis:JENIS_AKTIF, isi, tgl,
+    tanggal:tgl.split("-").reverse().join("/"),
+    olehNama:ME.nama, ...r
+  };
+
+  try{
+    if (EDIT_CATATAN){
+      await setDoc(doc(db,"catatan",EDIT_CATATAN), data, {merge:true});
+      pesan("catatanMsg","Perubahan tersimpan.");
+      batalEditCatatan();
+    }else{
+      await addDoc(collection(db,"catatan"), data);
+      pesan("catatanMsg", INFO_JENIS[JENIS_AKTIF].label + " tersimpan.");
+      bersihkanFormCatatan();
+    }
+  }catch(e){
+    return pesan("catatanMsg","Gagal menyimpan: "+e.message, false);
+  }
   await muatCatatan();
 };
 
-async function muatCatatan(){
-  const snap = await getDocs(collection(db,"catatan"));
-  const list = snap.docs.map(d => d.data());
-  $("tblCatatan").innerHTML = list.length ? `<table>
-    <tr><th>Tanggal</th><th>Nama</th><th>Catatan</th><th>Oleh</th></tr>
-    ${list.map(c=>`<tr><td>${c.tanggal}</td><td>${c.nama}</td><td>${c.isi}</td><td>${c.olehNama||'-'}</td></tr>`).join("")}</table>`
-    : `<p class="empty">Belum ada catatan.</p>`;
+function bersihkanFormCatatan(){
+  ["cIsi","cTindak","cHadir","cHasil","cAsalTujuan"].forEach(i => $(i).value = "");
 }
+
+window.editCatatan = id => {
+  const c = CATATAN.find(x => x.id === id);
+  if (!c) return;
+  EDIT_CATATAN = id;
+
+  const tombol = [...document.querySelectorAll("#formCatatan .tab")]
+    .find(b => b.textContent.trim() === INFO_JENIS[c.jenis || "jurnal"].label);
+  if (tombol) gantiJenis(c.jenis || "jurnal", tombol);
+
+  $("cSiswa").value  = c.siswaId || "";
+  $("cTanggal").value = c.tgl || "";
+  $("cIsi").value    = c.isi || "";
+  if (c.jenis === "jurnal"){
+    $("cKategori").value = c.kategori || "Pelanggaran tata tertib";
+    $("cTindak").value   = c.tindak || "";
+  }else if (c.jenis === "konseling"){
+    $("cLayanan").value = c.layanan || "Bimbingan pribadi";
+    $("cHadir").value   = c.hadir || "";
+    $("cHasil").value   = c.hasil || "";
+  }else if (c.jenis === "mutasi"){
+    $("cMutasi").value     = c.mutasi || "Masuk (siswa baru)";
+    $("cAsalTujuan").value = c.asalTujuan || "";
+  }
+
+  $("judulFormCatatan").textContent = "Edit catatan: " + (c.nama || "");
+  $("btnSimpanCatatan").textContent = "Simpan perubahan";
+  $("btnBatalCatatan").classList.remove("hidden");
+  $("formCatatan").scrollIntoView({behavior:"smooth", block:"start"});
+};
+
+window.batalEditCatatan = () => {
+  EDIT_CATATAN = null;
+  bersihkanFormCatatan();
+  $("cTanggal").value = "";
+  $("judulFormCatatan").textContent = "Catatan siswa";
+  $("btnSimpanCatatan").textContent = "Simpan catatan";
+  $("btnBatalCatatan").classList.add("hidden");
+};
+
+window.hapusCatatan = async id => {
+  if (!confirm("Hapus catatan ini?")) return;
+  await deleteDoc(doc(db,"catatan",id));
+  if (EDIT_CATATAN === id) batalEditCatatan();
+  await muatCatatan();
+};
+
+let CATATAN = [];
+
+window.muatCatatan = async () => {
+  const snap = await getDocs(collection(db,"catatan"));
+  CATATAN = snap.docs.map(d => ({id:d.id, ...d.data()}));
+  // terbaru di atas; catatan lama tanpa tgl diletakkan di bawah
+  CATATAN.sort((a,b) => (b.tgl || "").localeCompare(a.tgl || ""));
+
+  if ($("fSiswaCatatan")){
+    const pilih = $("fSiswaCatatan").value;
+    $("fSiswaCatatan").innerHTML = `<option value="">Semua siswa</option>` +
+      SISWA.map(s => `<option value="${s.id}">${s.nama}</option>`).join("");
+    if (pilih && SISWA.some(s => s.id === pilih)) $("fSiswaCatatan").value = pilih;
+  }
+
+  const fJ = $("fJenisCatatan") ? $("fJenisCatatan").value : "";
+  const fS = $("fSiswaCatatan") ? $("fSiswaCatatan").value : "";
+  const list = CATATAN.filter(c =>
+    (!fJ || (c.jenis || "jurnal") === fJ) && (!fS || c.siswaId === fS));
+
+  const aksi = bisaEdit();
+  $("tblCatatan").innerHTML = list.length ? `
+    <div class="gulir">
+      <table class="matriks tbl-catatan">
+        <thead><tr>
+          <th class="kiri s-nama">Nama</th>
+          <th>Tanggal</th><th>Jenis</th><th>Rincian</th><th>Uraian</th><th>Oleh</th>
+          ${aksi ? '<th class="kanan s-aksi">Aksi</th>' : ''}
+        </tr></thead>
+        <tbody>
+          ${list.map(c => `<tr>
+            <td class="kiri s-nama" title="${c.nama||''}">${c.nama || '-'}</td>
+            <td>${c.tanggal || '-'}</td>
+            <td><span class="pill j-${c.jenis||'jurnal'}">${INFO_JENIS[c.jenis||'jurnal'].label}</span></td>
+            <td class="almt">${ringkasRincian(c)}</td>
+            <td class="almt">${c.isi || '-'}</td>
+            <td>${c.olehNama || '-'}</td>
+            ${aksi ? `<td class="kanan s-aksi">
+              <button class="mini ubah" onclick="editCatatan('${c.id}')">Edit</button>
+              <button class="mini" onclick="hapusCatatan('${c.id}')">Hapus</button>
+            </td>` : ''}
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint" style="margin-top:12px">${list.length} catatan${(fJ||fS) ? " sesuai filter" : ""}.</p>`
+    : `<p class="empty">${CATATAN.length ? "Tidak ada catatan sesuai filter." : "Belum ada catatan."}</p>`;
+};
 
 /* ---- PENGGUNA (admin) ---- */
 window.buatPengguna = async () => {
