@@ -159,6 +159,17 @@ th.kanan-grup{position:sticky;right:0;z-index:4;width:168px;
 .s-kosong{color:#c9c4b6}
 .nis{color:var(--muted);font-size:11px;font-weight:400}
 tr.jml td{border-top:2px solid var(--line);background:var(--accent-soft)}
+
+/* --- tabel siswa: kolom Nama terkunci kiri, Aksi terkunci kanan --- */
+table.tbl-siswa td,table.tbl-siswa th{text-align:left;padding:9px 12px}
+table.tbl-siswa th{font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.s-nama{left:0;min-width:150px;max-width:190px;font-weight:600;
+  box-shadow:1px 0 0 var(--line), 6px 0 8px -6px rgba(0,0,0,.13)}
+.s-aksi{right:0;text-align:right !important;white-space:nowrap;
+  box-shadow:-1px 0 0 var(--line), -6px 0 8px -6px rgba(0,0,0,.13)}
+.s-aksi .mini + .mini{margin-left:5px}
+.mini.ubah{color:var(--accent)}
+.almt{max-width:220px;white-space:normal;min-width:150px}
 @media(max-width:640px){
   .filter-bar > div{min-width:100%}
   .filter-aksi{min-width:100% !important}
@@ -219,16 +230,17 @@ tr.jml td{border-top:2px solid var(--line);background:var(--accent-soft)}
     </div>
 
     <div class="card" id="formSiswa">
-      <h2>Tambah siswa</h2>
+      <h2 id="judulFormSiswa">Tambah siswa</h2>
       <div class="row">
-        <div><label>NIS</label><input id="sNis"></div>
         <div><label>Nama lengkap</label><input id="sNama"></div>
+        <div><label>NIS</label><input id="sNis"></div>
         <div><label>Jenis kelamin</label><select id="sJk"><option>Laki-laki</option><option>Perempuan</option></select></div>
-        <div><label>Kelas</label><input id="sKelas" placeholder="Contoh: 5A"></div>
         <div><label>Nama wali</label><input id="sWali"></div>
+        <div><label>Alamat</label><input id="sAlamat" placeholder="Contoh: Jl. Merdeka No. 12, Benteng"></div>
         <div><label>Nomor HP wali</label><input id="sHp"></div>
       </div>
-      <button class="btn" onclick="simpanSiswa()">Simpan siswa</button>
+      <button class="btn" id="btnSimpanSiswa" onclick="simpanSiswa()">Simpan siswa</button>
+      <button class="btn ghost hidden" id="btnBatalEdit" onclick="batalEdit()">Batal</button>
       <div id="siswaMsg"></div>
     </div>
     <div class="card">
@@ -395,9 +407,22 @@ tr.jml td{border-top:2px solid var(--line);background:var(--accent-soft)}
           <option value="admin">Admin / wali kelas</option>
           <option value="kepsek">Kepala sekolah</option>
         </select></div>
+        <div><label>Kelas yang diampu</label><input id="uKelas" placeholder="Contoh: XI NKN 2"></div>
       </div>
+      <p class="hint" style="margin:10px 0 0">Kelas yang diampu dipakai sebagai kelas seluruh siswa, pada kop laporan, dan pada tanda tangan. Kosongkan untuk akun kepala sekolah.</p>
       <button class="btn" onclick="buatPengguna()">Buat akun</button>
       <div id="userMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Akun saya</h2>
+      <p class="hint">Perbarui data akun yang sedang masuk. Akun lama yang dibuat sebelum ada isian NIP dan kelas bisa dilengkapi di sini.</p>
+      <div class="row">
+        <div><label>Nama</label><input id="pAkunNama"></div>
+        <div><label>NIP</label><input id="pAkunNip"></div>
+        <div><label>Kelas yang diampu</label><input id="pAkunKelas" placeholder="Contoh: XI NKN 2"></div>
+      </div>
+      <button class="btn" onclick="simpanAkun()">Simpan akun saya</button>
+      <div id="akunMsg"></div>
     </div>
     <div class="card">
       <h2>Daftar pengguna</h2>
@@ -408,15 +433,14 @@ tr.jml td{border-top:2px solid var(--line);background:var(--accent-soft)}
   <!-- PENGATURAN (admin saja) -->
   <section class="page" id="p-pengaturan">
     <div class="card">
-      <h2>Identitas kelas &amp; sekolah</h2>
-      <p class="hint">Dipakai pada kop dan tanda tangan laporan cetak, serta pada file Excel yang diunduh.</p>
+      <h2>Identitas sekolah</h2>
+      <p class="hint">Dipakai pada kop dan tanda tangan laporan cetak, serta pada file Excel yang diunduh. Nama kelas diatur di menu Pengguna.</p>
       <div class="row">
-        <div><label>Nama kelas</label><input id="pKelas" placeholder="Contoh: XI NKN 2"></div>
         <div><label>Kota / kabupaten</label><input id="pKota" placeholder="Contoh: Kep. Selayar"></div>
         <div><label>Nama sekolah</label><input id="pSekolah" placeholder="Contoh: SMKN 1 Selayar"></div>
         <div><label>Tahun pelajaran</label><input id="pTahun" placeholder="Contoh: 2026/2027"></div>
       </div>
-      <button class="btn" onclick="simpanPengaturan()">Simpan pengaturan</button>
+      <button class="btn" onclick="simpanPengaturan('setMsg')">Simpan pengaturan</button>
       <div id="setMsg"></div>
     </div>
 
@@ -427,19 +451,8 @@ tr.jml td{border-top:2px solid var(--line);background:var(--accent-soft)}
         <div><label>Nama wali kelas</label><input id="pWaliNama" placeholder="Kosongkan untuk memakai nama akun"></div>
         <div><label>NIP wali kelas</label><input id="pWaliNip" placeholder="Kosongkan untuk memakai NIP akun"></div>
       </div>
-      <button class="btn" onclick="simpanPengaturan()">Simpan pengaturan</button>
+      <button class="btn" onclick="simpanPengaturan('setMsg2')">Simpan pengaturan</button>
       <div id="setMsg2"></div>
-    </div>
-
-    <div class="card">
-      <h2>Akun saya</h2>
-      <p class="hint">Perbarui NIP akun yang sedang masuk. Akun lama yang dibuat sebelum ada isian NIP bisa dilengkapi di sini.</p>
-      <div class="row">
-        <div><label>Nama</label><input id="pAkunNama"></div>
-        <div><label>NIP</label><input id="pAkunNip"></div>
-      </div>
-      <button class="btn" onclick="simpanAkun()">Simpan akun saya</button>
-      <div id="akunMsg"></div>
     </div>
   </section>
 </main>
@@ -563,18 +576,60 @@ async function muatSemua(){
 }
 
 /* ---- SISWA ---- */
+let EDIT_ID = null;   // null = mode tambah, berisi id = mode edit
+
 window.simpanSiswa = async () => {
   const d = {
     nis:$("sNis").value.trim(), nama:$("sNama").value.trim(),
-    jk:$("sJk").value, kelas:$("sKelas").value.trim(),
-    wali:$("sWali").value.trim(), hp:$("sHp").value.trim(),
-    dibuat: serverTimestamp()
+    jk:$("sJk").value,
+    wali:$("sWali").value.trim(), alamat:$("sAlamat").value.trim(),
+    hp:$("sHp").value.trim()
   };
   if (!d.nis || !d.nama) return pesan("siswaMsg","NIS dan nama wajib diisi.",false);
-  await addDoc(collection(db,"siswa"), d);
-  ["sNis","sNama","sKelas","sWali","sHp"].forEach(i => $(i).value = "");
-  pesan("siswaMsg","Siswa tersimpan.");
+
+  // NIS harus tetap unik, kecuali terhadap dirinya sendiri saat mengedit
+  const bentrok = SISWA.find(s => String(s.nis).trim() === d.nis && s.id !== EDIT_ID);
+  if (bentrok) return pesan("siswaMsg",`NIS ${d.nis} sudah dipakai oleh ${bentrok.nama}.`,false);
+
+  try{
+    if (EDIT_ID){
+      await setDoc(doc(db,"siswa",EDIT_ID), d, {merge:true});
+      pesan("siswaMsg","Perubahan tersimpan.");
+      batalEdit();
+    }else{
+      await addDoc(collection(db,"siswa"), {...d, dibuat: serverTimestamp()});
+      pesan("siswaMsg","Siswa tersimpan.");
+      ["sNis","sNama","sWali","sAlamat","sHp"].forEach(i => $(i).value = "");
+    }
+  }catch(e){
+    return pesan("siswaMsg","Gagal menyimpan: "+e.message, false);
+  }
   await muatSiswa(); await hitungStatistik();
+};
+
+window.editSiswa = id => {
+  const s = SISWA.find(x => x.id === id);
+  if (!s) return;
+  EDIT_ID = id;
+  $("sNama").value   = s.nama   || "";
+  $("sNis").value    = s.nis    || "";
+  $("sJk").value     = s.jk     || "Laki-laki";
+  $("sWali").value   = s.wali   || "";
+  $("sAlamat").value = s.alamat || "";
+  $("sHp").value     = s.hp     || "";
+  $("judulFormSiswa").textContent = "Edit siswa: " + s.nama;
+  $("btnSimpanSiswa").textContent = "Simpan perubahan";
+  $("btnBatalEdit").classList.remove("hidden");
+  $("formSiswa").scrollIntoView({behavior:"smooth", block:"start"});
+};
+
+window.batalEdit = () => {
+  EDIT_ID = null;
+  ["sNis","sNama","sWali","sAlamat","sHp"].forEach(i => $(i).value = "");
+  $("sJk").value = "Laki-laki";
+  $("judulFormSiswa").textContent = "Tambah siswa";
+  $("btnSimpanSiswa").textContent = "Simpan siswa";
+  $("btnBatalEdit").classList.add("hidden");
 };
 
 async function muatSiswa(){
@@ -582,13 +637,34 @@ async function muatSiswa(){
   SISWA = snap.docs.map(d => ({id:d.id, ...d.data()}));
   SISWA.sort((a,b) => a.nama.localeCompare(b.nama));
 
-  $("tblSiswa").innerHTML = SISWA.length ? `<table>
-    <tr><th>NIS</th><th>Nama</th><th>L/P</th><th>Kelas</th><th>Wali</th><th>HP</th>${bisaEdit()?'<th></th>':''}</tr>
-    ${SISWA.map(s=>`<tr>
-      <td>${s.nis}</td><td>${s.nama}</td><td>${s.jk?.[0]||''}</td>
-      <td>${s.kelas||'-'}</td><td>${s.wali||'-'}</td><td>${s.hp||'-'}</td>
-      ${bisaEdit()?`<td><button class="mini" onclick="hapusSiswa('${s.id}')">Hapus</button></td>`:''}
-    </tr>`).join("")}</table>` : `<p class="empty">Belum ada siswa terdaftar.</p>`;
+  const aksi = bisaEdit();
+  $("tblSiswa").innerHTML = SISWA.length ? `
+    <div class="gulir">
+      <table class="matriks tbl-siswa">
+        <thead><tr>
+          <th class="kiri s-nama">Nama</th>
+          <th>NIS</th><th>L/P</th><th>Kelas</th><th>Wali</th><th>Alamat</th><th>HP</th>
+          ${aksi ? '<th class="kanan s-aksi">Aksi</th>' : ''}
+        </tr></thead>
+        <tbody>
+          ${SISWA.map(s=>`<tr>
+            <td class="kiri s-nama">${s.nama}</td>
+            <td>${s.nis}</td>
+            <td>${s.jk?.[0]||'-'}</td>
+            <td>${kelasAktif()}</td>
+            <td>${s.wali||'-'}</td>
+            <td class="almt">${s.alamat||'-'}</td>
+            <td>${s.hp||'-'}</td>
+            ${aksi ? `<td class="kanan s-aksi">
+              <button class="mini ubah" onclick="editSiswa('${s.id}')">Edit</button>
+              <button class="mini" onclick="hapusSiswa('${s.id}')">Hapus</button>
+            </td>` : ''}
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint" style="margin-top:12px">${SISWA.length} siswa terdaftar.</p>`
+    : `<p class="empty">Belum ada siswa terdaftar.</p>`;
 
   const opsi = SISWA.map(s => `<option value="${s.id}">${s.nama}</option>`).join("");
   $("nSiswa").innerHTML = opsi;
@@ -623,22 +699,24 @@ async function muatSiswa(){
 window.hapusSiswa = async id => {
   if (!confirm("Hapus siswa ini beserta datanya dari daftar?")) return;
   await deleteDoc(doc(db,"siswa",id));
+  if (EDIT_ID === id) batalEdit();   // jangan biarkan form edit menggantung
   await muatSiswa(); await hitungStatistik();
 };
 
 /* ---- UNGGAH MASSAL DARI EXCEL ---- */
-const KOLOM = ["NIS","Nama Lengkap","Jenis Kelamin","Kelas","Nama Wali","Nomor HP Wali"];
+const KOLOM = ["NIS","Nama Lengkap","Jenis Kelamin","Nama Wali","Nomor HP Wali"];
+const KOL_ALAMAT = "Alamat";   // opsional: dibaca kalau ada di file, tidak wajib
 let ANTRE = [];   // baris valid yang siap disimpan
 
 window.unduhTemplate = () => {
   const wb = XLSX.utils.book_new();
 
   const data = [
-    KOLOM,
-    ["1001","Ahmad Fauzi","Laki-laki","5A","Siti Aminah","081234567890"]
+    [...KOLOM, KOL_ALAMAT],
+    ["1001","Ahmad Fauzi","Laki-laki","Siti Aminah","081234567890","Jl. Merdeka No. 12"]
   ];
   const ws = XLSX.utils.aoa_to_sheet(data);
-  ws["!cols"] = [{wch:14},{wch:30},{wch:16},{wch:10},{wch:28},{wch:18}];
+  ws["!cols"] = [{wch:14},{wch:30},{wch:16},{wch:28},{wch:18},{wch:34}];
   // paksa seluruh kolom jadi teks supaya nol di depan nomor HP tidak hilang
   for (let r = 1; r <= 500; r++)
     for (let c = 0; c < 6; c++) {
@@ -658,8 +736,8 @@ window.unduhTemplate = () => {
     ["NIS","Wajib. Harus unik, tidak boleh sama dengan siswa lain."],
     ["Nama Lengkap","Wajib."],
     ["Jenis Kelamin","Laki-laki atau Perempuan. Kosong = Laki-laki."],
-    ["Kelas","Contoh: 5A. Boleh kosong."],
     ["Nama Wali","Boleh kosong."],
+    ["Alamat","Alamat tempat tinggal siswa. Boleh kosong."],
     ["Nomor HP Wali","Boleh kosong."],
     [""],
     ["Jangan ubah","Nama kolom di baris 1 dan nama sheet 'Data Siswa'."],
@@ -718,9 +796,9 @@ window.bacaExcel = input => {
 
       const row = {
         baris: i + 2, nis, nama, jk,
-        kelas: String(b[KOLOM[3]] ?? "").trim(),
-        wali:  String(b[KOLOM[4]] ?? "").trim(),
-        hp:    String(b[KOLOM[5]] ?? "").trim(),
+        wali:   String(b[KOLOM[3]] ?? "").trim(),
+        hp:     String(b[KOLOM[4]] ?? "").trim(),
+        alamat: String(b[KOL_ALAMAT] ?? "").trim(),
         tolak
       };
       if (!tolak) nisDiFile.add(nis);
@@ -744,7 +822,7 @@ function tampilPratinjau(hasil){
       <tr><th>Baris</th><th>NIS</th><th>Nama</th><th>L/P</th><th>Kelas</th><th>Wali</th><th>HP</th><th>Status</th></tr>
       ${hasil.map(r=>`<tr class="${r.tolak?'tolak':''}">
         <td>${r.baris}</td><td>${r.nis||'-'}</td><td>${r.nama||'-'}</td><td>${r.jk[0]}</td>
-        <td>${r.kelas||'-'}</td><td>${r.wali||'-'}</td><td>${r.hp||'-'}</td>
+        <td>${kelasAktif()}</td><td>${r.wali||'-'}</td><td>${r.hp||'-'}</td>
         <td class="alasan">${r.tolak || 'Siap disimpan'}</td></tr>`).join("")}
     </table></div>
     <p class="hint" style="margin-top:12px">
@@ -764,8 +842,8 @@ window.simpanMassal = async () => {
   for (const r of ANTRE){
     try{
       await addDoc(collection(db,"siswa"), {
-        nis:r.nis, nama:r.nama, jk:r.jk, kelas:r.kelas,
-        wali:r.wali, hp:r.hp, dibuat:serverTimestamp()
+        nis:r.nis, nama:r.nama, jk:r.jk, wali:r.wali, alamat:r.alamat || "",
+        hp:r.hp, dibuat:serverTimestamp()
       });
       sukses++;
     }catch(e){ gagal++; }
@@ -1021,7 +1099,7 @@ window.unduhTemplateAbsen = () => {
   const wb = XLSX.utils.book_new();
   const aoa = [
     ["Rekap Kehadiran Siswa"],
-    ["Kelas: " + (SISWA[0].kelas || "-"), "Periode: " + periode],
+    ["Kelas: " + kelasAktif(), "Periode: " + periode],
     [],
     ["No","NIS","Nama Siswa", ...tanggal],
     ...SISWA.map((s,i) => [i+1, s.nis, s.nama, ...tanggal.map(()=> "")])
@@ -1222,28 +1300,32 @@ window.simpanRekap = async () => {
 };
 
 /* ================= PENGATURAN ================= */
-let SETTING = {kelas:"", kota:"", sekolah:"", tahun:"", waliNama:"", waliNip:""};
+let SETTING = {kota:"", sekolah:"", tahun:"", waliNama:"", waliNip:""};
+
+// kelas melekat pada akun yang sedang masuk, bukan pada tiap siswa
+function kelasAktif(){ return (ME && ME.kelas) ? ME.kelas : "-"; }
 
 async function muatPengaturan(){
   try{
     const snap = await getDoc(doc(db,"pengaturan","umum"));
     if (snap.exists()) SETTING = {...SETTING, ...snap.data()};
   }catch(e){}
-  if ($("pKelas")){
-    $("pKelas").value    = SETTING.kelas    || "";
+  if ($("pKota")){
     $("pKota").value     = SETTING.kota     || "";
     $("pSekolah").value  = SETTING.sekolah  || "";
     $("pTahun").value    = SETTING.tahun    || "";
     $("pWaliNama").value = SETTING.waliNama || "";
     $("pWaliNip").value  = SETTING.waliNip  || "";
-    $("pAkunNama").value = ME.nama || "";
-    $("pAkunNip").value  = ME.nip  || "";
+  }
+  if ($("pAkunNama")){
+    $("pAkunNama").value  = ME.nama  || "";
+    $("pAkunNip").value   = ME.nip   || "";
+    $("pAkunKelas").value = ME.kelas || "";
   }
 }
 
-window.simpanPengaturan = async () => {
+window.simpanPengaturan = async (kotak = "setMsg") => {
   SETTING = {
-    kelas:    $("pKelas").value.trim(),
     kota:     $("pKota").value.trim(),
     sekolah:  $("pSekolah").value.trim(),
     tahun:    $("pTahun").value.trim(),
@@ -1252,21 +1334,23 @@ window.simpanPengaturan = async () => {
   };
   try{
     await setDoc(doc(db,"pengaturan","umum"), SETTING);
-    pesan("setMsg","Pengaturan tersimpan.");
+    pesan(kotak,"Pengaturan tersimpan.");
   }catch(e){
-    pesan("setMsg","Gagal menyimpan: "+e.message, false);
+    pesan(kotak,"Gagal menyimpan: "+e.message, false);
   }
 };
 
 window.simpanAkun = async () => {
-  const nama = $("pAkunNama").value.trim(), nip = $("pAkunNip").value.trim();
+  const nama = $("pAkunNama").value.trim(), nip = $("pAkunNip").value.trim(),
+        kelas = $("pAkunKelas").value.trim();
   if (!nama) return pesan("akunMsg","Nama tidak boleh kosong.",false);
   try{
-    await setDoc(doc(db,"pengguna",ME.uid), {nama, nip}, {merge:true});
-    ME.nama = nama; ME.nip = nip;
+    await setDoc(doc(db,"pengguna",ME.uid), {nama, nip, kelas}, {merge:true});
+    ME.nama = nama; ME.nip = nip; ME.kelas = kelas;
     $("who").textContent = `${ME.nama} — ${namaRole(ME.role)}`;
     pesan("akunMsg","Data akun tersimpan.");
     await muatUser();
+    await muatSiswa();     // kolom kelas di daftar siswa ikut menyesuaikan
   }catch(e){
     pesan("akunMsg","Gagal menyimpan: "+e.message, false);
   }
@@ -1275,7 +1359,7 @@ window.simpanAkun = async () => {
 // identitas untuk kop dan tanda tangan laporan
 function identitas(){
   return {
-    kelas:   SETTING.kelas || "-",
+    kelas:   kelasAktif(),
     kota:    SETTING.kota  || "",
     sekolah: SETTING.sekolah || "",
     tahun:   SETTING.tahun || "",
@@ -1461,11 +1545,10 @@ window.unduhRekapExcel = () => {
   const {tgl, baris} = dataRinci();
   if (!tgl.length) return pesan("absenMsg","Tidak ada data untuk diunduh pada periode ini.",false);
 
-  const kelas = [...new Set(baris.map(b => b.siswa.kelas).filter(Boolean))].join(", ") || "-";
   const label = tgl.map(t => t.split("-").reverse().join("/"));
   const aoa = [
     ["Rekap Kehadiran Siswa"],
-    ["Kelas: " + kelas, "Periode: " + judulPeriode()],
+    ["Kelas: " + kelasAktif(), "Periode: " + judulPeriode()],
     [],
     ["No","NIS","Nama Siswa", ...label, "H","S","I","A"],
     ...baris.map((b,i) => [i+1, b.siswa.nis, b.siswa.nama,
@@ -1534,7 +1617,8 @@ async function muatCatatan(){
 /* ---- PENGGUNA (admin) ---- */
 window.buatPengguna = async () => {
   const nama=$("uNama").value.trim(), email=$("uEmail").value.trim(),
-        pass=$("uPass").value, role=$("uRole").value, nip=$("uNip").value.trim();
+        pass=$("uPass").value, role=$("uRole").value, nip=$("uNip").value.trim(),
+        kelas=$("uKelas").value.trim();
   if (!nama || !email || pass.length < 6)
     return pesan("userMsg","Lengkapi nama, email, dan kata sandi minimal 6 karakter.",false);
   try{
@@ -1542,9 +1626,9 @@ window.buatPengguna = async () => {
     const app2  = initializeApp(firebaseConfig, "pendaftar");
     const auth2 = initializeAuth(app2, {persistence: browserLocalPersistence});
     const cred  = await createUserWithEmailAndPassword(auth2, email, pass);
-    await setDoc(doc(db,"pengguna",cred.user.uid), {nama, email, role, nip});
+    await setDoc(doc(db,"pengguna",cred.user.uid), {nama, email, role, nip, kelas});
     await signOut(auth2);
-    $("uNama").value = $("uEmail").value = $("uPass").value = $("uNip").value = "";
+    $("uNama").value = $("uEmail").value = $("uPass").value = $("uNip").value = $("uKelas").value = "";
     pesan("userMsg",`Akun ${nama} dibuat sebagai ${namaRole(role)}.`);
     await muatUser();
   }catch(e){
@@ -1555,9 +1639,9 @@ window.buatPengguna = async () => {
 async function muatUser(){
   const snap = await getDocs(collection(db,"pengguna"));
   $("tblUser").innerHTML = `<table>
-    <tr><th>Nama</th><th>NIP</th><th>Email</th><th>Peran</th></tr>
+    <tr><th>Nama</th><th>NIP</th><th>Kelas</th><th>Email</th><th>Peran</th></tr>
     ${snap.docs.map(d=>{const u=d.data();
-      return `<tr><td>${u.nama}</td><td>${u.nip||'-'}</td><td>${u.email}</td><td><span class="pill">${namaRole(u.role)}</span></td></tr>`;
+      return `<tr><td>${u.nama}</td><td>${u.nip||'-'}</td><td>${u.kelas||'-'}</td><td>${u.email}</td><td><span class="pill">${namaRole(u.role)}</span></td></tr>`;
     }).join("")}</table>`;
 }
 
