@@ -7,6 +7,10 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 
+  /* ===== SETTING UPLOAD FOTO (AKMAL) ===== */
+  .foto-sumber { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .foto-sumber .btn { flex: 1; min-width: 150px; }
+
   :root {
     --bg: #f4f6fb;
     --card: #ffffff;
@@ -354,8 +358,8 @@ table.tabel-nilai td.n-input { text-align: center; }
   border-top: 1px solid var(--line); margin-top: 20px;
   overflow-wrap: anywhere; word-break: break-word;
   max-width: 900px; margin-left: auto; margin-right: auto; }
-#loginFooter { border-top: 1px solid var(--line); margin-top: 20px; padding: 16px 8px 0;
-  max-width: none; display: block; color: var(--muted); font-size: 11px;
+#loginFooter { border-top: 1px solid var(--line); margin-top: 20px; padding: 7px 8px 0;
+  max-width: none; display: block; color: var(--muted); font-size: 10px;
   line-height: 1.6; text-align: center; }
 .app-footer b { color: var(--ink); font-weight: 600; }
 /* Absensi per siswa */
@@ -1876,9 +1880,20 @@ async function muatIsiJurnal(){
       // ---- Dokumentasi foto ----
       '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">' +
         '<label>Dokumentasi Kegiatan (foto, opsional)</label>' +
-        '<p class="info-kolom">Bisa langsung dari kamera HP atau pilih dari galeri. ' +
+        '<p class="info-kolom">Ambil foto langsung dari kamera atau pilih dari galeri. ' +
           'Foto besar otomatis dikompres untuk menghemat ruang.</p>' +
-        '<input type="file" id="jFoto" accept="image/*" onchange="pilihFotoJurnal(event)">' +
+        '<div class="foto-sumber">' +
+          '<button type="button" class="btn btn-ghost" style="margin-top:0" ' +
+            'onclick="document.getElementById(\'jFotoKamera\').click()">\uD83D\uDCF7 Ambil dari Kamera</button>' +
+          '<button type="button" class="btn btn-ghost" style="margin-top:0" ' +
+            'onclick="document.getElementById(\'jFotoGaleri\').click()">\uD83D\uDDBC Pilih dari Galeri</button>' +
+        '</div>' +
+        // input kamera: capture memaksa buka kamera
+        '<input type="file" id="jFotoKamera" accept="image/*" capture="environment" ' +
+          'onchange="pilihFotoJurnal(event)" style="display:none">' +
+        // input galeri: tanpa capture, buka galeri/file
+        '<input type="file" id="jFotoGaleri" accept="image/*" ' +
+          'onchange="pilihFotoJurnal(event)" style="display:none">' +
         '<div id="jFotoPreview"></div>' +
       '</div>' +
       '<button class="btn" id="jBtnSimpan" onclick="simpanJurnal()">Simpan Jurnal</button>' +
@@ -1909,7 +1924,8 @@ window.pilihFotoJurnal = async (ev) => {
 };
 window.hapusFotoJurnal = () => {
   _fotoDataUrl = "";
-  if ($("jFoto")) $("jFoto").value = "";
+  if ($("jFotoKamera")) $("jFotoKamera").value = "";
+  if ($("jFotoGaleri")) $("jFotoGaleri").value = "";
   if ($("jFotoPreview")) $("jFotoPreview").innerHTML = "";
 };
 
