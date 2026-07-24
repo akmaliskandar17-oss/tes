@@ -354,7 +354,9 @@ table.tabel-nilai td.n-input { text-align: center; }
   border-top: 1px solid var(--line); margin-top: 20px;
   overflow-wrap: anywhere; word-break: break-word;
   max-width: 900px; margin-left: auto; margin-right: auto; }
-#loginFooter { border-top: none; margin-top: 16px; padding: 12px 8px 0; }
+#loginFooter { border-top: 1px solid var(--line); margin-top: 20px; padding: 16px 8px 0;
+  max-width: none; display: block; color: var(--muted); font-size: 12px;
+  line-height: 1.6; text-align: center; }
 .app-footer b { color: var(--ink); font-weight: 600; }
 /* Absensi per siswa */
 .absen-aksi { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0 6px; }
@@ -436,8 +438,8 @@ th.k-Alpa  { color: var(--red); }
       </div>
       <button class="btn" style="width:100%" onclick="masuk()">Masuk</button>
       <div id="loginMsg"></div>
+      <div class="app-footer" id="loginFooter"></div>
     </div>
-    <div class="app-footer" id="loginFooter"></div>
   </div>
 </div>
 
@@ -555,17 +557,21 @@ function tekstFooter(info){
 async function isiFooter(elId){
   const el = $(elId);
   if (!el) return;
-  // Tampilkan segera dengan info yang ada (default bila belum termuat),
-  // supaya footer tidak pernah kosong meski Firestore lambat/gagal.
-  const infoAwal = _infoApp || { versi: "1.0", pembuat: "Administrator Sekolah", namaSekolah: "" };
-  el.innerHTML = tekstFooter(infoAwal);
-  // Lalu coba muat data terbaru; kalau berhasil, perbarui.
+  // Bila info sudah pernah dimuat, langsung pakai (tanpa kedip).
+  if (_infoApp) { el.innerHTML = tekstFooter(_infoApp); return; }
+  // Belum ada data: biarkan kosong dulu, jangan tampilkan default,
+  // supaya tidak muncul "1.0" sekejap sebelum data asli termuat.
+  el.innerHTML = "";
   try {
     const info = await ambilInfoApp();
     el.innerHTML = tekstFooter(info);
-  } catch (e) { /* biarkan tampilan default */ }
+  } catch (e) {
+    // Hanya bila gagal total, tampilkan default sebagai cadangan.
+    el.innerHTML = tekstFooter({ versi: "1.0", pembuat: "Administrator Sekolah", namaSekolah: "" });
+  }
 }
 /* Isi footer login segera saat halaman dimuat */
+window.addEventListener("DOMContentLoaded", () => isiFooter("loginFooter"));
 isiFooter("loginFooter");
 
 const MENU = {
